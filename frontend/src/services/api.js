@@ -1,0 +1,226 @@
+// src/services/api.js
+
+// Configuración profesional: usa variable de entorno en producción, 
+// o localhost:3000 si estás en desarrollo local.
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+
+export const api = {
+    auth: {
+        requestAccess: async (param) => {
+            const correoVal = param?.correo || param?.email || (typeof param === 'string' ? param : '');
+            try {
+                const res = await fetch(`${BASE_URL}/auth/request`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: correoVal, correo: correoVal })
+                });
+                
+                if (!res.ok) return { success: false, msg: 'Ruta no encontrada en el backend', data: {}, user: {} };
+                return await res.json();
+            } catch (e) {
+                return { success: false, msg: e.message, data: {}, user: {} };
+            }
+        },
+        login: async (param1, param2) => {
+            const correoVal = param1?.correo || param1?.email || (typeof param1 === 'string' ? param1 : '');
+            const tokenVal = param2 || param1?.token || '';
+            try {
+                const res = await fetch(`${BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: correoVal, correo: correoVal, token: tokenVal })
+                });
+                
+                if (!res.ok) return { success: false, msg: 'Ruta no encontrada en el backend', data: {}, user: {} };
+                return await res.json();
+            } catch (e) {
+                return { success: false, msg: e.message, data: {}, user: {} };
+            }
+        }
+    },
+
+    admin: {
+        // ====================================================================
+        // GESTIÓN DE PERIODOS
+        // ====================================================================
+        getPeriodos: async () => {
+            const res = await fetch(`${BASE_URL}/admin/periodos`);
+            return await res.json();
+        },
+        getPeriodoById: async (id) => {
+            const res = await fetch(`${BASE_URL}/admin/periodos/${id}`);
+            return await res.json();
+        },
+        guardarPeriodo: async (payloadMasivo) => {
+            const res = await fetch(`${BASE_URL}/admin/periodos`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payloadMasivo)
+            });
+            return await res.json();
+        },
+        actualizarPeriodo: async (id, payloadPlano) => {
+            const res = await fetch(`${BASE_URL}/admin/periodos/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ payload: payloadPlano })
+            });
+            return await res.json();
+        },
+        getBandejaReportes: async (idPeriodo) => {
+            const res = await fetch(`${BASE_URL}/admin/bandeja/${idPeriodo}`);
+            return await res.json();
+        },
+
+        // ====================================================================
+        // GESTIÓN DE PERSONAL ASOCIADO AL PERIODO
+        // ====================================================================
+        getEmpleadosByPeriodo: async (idPeriodo) => {
+            const res = await fetch(`${BASE_URL}/admin/periodos/${idPeriodo}/empleados`);
+            return await res.json();
+        },
+        eliminarPersonalPeriodo: async (idPeriodo) => {
+            const res = await fetch(`${BASE_URL}/admin/periodos/${idPeriodo}/empleados`, {
+                method: 'DELETE'
+            });
+            return await res.json();
+        },
+        agregarEmpleadoManual: async (payloadPlano) => {
+            const res = await fetch(`${BASE_URL}/admin/empleados-manual`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ payload: payloadPlano })
+            });
+            return await res.json();
+        },
+        eliminarEmpleadoManual: async (idPeriodo, codigoEmpleado) => {
+            const res = await fetch(`${BASE_URL}/admin/periodos/${idPeriodo}/empleados/${codigoEmpleado}`, {
+                method: 'DELETE'
+            });
+            return await res.json();
+        },
+
+        // ====================================================================
+        // GESTIÓN DE USUARIOS
+        // ====================================================================
+        getUsuarios: async () => {
+            const res = await fetch(`${BASE_URL}/admin/usuarios`);
+            return await res.json();
+        },
+        getUsuarioById: async (codigo) => {
+            const res = await fetch(`${BASE_URL}/admin/usuarios/${codigo}`);
+            return await res.json();
+        },
+        guardarUsuario: async (payloadWrapper) => {
+            const res = await fetch(`${BASE_URL}/admin/usuarios`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payloadWrapper)
+            });
+            return await res.json();
+        },
+        actualizarUsuario: async (codigo, payloadWrapper) => {
+            const res = await fetch(`${BASE_URL}/admin/usuarios/${codigo}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payloadWrapper)
+            });
+            return await res.json();
+        },
+
+        // ====================================================================
+        // TIEMPO DE GRACIA / EXCEPCIONES
+        // ====================================================================
+        getExcepciones: async () => {
+            const res = await fetch(`${BASE_URL}/admin/excepciones`);
+            return await res.json();
+        },
+        getExcepcionById: async (id) => {
+            const res = await fetch(`${BASE_URL}/admin/excepciones/${id}`);
+            return await res.json();
+        },
+        guardarExcepcion: async (payloadPlano) => {
+            const res = await fetch(`${BASE_URL}/admin/excepciones`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payloadPlano)
+            });
+            return await res.json();
+        },
+        actualizarExcepcion: async (id, payloadPlano) => {
+            const res = await fetch(`${BASE_URL}/admin/excepciones/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payloadPlano)
+            });
+            return await res.json();
+        }
+    },
+
+    reportante: {
+        getInicial: async () => {
+            const res = await fetch(`${BASE_URL}/reportante/inicial`);
+            return await res.json();
+        },
+        getMisReportes: async (idPeriodo, codigoUsuario) => {
+            const res = await fetch(`${BASE_URL}/reportante/mis-reportes/${idPeriodo}/${codigoUsuario}`);
+            return await res.json();
+        },
+        getReporteById: async (idReporte) => {
+            const res = await fetch(`${BASE_URL}/reportante/reporte/${idReporte}`);
+            return await res.json();
+        },
+        verificarEmpleados: async (codigos, idPeriodo) => {
+            const res = await fetch(`${BASE_URL}/reportante/verificar-empleados`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ codigos, id_periodo: idPeriodo })
+            });
+            return await res.json();
+        },
+        getAutorizadorByCodigo: async (codigo) => {
+            const res = await fetch(`${BASE_URL}/reportante/autorizador/${codigo}`);
+            return await res.json();
+        },
+        uploadArchivo: async (payload) => {
+            const res = await fetch(`${BASE_URL}/reportante/upload`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            return await res.json();
+        },
+        guardarReporte: async (payload) => {
+            const res = await fetch(`${BASE_URL}/reportante/guardar`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            return await res.json();
+        }
+    },
+
+    shared: {
+        actualizarEstadoReporte: async (idReporte, payload) => {
+            const res = await fetch(`${BASE_URL}/shared/reporte/${idReporte}/estado`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            return await res.json();
+        },
+        getExcepcionActiva: async (idPeriodo, codigoUsuario) => {
+            try {
+                const res = await fetch(`${BASE_URL}/reportante/excepcion/${idPeriodo}/${codigoUsuario}`);
+                const json = await res.json();
+                if (json.success && json.excepciones) {
+                    return { data: json.excepciones };
+                }
+                return { data: [] };
+            } catch (error) {
+                console.error("Error de conexión al buscar excepción:", error);
+                return { data: [] };
+            }
+        }
+    }
+};
