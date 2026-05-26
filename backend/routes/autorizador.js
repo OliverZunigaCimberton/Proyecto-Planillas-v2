@@ -48,7 +48,6 @@ router.get('/bandeja/:vista/:periodoId/:codigoUsuario', async (req, res) => {
             .order('id', { ascending: false });
 
         if (vista === 'AUTORIZACIONES') {
-            // ✨ CORRECCIÓN 2: Ocultamos explícitamente los borradores, pero mantenemos los "Denegados"
             query = query.eq('codigo_autorizador', codigoUsuario)
                          .neq('codigo_usuario', codigoUsuario)
                          .neq('estado', 'Guardado en borrador')
@@ -129,12 +128,71 @@ router.put('/estado/:id', async (req, res) => {
         const payload = { estado };
         if (codigo_autorizador) payload.codigo_autorizador = codigo_autorizador;
 
-        const { error } = await supabase.from('reportes_enviados')
+        // Recuperamos el reporte actualizado directamente de la BD
+        const { data: updatedRep, error } = await supabase.from('reportes_enviados')
             .update(payload)
-            .eq('id', req.params.id);
+            .eq('id', req.params.id)
+            .select()
+            .single();
             
         if (error) throw error;
-        res.json({ success: true, mensaje: `Reporte actualizado a: ${estado}` });
+
+        // ✨ GENERACIÓN DE NOTIFICACIONES (Firma del Autorizador)
+        let notificaciones = [];
+        const { data: usrRep } = await supabase.from('usuarios').select('*').eq('codigo', updatedRep.codigo_usuario).single();
+
+        if (estado === 'Autorizado y Enviado a Contabilidad') {
+            if (usrRep) {
+                notificaciones.push({
+                    para_email: usrRep.email,
+                    para_nombre: usrRep.nombre,
+                    codigo_reporte: updatedRep.id,
+                    marca: updatedRep.marca,
+                    reportante_nombre: usrRep.nombre,
+                    monto_total: updatedRep.monto_total,
+                    estado_actual: 'Autorizado y Enviado a Contabilidad',
+                    asunto_dinamico: `Actualización de Reporte N° ${updatedRep.id} - ${updatedRep.marca}`,
+                    introduccion_dinamica: 'Te notificamos que tu Reporte de Variables ha cambiado de estado.',
+                    detalles_adicionales: 'Tu reporte ha sido aprobado por tu jefatura y fue remitido a revisión contable.'
+                });
+            }
+
+            // Enviar alerta a la bandeja del Contador
+            const { data: contadores } = await supabase.from('usuarios').select('*').ilike('rol', 'CONTADOR');
+            if (contadores && contadores.length > 0) {
+                contadores.forEach(cont => {
+                    notificaciones.push({
+                        para_email: cont.email,
+                        para_nombre: cont.nombre,
+                        codigo_reporte: updatedRep.id,
+                        marca: updatedRep.marca,
+                        reportante_nombre: usrRep ? usrRep.nombre : 'Reportante',
+                        monto_total: updatedRep.monto_total,
+                        estado_actual: 'Pendiente de Validación',
+                        asunto_dinamico: `Acción Pendiente - Notificación de Reporte N° ${updatedRep.id}`,
+                        introduccion_dinamica: 'Se ha registrado una actividad en el Sistema de Gestión Humana que requiere tu atención o conocimiento.',
+                        detalles_adicionales: 'Un nuevo Reporte de Variables aprobado por jefatura ha ingresado a tu bandeja de Contabilidad y se encuentra pendiente de validación.'
+                    });
+                });
+            }
+        } else if (estado === 'Denegado') {
+            if (usrRep) {
+                notificaciones.push({
+                    para_email: usrRep.email,
+                    para_nombre: usrRep.nombre,
+                    codigo_reporte: updatedRep.id,
+                    marca: updatedRep.marca,
+                    reportante_nombre: usrRep.nombre,
+                    monto_total: updatedRep.monto_total,
+                    estado_actual: 'Denegado',
+                    asunto_dinamico: `Actualización de Reporte N° ${updatedRep.id} - ${updatedRep.marca}`,
+                    introduccion_dinamica: 'Te notificamos que tu Reporte de Variables ha cambiado de estado.',
+                    detalles_adicionales: 'Tu reporte ha sido denegado por el autorizador. Por favor ingresa al SGP para realizar las correcciones necesarias.'
+                });
+            }
+        }
+
+        res.json({ success: true, mensaje: `Reporte actualizado a: ${estado}`, notificaciones });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -196,11 +254,10 @@ router.post('/guardar', async (req, res) => {
         const { reporte, lineas, idReporteEdicion } = req.body;
         let idReporteGenerado = idReporteEdicion;
 
-        // ✨ INTERCEPTOR DE FECHA: Traduce de DD/MM/YYYY a YYYY-MM-DD
         if (reporte && reporte.fecha) {
             const partes = reporte.fecha.split('/');
             if (partes.length === 3) {
-                const fechaDB = `${partes[2]}-${partes[1]}-${partes[0]}`; // YYYY-MM-DD
+                const fechaDB = `${partes[2]}-${partes[1]}-${partes[0]}`; 
                 
                 if (!idReporteEdicion) {
                     reporte.fecha_creacion = fechaDB;
@@ -210,7 +267,6 @@ router.post('/guardar', async (req, res) => {
                     reporte.fecha_envio = fechaDB;
                 }
             }
-            // Elimina el campo visual para evitar que Supabase lo rechace
             delete reporte.fecha; 
         }
 
@@ -232,7 +288,33 @@ router.post('/guardar', async (req, res) => {
             if (errLin) throw errLin;
         }
 
-        res.json({ success: true, mensaje: "Guardado correctamente", id_reporte: idReporteGenerado });
+        // ✨ GENERACIÓN DE NOTIFICACIÓN: Si el autorizador-reportante envía
+        let notificaciones = [];
+        if (reporte && reporte.estado === 'Pendiente de Autorización' && reporte.codigo_autorizador) {
+            const { data: users } = await supabase.from('usuarios')
+                .select('codigo, nombre, email')
+                .in('codigo', [reporte.codigo_usuario, reporte.codigo_autorizador].filter(Boolean));
+            
+            const reportanteObj = users?.find(u => u.codigo === reporte.codigo_usuario);
+            const autorizadorObj = users?.find(u => u.codigo === reporte.codigo_autorizador);
+
+            if (reportanteObj && autorizadorObj) {
+                notificaciones.push({
+                    para_email: autorizadorObj.email,
+                    para_nombre: autorizadorObj.nombre,
+                    codigo_reporte: idReporteGenerado,
+                    marca: reporte.marca || 'N/A',
+                    reportante_nombre: reportanteObj.nombre,
+                    monto_total: reporte.monto_total || '0.00',
+                    estado_actual: 'Pendiente de Autorización',
+                    asunto_dinamico: `Acción Pendiente - Notificación de Reporte N° ${idReporteGenerado}`,
+                    introduccion_dinamica: 'Se ha registrado una actividad en el Sistema de Gestión Humana que requiere tu atención o conocimiento.',
+                    detalles_adicionales: 'Tienes un nuevo Reporte de Variables asignado que requiere tu firma de aprobación.'
+                });
+            }
+        }
+
+        res.json({ success: true, mensaje: "Guardado correctamente", id_reporte: idReporteGenerado, notificaciones });
     } catch (error) {
         console.error("Error al guardar reporte:", error);
         res.status(500).json({ error: error.message });

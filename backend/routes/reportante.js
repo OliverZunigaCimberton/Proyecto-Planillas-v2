@@ -182,7 +182,6 @@ router.post('/guardar', async (req, res) => {
                     reporte.fecha_envio = fechaDB;
                 }
             }
-            // Elimina el campo visual para evitar que Supabase lo rechace
             delete reporte.fecha; 
         }
 
@@ -204,7 +203,33 @@ router.post('/guardar', async (req, res) => {
             if (errLin) throw errLin;
         }
 
-        res.json({ success: true, mensaje: "Guardado correctamente", id_reporte: idReporteGenerado });
+        // ✨ GENERACIÓN DE NOTIFICACIÓN: Si se envía a autorización
+        let notificaciones = [];
+        if (reporte && reporte.estado === 'Pendiente de Autorización' && reporte.codigo_autorizador) {
+            const { data: users } = await supabase.from('usuarios')
+                .select('codigo, nombre, email')
+                .in('codigo', [reporte.codigo_usuario, reporte.codigo_autorizador].filter(Boolean));
+            
+            const reportanteObj = users?.find(u => u.codigo === reporte.codigo_usuario);
+            const autorizadorObj = users?.find(u => u.codigo === reporte.codigo_autorizador);
+
+            if (reportanteObj && autorizadorObj) {
+                notificaciones.push({
+                    para_email: autorizadorObj.email,
+                    para_nombre: autorizadorObj.nombre,
+                    codigo_reporte: idReporteGenerado,
+                    marca: reporte.marca || 'N/A',
+                    reportante_nombre: reportanteObj.nombre,
+                    monto_total: reporte.monto_total || '0.00',
+                    estado_actual: 'Pendiente de Autorización',
+                    asunto_dinamico: `Acción Pendiente - Notificación de Reporte N° ${idReporteGenerado}`,
+                    introduccion_dinamica: 'Se ha registrado una actividad en el Sistema de Gestión Humana que requiere tu atención o conocimiento.',
+                    detalles_adicionales: 'Tienes un nuevo Reporte de Variables pendiente que requiere tu revisión y firma de aprobación.'
+                });
+            }
+        }
+
+        res.json({ success: true, mensaje: "Guardado correctamente", id_reporte: idReporteGenerado, notificaciones });
     } catch (error) {
         console.error("Error al guardar reporte:", error);
         res.status(500).json({ error: error.message });
@@ -229,7 +254,6 @@ router.put('/cancelar/:id', async (req, res) => {
     try {
         const { error } = await supabase
             .from('reportes_enviados')
-            // ✨ CORRECCIÓN 1: Desvinculamos al autorizador asignándole 'null'
             .update({ estado: 'Guardado en borrador', codigo_autorizador: null })
             .eq('id', req.params.id);
 

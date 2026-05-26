@@ -2,12 +2,8 @@ const express = require('express');
 const router = express.Router();
 const { createClient } = require('@supabase/supabase-js');
 
-// Conexión a la Base de Datos usando las llaves ocultas
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
-// ============================================================================
-// 1. CARGA INICIAL DE CATÁLOGOS
-// ============================================================================
 router.get('/inicial', async (req, res) => {
     try {
         const [resM, resC, resV, resP] = await Promise.all([
@@ -28,11 +24,6 @@ router.get('/inicial', async (req, res) => {
     }
 });
 
-// ============================================================================
-// 2. GESTIÓN DE PERIODOS
-// ============================================================================
-
-// Obtener todos los periodos
 router.get('/periodos', async (req, res) => {
     try {
         const { data, error } = await supabase.from('periodos').select('*').order('codigo_periodo', { ascending: false });
@@ -43,7 +34,6 @@ router.get('/periodos', async (req, res) => {
     }
 });
 
-// Obtener un periodo específico
 router.get('/periodos/:id', async (req, res) => {
     try {
         const { data, error } = await supabase.from('periodos').select('*').eq('id', req.params.id).single();
@@ -54,7 +44,6 @@ router.get('/periodos/:id', async (req, res) => {
     }
 });
 
-// Crear nuevo periodo
 router.post('/periodos', async (req, res) => {
     try {
         const { periodoPayload, empleadosPayload } = req.body;
@@ -103,16 +92,13 @@ router.post('/periodos', async (req, res) => {
     }
 });
 
-// Actualizar periodo (CORREGIDO: Separa empleadosPayload para evitar fallas de columna e inserta el personal de recarga)
 router.put('/periodos/:id', async (req, res) => {
     try {
         const { empleadosPayload, ...periodoData } = req.body.payload || {};
         const idPeriodoInt = parseInt(req.params.id, 10);
 
-        // 1. Limpiar campos de control innecesarios que React inyecta al esparcir el objeto anterior
         delete periodoData.id;
 
-        // 2. Actualizar parámetros puros de la quincena (solo si vienen datos de formulario)
         if (Object.keys(periodoData).length > 0) {
             if (periodoData.codigo_periodo) periodoData.codigo_periodo = parseInt(periodoData.codigo_periodo, 10);
             if (periodoData.anio) periodoData.anio = parseInt(periodoData.anio, 10);
@@ -125,7 +111,6 @@ router.put('/periodos/:id', async (req, res) => {
             if (errPeriodo) throw errPeriodo;
         }
 
-        // 3. Si la petición proviene de la recarga masiva y trae colaboradores, insertarlos relacionalmente
         if (empleadosPayload && empleadosPayload.length > 0) {
             const empleadosConPeriodo = empleadosPayload.map(emp => ({
                 id_periodo: idPeriodoInt,
@@ -149,7 +134,6 @@ router.put('/periodos/:id', async (req, res) => {
     }
 });
 
-// Duplicar personal para un nuevo periodo
 router.post('/periodos/duplicar-personal', async (req, res) => {
     const { periodoOrigenId, periodoDestinoId } = req.body;
     try {
@@ -177,11 +161,6 @@ router.post('/periodos/duplicar-personal', async (req, res) => {
     }
 });
 
-// ============================================================================
-// 3. ENDPOINTS PARA LA GESTIÓN DE PERSONAL MAESTRO POR PERIODO
-// ============================================================================
-
-// Obtener todos los empleados vinculados a un periodo específico
 router.get('/periodos/:idPeriodo/empleados', async (req, res) => {
     try {
         const { idPeriodo } = req.params;
@@ -198,7 +177,6 @@ router.get('/periodos/:idPeriodo/empleados', async (req, res) => {
     }
 });
 
-// Vaciar por completo el personal maestro de un periodo
 router.delete('/periodos/:idPeriodo/empleados', async (req, res) => {
     try {
         const { idPeriodo } = req.params;
@@ -214,7 +192,6 @@ router.delete('/periodos/:idPeriodo/empleados', async (req, res) => {
     }
 });
 
-// Inserción manual de un nuevo empleado en la quincena
 router.post('/empleados-manual', async (req, res) => {
     try {
         const { payload } = req.body;
@@ -235,7 +212,6 @@ router.post('/empleados-manual', async (req, res) => {
     }
 });
 
-// Remoción individual de un empleado de un periodo específico
 router.delete('/periodos/:idPeriodo/empleados/:codigoEmpleado', async (req, res) => {
     try {
         const { idPeriodo, codigoEmpleado } = req.params;
@@ -251,10 +227,6 @@ router.delete('/periodos/:idPeriodo/empleados/:codigoEmpleado', async (req, res)
         res.status(500).json({ success: false, error: error.message });
     }
 });
-
-// ============================================================================
-// 4. BANDEJA Y REVISIÓN DE REPORTES
-// ============================================================================
 
 router.get('/bandeja/:periodoId', async (req, res) => {
     try {
@@ -322,20 +294,72 @@ router.get('/reporte/:id', async (req, res) => {
 router.put('/recepcionar/:id', async (req, res) => {
     const { codigo_recepcion } = req.body;
     try {
-        const { error } = await supabase.from('reportes_enviados')
+        const { data: updatedRep, error } = await supabase.from('reportes_enviados')
             .update({ estado: 'Recibido por Planillas', codigo_recepcion: codigo_recepcion })
-            .eq('id', req.params.id);
+            .eq('id', req.params.id)
+            .select()
+            .single();
             
         if (error) throw error;
-        res.json({ success: true, mensaje: "Reporte marcado como recibido" });
+
+        // ✨ GENERACIÓN DE NOTIFICACIONES (Recepción en RRHH)
+        let notificaciones = [];
+        const { data: users } = await supabase.from('usuarios')
+            .select('*')
+            .in('codigo', [updatedRep.codigo_usuario, updatedRep.codigo_autorizador, updatedRep.codigo_contador].filter(Boolean));
+            
+        const usrRep = users?.find(u => u.codigo == updatedRep.codigo_usuario);
+        const usrAut = users?.find(u => u.codigo == updatedRep.codigo_autorizador);
+        const usrCont = users?.find(u => u.codigo == updatedRep.codigo_contador);
+        
+        if (usrRep) {
+            notificaciones.push({
+                para_email: usrRep.email,
+                para_nombre: usrRep.nombre,
+                codigo_reporte: updatedRep.id,
+                marca: updatedRep.marca,
+                reportante_nombre: usrRep.nombre,
+                monto_total: updatedRep.monto_total,
+                estado_actual: 'Recibido por Planillas',
+                asunto_dinamico: `Actualización de Reporte N° ${updatedRep.id} - ${updatedRep.marca}`,
+                introduccion_dinamica: 'Te notificamos que tu Reporte de Variables ha cambiado de estado.',
+                detalles_adicionales: '¡Excelente! Tu Reporte de Variables ha sido recibido formalmente por el área de Planillas para su aplicación.'
+            });
+        }
+        if (usrAut) {
+            notificaciones.push({
+                para_email: usrAut.email,
+                para_nombre: usrAut.nombre,
+                codigo_reporte: updatedRep.id,
+                marca: updatedRep.marca,
+                reportante_nombre: usrRep ? usrRep.nombre : 'Reportante',
+                monto_total: updatedRep.monto_total,
+                estado_actual: 'Recibido por Planillas',
+                asunto_dinamico: `Acción Pendiente - Notificación de Reporte N° ${updatedRep.id}`,
+                introduccion_dinamica: 'Se ha registrado una actividad en el Sistema de Gestión Humana que requiere tu atención o conocimiento.',
+                detalles_adicionales: 'El Reporte de Variables de tu colaborador ha sido recibido con éxito por el área de Planillas.'
+            });
+        }
+        if (usrCont) {
+            notificaciones.push({
+                para_email: usrCont.email,
+                para_nombre: usrCont.nombre,
+                codigo_reporte: updatedRep.id,
+                marca: updatedRep.marca,
+                reportante_nombre: usrRep ? usrRep.nombre : 'Reportante',
+                monto_total: updatedRep.monto_total,
+                estado_actual: 'Recibido por Planillas',
+                asunto_dinamico: `Acción Pendiente - Notificación de Reporte N° ${updatedRep.id}`,
+                introduccion_dinamica: 'Se ha registrado una actividad en el Sistema de Gestión Humana que requiere tu atención o conocimiento.',
+                detalles_adicionales: 'El Reporte de Variables que auditaste ya fue recibido por el área de Planillas.'
+            });
+        }
+
+        res.json({ success: true, mensaje: "Reporte marcado como recibido", notificaciones });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
-
-// ============================================================================
-// 5. GESTIÓN DE USUARIOS
-// ============================================================================
 
 router.get('/usuarios', async (req, res) => {
     try {
@@ -388,10 +412,6 @@ router.put('/usuarios/:codigo', async (req, res) => {
         res.status(400).json({ success: false, error: mensajePersonalizado });
     }
 });
-
-// ============================================================================
-// 6. TIEMPOS DE GRACIA (EXCEPCIONES)
-// ============================================================================
 
 router.get('/excepciones', async (req, res) => {
     try {

@@ -1,6 +1,8 @@
 // src/components/reportes/logica/use_api_reporte.js
 import { useState, useCallback } from 'react';
 import { api } from '../../../services/api'; 
+// ✨ NUEVO: Importamos el motor orquestador de correos
+import { despacharNotificaciones } from '../../../services/emailService';
 
 export const useApiReporte = (user) => {
     const [isLoading, setIsLoading] = useState(false);
@@ -13,7 +15,6 @@ export const useApiReporte = (user) => {
     });
 
     // --- 1. Cargar Detalles del Reporte ---
-    // Usamos useCallback para que la función sea estática y no resetee el formulario
     const cargarDetallesAPI = useCallback(async (idReporte, modoVista) => {
         setIsLoading(true);
         try {
@@ -31,7 +32,7 @@ export const useApiReporte = (user) => {
         } finally {
             setIsLoading(false);
         }
-    }, []); // <-- Array vacío para memorizarla permanentemente
+    }, []);
 
     // --- 2. Guardar Flujo Completo ---
     const guardarFlujoAPI = useCallback(async ({ 
@@ -47,7 +48,6 @@ export const useApiReporte = (user) => {
                 if (resUp.success) nuevasUrls.push({ nombre: resUp.nombre, url: resUp.url });
             }
 
-            // ✨ OBTENCIÓN DE FECHA LOCAL PURA (Evita el salto de día por UTC)
             const hoy = new Date();
             const fechaLocalStr = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`;
 
@@ -70,12 +70,18 @@ export const useApiReporte = (user) => {
                     id_cc: parseInt(reporteHeader.id_cc), 
                     cargo_a_marca: reporteHeader.cargo_a_marca, 
                     monto: parseFloat(String(l.monto).replace(/[^0-9.-]+/g, '')),
-                    fecha_registro: fechaLocalStr // ✨ CORRECCIÓN: Se envía solo la fecha YYYY-MM-DD sin hora
+                    fecha_registro: fechaLocalStr 
                 })),
                 idReporteEdicion: reporteHeader.id
             });
             
             if (result?.success === false) throw new Error(result.error);
+
+            // ✨ NUEVO: Interceptamos y disparamos correos en segundo plano (Envío a Autorizar)
+            if (result?.notificaciones && result.notificaciones.length > 0) {
+                despacharNotificaciones(result.notificaciones);
+            }
+
             return { success: true };
         } catch (error) { 
             return { success: false, error: error.message }; 
@@ -93,7 +99,14 @@ export const useApiReporte = (user) => {
             
             const response = await fetch(url, options);
             const result = await response.json();
+            
             if (!result.success) throw new Error(result.error || "Error en la operación");
+
+            // ✨ NUEVO: Interceptamos y disparamos correos en las firmas (Autorizar, Contabilizar, Recepcionar)
+            if (result?.notificaciones && result.notificaciones.length > 0) {
+                despacharNotificaciones(result.notificaciones);
+            }
+
             return { success: true };
         } catch (error) {
             console.error(error);
