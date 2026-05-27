@@ -154,6 +154,82 @@ export const api = {
                 body: JSON.stringify(payloadPlano)
             });
             return await res.json();
+        },
+
+        // ====================================================================
+        // INTEGRACIÓN REPORTE MAESTRO (ADMIN)
+        // ====================================================================
+        getInicial: async () => {
+            const res = await fetch(`${BASE_URL}/admin/inicial`);
+            return await res.json();
+        },
+        getReporteById: async (idReporte) => {
+            const res = await fetch(`${BASE_URL}/admin/reporte/${idReporte}`);
+            return await res.json();
+        },
+        recepcionar: async (id, payload) => {
+            const res = await fetch(`${BASE_URL}/admin/recepcionar/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            return await res.json();
+        },
+
+        // ====================================================================
+        // ✨ AGREGADO: CONFIGURACIONES GLOBALES (PANELES DEL ADMINISTRADOR)
+        // ====================================================================
+        actualizarPorcentajeCargo: async (nuevoPorcentaje) => {
+            const res = await fetch(`${BASE_URL}/admin/configuraciones/porcentaje`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nuevoPorcentaje })
+            });
+            return await res.json();
+        },
+
+        // CRUD MAESTRO DE MARCAS (Pestaña 2 del Panel)
+        crearMarca: async (nombre_marca) => {
+            const res = await fetch(`${BASE_URL}/admin/marcas`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre_marca })
+            });
+            return await res.json();
+        },
+        actualizarMarca: async (id, nombre_marca) => {
+            const res = await fetch(`${BASE_URL}/admin/marcas/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre_marca })
+            });
+            return await res.json();
+        },
+        eliminarMarca: async (id) => {
+            const res = await fetch(`${BASE_URL}/admin/marcas/${id}`, { method: 'DELETE' });
+            return await res.json();
+        },
+
+        // CRUD MAESTRO DE VARIABLES (Pestaña 3 del Panel)
+        crearVariable: async (codigo_variable, nombre_variable) => {
+            const res = await fetch(`${BASE_URL}/admin/variables`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ codigo_variable, nombre_variable })
+            });
+            return await res.json();
+        },
+        actualizarVariable: async (id, codigo_variable, nombre_variable) => {
+            const res = await fetch(`${BASE_URL}/admin/variables/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ codigo_variable, nombre_variable })
+            });
+            return await res.json();
+        },
+        eliminarVariable: async (id) => {
+            const res = await fetch(`${BASE_URL}/admin/variables/${id}`, { method: 'DELETE' });
+            return await res.json();
         }
     },
 
@@ -193,6 +269,60 @@ export const api = {
         guardarReporte: async (payload) => {
             const res = await fetch(`${BASE_URL}/reportante/guardar`, {
                 method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            return await res.json();
+        },
+        cancelarEnvio: async (id) => {
+            const res = await fetch(`${BASE_URL}/reportante/cancelar/${id}`, { method: 'PUT' });
+            return await res.json();
+        },
+        eliminarBorrador: async (id) => {
+            const res = await fetch(`${BASE_URL}/reportante/eliminar/${id}`, { method: 'PUT' });
+            return await res.json();
+        }
+    },
+
+    autorizador: {
+        getInicial: async () => {
+            const res = await fetch(`${BASE_URL}/autorizador/inicial`);
+            return await res.json();
+        },
+        getBandeja: async (tipoBandeja, idPeriodo, codigoUsuario) => {
+            const res = await fetch(`${BASE_URL}/autorizador/bandeja/${tipoBandeja}/${idPeriodo}/${codigoUsuario}`);
+            return await res.json();
+        },
+        getReporteById: async (idReporte) => {
+            const res = await fetch(`${BASE_URL}/autorizador/reporte/${idReporte}`);
+            return await res.json();
+        },
+        actualizarEstado: async (id, payload) => {
+            const res = await fetch(`${BASE_URL}/autorizador/estado/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            return await res.json();
+        }
+    },
+
+    contador: {
+        getInicial: async () => {
+            const res = await fetch(`${BASE_URL}/contador/inicial`);
+            return await res.json();
+        },
+        getBandeja: async (idPeriodo) => {
+            const res = await fetch(`${BASE_URL}/contador/bandeja/${idPeriodo}`);
+            return await res.json();
+        },
+        getReporteById: async (idReporte) => {
+            const res = await fetch(`${BASE_URL}/contador/reporte/${idReporte}`);
+            return await res.json();
+        },
+        contabilizar: async (id, payload) => {
+            const res = await fetch(`${BASE_URL}/contador/contabilizar/${id}`, {
+                method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });

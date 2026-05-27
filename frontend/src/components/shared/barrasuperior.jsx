@@ -4,6 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useauth';
 import { api } from '../../services/api';
 
+// ✨ NUEVO: Importación quirúrgica del panel de configuración global
+import { Confi } from '../admin/confi';
+
 const formatearFecha = (fechaStr) => {
     if (!fechaStr) return "--/--/--";
     const [y, m, d] = fechaStr.split('T')[0].split('-');
@@ -30,7 +33,6 @@ const safeDateParse = (dateStr, timeStr = "00:00:00") => {
         const dateObj = new Date(`${datePart}T${timePart}`);
         return isNaN(dateObj.getTime()) ? null : dateObj.getTime();
     } catch (error) {
-        // ✨ CORRECCIÓN DE ESLINT: Ahora usamos la variable 'error' para evitar el "no-unused-vars"
         console.warn("Aviso en el formateo de fecha segura:", error);
         return null;
     }
@@ -48,6 +50,9 @@ export const BarraSuperior = ({ periodoSeleccionado, setPeriodoSeleccionado, onM
     // Controladores de menús
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isPeriodDropOpen, setIsPeriodDropOpen] = useState(false);
+    
+    // ✨ NUEVO: Estado local para controlar la apertura del modal Confi.jsx
+    const [isConfigOpen, setIsConfigOpen] = useState(false);
     
     const menuRef = useRef(null);
     const periodDropRef = useRef(null); 
@@ -81,7 +86,6 @@ export const BarraSuperior = ({ periodoSeleccionado, setPeriodoSeleccionado, onM
                 setPeriodos(data);
                 
                 if (!periodoSeleccionado) {
-                    // Modificación: Busca ABIERTO o ACTIVO
                     const activo = data.find(p => {
                         const est = p.estado?.toString().trim().toUpperCase();
                         return est === 'ABIERTO' || est === 'ACTIVO';
@@ -118,18 +122,16 @@ export const BarraSuperior = ({ periodoSeleccionado, setPeriodoSeleccionado, onM
         fetchExcepciones();
     }, [periodoSeleccionado, user?.codigo]);
 
-    // 2. ✨ CEREBRO DEL RELOJ: Filtra la excepción dinámicamente según la pestaña (vistaActual)
+    // 2. CEREBRO DEL RELOJ: Filtra la excepción dinámicamente según la pestaña (vistaActual)
     const excepcionActiva = useMemo(() => {
         if (!listaExcepciones || listaExcepciones.length === 0) return null;
 
         if (vistaActual === 'AUTORIZACIONES') {
-            // El Autorizador está en su bandeja revisando a otros: Tiempo para AUTORIZAR
             return listaExcepciones.find(exc => 
                 String(exc.codigo_autorizador) === String(user?.codigo) && 
                 exc.tipo_permiso === 'AUTORIZAR'
             );
         } else {
-            // El Reportante (o el Autorizador en su bandeja personal): Tiempo para CREAR
             return listaExcepciones.find(exc => 
                 String(exc.codigo_empleado) === String(user?.codigo) && 
                 (exc.tipo_permiso || 'CREAR') === 'CREAR'
@@ -147,7 +149,6 @@ export const BarraSuperior = ({ periodoSeleccionado, setPeriodoSeleccionado, onM
         let intervaloReloj;
 
         const actualizarCronometro = () => {
-            // ✨ REGLA ABSOLUTA: Si está CERRADO o INACTIVO, se apaga todo (ignora excepciones)
             const estadoActual = per.estado?.toString().trim().toUpperCase();
             if (estadoActual === 'INACTIVO' || estadoActual === 'CERRADO') {
                 setCorteTexto({ texto: "PERIODO CERRADO", clase: "no-period-alert" });
@@ -160,17 +161,14 @@ export const BarraSuperior = ({ periodoSeleccionado, setPeriodoSeleccionado, onM
             let finAUsar = finGlobal;
             let esTiempoGracia = false;
 
-            // ✨ LÓGICA DE HERENCIA Y GRACIA
             if (excepcionActiva && excepcionActiva.nueva_fecha_corte && excepcionActiva.nueva_hora_corte) {
                 const finGracia = safeDateParse(excepcionActiva.nueva_fecha_corte, excepcionActiva.nueva_hora_corte);
-                // Si existe el tiempo de gracia válido, prevalece sobre el reloj global de la barra
                 if (finGracia) {
                     finAUsar = finGracia;
                     esTiempoGracia = true;
                 }
             }
 
-            // Candado de seguridad por si las fechas llegaron incompletas de la base de datos
             if (!inicio || !finAUsar) {
                 setCorteTexto({ texto: "FECHAS INVÁLIDAS", clase: "no-period-alert" });
                 return true;
@@ -211,7 +209,6 @@ export const BarraSuperior = ({ periodoSeleccionado, setPeriodoSeleccionado, onM
             const terminado = actualizarCronometro();
             const estadoActual = per.estado?.toString().trim().toUpperCase();
             
-            // No iniciar el intervalo si el periodo ya está cerrado o tiene fallo de fechas
             if (!terminado && estadoActual !== 'INACTIVO' && estadoActual !== 'CERRADO') {
                 intervaloReloj = setInterval(actualizarCronometro, 1000);
             }
@@ -224,10 +221,8 @@ export const BarraSuperior = ({ periodoSeleccionado, setPeriodoSeleccionado, onM
     }, [periodoSeleccionado, periodos, excepcionActiva]);
 
     const userRol = user?.rol?.toUpperCase() || 'REPORTANTE'; 
-
     const periodoActualEncontrado = periodos.find(p => p.id.toString() === periodoSeleccionado);
     
-    // Modificación: Etiqueta principal (ABIERTO) / (CERRADO)
     const isCurrentOpen = ['ABIERTO', 'ACTIVO'].includes(periodoActualEncontrado?.estado?.toString().trim().toUpperCase());
     const labelPeriodoActivo = periodoActualEncontrado 
         ? `${formatearFecha(periodoActualEncontrado.fecha_desde)} - ${formatearFecha(periodoActualEncontrado.fecha_hasta)} ${isCurrentOpen ? '(ABIERTO)' : '(CERRADO)'}`
@@ -257,7 +252,6 @@ export const BarraSuperior = ({ periodoSeleccionado, setPeriodoSeleccionado, onM
                                     <div className="sgp-dropdown-item sgp-disabled">SIN REGISTROS</div>
                                 ) : (
                                     periodos.map(p => {
-                                        // Modificación: Determinación de estado para el menú desplegable
                                         const isOpen = ['ABIERTO', 'ACTIVO'].includes(p.estado?.toString().trim().toUpperCase());
                                         return (
                                             <div 
@@ -305,7 +299,6 @@ export const BarraSuperior = ({ periodoSeleccionado, setPeriodoSeleccionado, onM
                     }}
                     style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px' }}
                 >
-                    {/* ZONA INTACTA: No se ha modificado la información ni estructura del usuario */}
                     <div className="user-data" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center', lineHeight: '1.15' }}>
                         <span className="u-name" style={{ fontSize: '0.85rem', fontWeight: '700', color: '#ffffff' }}>
                             {user?.nombre?.toUpperCase() || 'USUARIO'} {user?.codigo ? `(${user.codigo})` : ''}
@@ -338,6 +331,18 @@ export const BarraSuperior = ({ periodoSeleccionado, setPeriodoSeleccionado, onM
                                 <button className="dropdown-btn" onClick={(e) => { e.stopPropagation(); onMenuClick('USUARIOS'); setIsMenuOpen(false); }}><i className="fas fa-users-cog"></i> Gestión de Usuarios</button>
 
                                 <button className="dropdown-btn" onClick={(e) => { e.stopPropagation(); onMenuClick('EXCEPCIONES'); setIsMenuOpen(false); }}><i className="fas fa-hourglass-half"></i> Tiempo de Gracia</button>
+                                
+                                {/* ✨ NUEVA OPCIÓN QUIRÚRGICA: Panel de Configuración General */}
+                                <button 
+                                    className="dropdown-btn" 
+                                    onClick={(e) => { 
+                                        e.stopPropagation(); 
+                                        setIsConfigOpen(true); 
+                                        setIsMenuOpen(false); 
+                                    }}
+                                >
+                                    <i className="fas fa-cogs"></i> Configuración General
+                                </button>
                             </>
                         )}
                         
@@ -346,6 +351,11 @@ export const BarraSuperior = ({ periodoSeleccionado, setPeriodoSeleccionado, onM
                     </div>
                 </div>
             </div>
+
+            {/* ✨ NUEVO: Inyección del modal de configuraciones dinámicas */}
+            {isConfigOpen && (
+                <Confi onClose={() => setIsConfigOpen(false)} />
+            )}
         </header>
     );
 };

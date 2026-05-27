@@ -8,18 +8,24 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY
 
 router.get('/inicial', async (req, res) => {
     try {
-        const [resM, resC, resV, resP] = await Promise.all([
+        // ✨ AGREGADO: Sumamos la consulta a tu nueva tabla configuraciones_sistema
+        const [resM, resC, resV, resP, resConf] = await Promise.all([
             supabase.from('maestro_marcas').select('*'),
             supabase.from('maestro_centro_costos').select('*'),
             supabase.from('maestro_variables').select('*'),
-            supabase.from('periodos').select('*').order('codigo_periodo', { ascending: false })
+            supabase.from('periodos').select('*').order('codigo_periodo', { ascending: false }),
+            supabase.from('configuraciones_sistema').select('valor').eq('clave', 'porcentaje_cargo_marca').maybeSingle()
         ]);
+        
         res.json({
             success: true,
             marcas: resM.data || [],
             centrosCosto: resC.data || [],
             variables: resV.data || [],
-            periodos: resP.data || []
+            periodos: resP.data || [] ,
+            // 🚀 Enviamos el porcentaje guardado. Si no existiera en la BD por algún motivo, 
+            // dejamos el 0.1725 de salvavidas para que no falle el frontend.
+            porcentajeCargoMarca: resConf.data?.valor ?? 0.1725
         });
     } catch (error) {
         res.status(500).json({ error: error.message });

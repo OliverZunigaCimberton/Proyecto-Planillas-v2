@@ -8,18 +8,24 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY
 
 router.get('/inicial', async (req, res) => {
     try {
-        const [resM, resC, resV, resP] = await Promise.all([
+        // ✨ AGREGADO: Sumamos la consulta a tu nueva tabla configuraciones_sistema
+        const [resM, resC, resV, resP, resConf] = await Promise.all([
             supabase.from('maestro_marcas').select('*'),
             supabase.from('maestro_centro_costos').select('*'),
             supabase.from('maestro_variables').select('*'),
-            supabase.from('periodos').select('*').order('codigo_periodo', { ascending: false })
+            supabase.from('periodos').select('*').order('codigo_periodo', { ascending: false }),
+            supabase.from('configuraciones_sistema').select('valor').eq('clave', 'porcentaje_cargo_marca').maybeSingle()
         ]);
+        
         res.json({
             success: true,
             marcas: resM.data || [],
             centrosCosto: resC.data || [],
             variables: resV.data || [],
-            periodos: resP.data || []
+            periodos: resP.data || [] ,
+            // 🚀 Enviamos el porcentaje guardado. Si no existiera en la BD por algún motivo, 
+            // dejamos el 0.1725 de salvavidas para que no falle el frontend.
+            porcentajeCargoMarca: resConf.data?.valor ?? 0.1725
         });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -485,6 +491,30 @@ router.put('/excepciones/:id', async (req, res) => {
         res.json({ success: true, mensaje: "Excepción actualizada" });
     } catch (error) {
         res.status(500).json({ error: error.message });
+    }
+});
+// ====================================================================
+// ✨ NUEVO: ACTUALIZAR PORCENTAJE DE CARGO A MARCA DESDE LA INTERFAZ
+// ====================================================================
+router.put('/configuraciones/porcentaje', async (req, res) => {
+    try {
+        const { nuevoPorcentaje } = req.body;
+
+        if (nuevoPorcentaje === undefined || isNaN(parseFloat(nuevoPorcentaje))) {
+            return res.status(400).json({ success: false, error: "El valor del porcentaje enviado no es válido." });
+        }
+
+        // Modificamos el registro de la clave exacta en tu tabla configuraciones_sistema
+        const { error } = await supabase
+            .from('configuraciones_sistema')
+            .update({ valor: parseFloat(nuevoPorcentaje) })
+            .eq('clave', 'porcentaje_cargo_marca');
+
+        if (error) throw error;
+
+        res.json({ success: true, mensaje: "Porcentaje de Cargo a Marca actualizado con éxito en el sistema global." });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 

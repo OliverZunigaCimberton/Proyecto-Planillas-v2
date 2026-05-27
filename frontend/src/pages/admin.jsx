@@ -15,9 +15,9 @@ export const Admin = () => {
     const logicaVar = useLogicaAdminVar(fase === 'variables' ? periodoSeleccionado : '');
 
     const titulosFase = {
-        'variables': 'Bandeja de Recursos Humanos - Variables',
-        'horas-extras': 'Bandeja de Recursos Humanos - Horas Extras',
-        'saldos': 'Bandeja de Recursos Humanos - Saldos'
+        'variables': 'Bandeja de Reportes - Variables',
+        'horas-extras': 'Bandeja de Reportes - Horas Extras',
+        'saldos': 'Bandeja de Reportes - Saldos'
     };
 
     const iconosFase = {

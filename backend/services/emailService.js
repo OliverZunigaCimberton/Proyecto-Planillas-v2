@@ -8,6 +8,12 @@
  */
 const enviarCorreo = async (plantillaParams, templateId) => {
     try {
+        // 🛑 SILENCIADOR TEMPORAL DE CORREOS DE ESTATUS (Para ráfagas de prueba)
+        // Si la plantilla NO es la de acceso (OTP), bloqueamos el envío a EmailJS
+        if (templateId !== process.env.EMAILJS_TEMPLATE_OTP) {
+            console.log(`🚫 EmailJS Silenciado: Se bloqueó notificación de estatus para [${plantillaParams.para_email || 'Colaborador'}]`);
+            return true; // Retornamos true para que el backend crea que se envió y siga su flujo sin caerse
+        }
         // 1. Preparamos el cuerpo de la petición exactamente como lo requiere la API de EmailJS
         const payload = {
             service_id: process.env.EMAILJS_SERVICE_ID,

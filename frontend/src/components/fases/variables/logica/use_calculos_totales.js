@@ -1,9 +1,9 @@
 // src/components/reportes/modal_maestro/logica/use_calculos_totales.js
 import { useMemo } from 'react';
 
-export const useCalculosTotales = (lineas, aplicaCargoMarca) => {
-    // useMemo memoriza el resultado y solo vuelve a calcular si 'lineas' o 'aplicaCargoMarca' cambian.
-    // Esto optimiza el rendimiento enormemente.
+// ✨ AHORA RECIBE 'porcentajeDinamico' DESDE LA CONFIGURACIÓN DE LA BASE DE DATOS
+export const useCalculosTotales = (lineas, aplicaCargoMarca, porcentajeDinamico) => {
+    
     const totales = useMemo(() => {
         let subtotalCalculado = 0;
         
@@ -17,8 +17,14 @@ export const useCalculosTotales = (lineas, aplicaCargoMarca) => {
             }
         });
 
-        // Calculamos el 17.25% solo si aplica
-        const cargoCalculado = aplicaCargoMarca === 'Si' ? subtotalCalculado * 0.1725 : 0;
+        // 🛡️ RESPALDO: Si por algún retraso de red o error no viniera el dato, 
+        // usa el 17.25% de fábrica para que el sistema nunca deje de operar.
+        const factorAplicable = porcentajeDinamico !== undefined && porcentajeDinamico !== null
+            ? parseFloat(porcentajeDinamico)
+            : 0.1725;
+
+        // Calculamos el cargo usando el factor real de la Base de Datos
+        const cargoCalculado = aplicaCargoMarca === 'Si' ? subtotalCalculado * factorAplicable : 0;
         
         // Total final
         const totalCalculado = subtotalCalculado + cargoCalculado;
@@ -28,7 +34,8 @@ export const useCalculosTotales = (lineas, aplicaCargoMarca) => {
             montoCargoMarca: cargoCalculado, 
             totalGeneral: totalCalculado 
         };
-    }, [lineas, aplicaCargoMarca]);
+    // 🌟 Vigilamos 'porcentajeDinamico' para recalcular si el administrador lo cambia
+    }, [lineas, aplicaCargoMarca, porcentajeDinamico]);
 
     return totales;
 };

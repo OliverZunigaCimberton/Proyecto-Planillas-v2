@@ -17,6 +17,12 @@ export const TablaVariables = ({
     onBlurMonto, 
     onEliminarFila
 }) => {
+
+    const porcentajeValor = catalogos?.porcentajeCargoMarca !== undefined ? catalogos.porcentajeCargoMarca : catalogos?.porcentaje;
+    const porcentajeTexto = porcentajeValor 
+        ? `${(parseFloat(porcentajeValor) * 100).toFixed(2)}%` 
+        : '17.25%';
+
     return (
         <table className="reporte-detalle-table">
             <thead>
@@ -63,7 +69,10 @@ export const TablaVariables = ({
                         </tr>
                         <tr>
                             <td colSpan="3" style={{ border: 'none', background: 'transparent' }}></td>
-                            <td colSpan="2" style={{ background: '#f59e0b', color: '#ffffff', fontWeight: 'bold', textAlign: 'center', padding: '8px', border: '1px solid #f59e0b', fontSize: '12px' }}>MÁS CARGO A MARCA (17.25%)</td>
+                            <td colSpan="2" style={{ background: '#f59e0b', color: '#ffffff', fontWeight: 'bold', textAlign: 'center', padding: '8px', border: '1px solid #f59e0b', fontSize: '12px' }}>
+                                {/* 🚀 Pintamos dinámicamente el valor configurado de la base de datos */}
+                                MÁS CARGO A MARCA ({porcentajeTexto})
+                            </td>
                             <td style={{ textAlign: 'right', fontWeight: 'bold', padding: '8px', background: '#ffffff', border: '1px solid #f59e0b', color: '#f59e0b', paddingRight: '12px', fontSize: '12px' }}>$ {formatoMoneda.format(montoCargoMarca)}</td>
                             {!isReadOnly && !isTiempoAgotado && <td style={{ border: 'none', background: 'transparent' }}></td>}
                         </tr>

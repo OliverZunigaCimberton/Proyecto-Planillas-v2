@@ -21,7 +21,10 @@ export const useLogicaReportanteVar = (periodoSeleccionado) => {
                         marcas: res.marcas || [],
                         centrosCosto: res.centrosCosto || [],
                         variables: res.variables || [],
-                        periodos: res.periodos || []
+                        periodos: res.periodos || [],
+                        // 🚀 AGREGADO: Sincronizamos las propiedades dinámicas con la BD
+                        porcentajeCargoMarca: res.porcentajeCargoMarca,
+                        porcentaje: res.porcentajeCargoMarca
                     });
                 }
             } catch (error) {

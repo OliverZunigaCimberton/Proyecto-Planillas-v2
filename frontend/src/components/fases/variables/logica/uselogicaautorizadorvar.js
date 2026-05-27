@@ -1,5 +1,7 @@
+// src/components/reportes/modal_maestro/logica/uselogicaautorizadorvar.js
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../../../hooks/useauth';
+// ✨ NUEVO: Importamos el Mensajero Oficial para proteger las llamadas
 import { api } from '../../../../services/api';
 
 export const useLogicaAutorizadorVar = (periodoSeleccionado) => {
@@ -26,18 +28,21 @@ export const useLogicaAutorizadorVar = (periodoSeleccionado) => {
     const [hasAlertAutorizaciones, setHasAlertAutorizaciones] = useState(false);
     const [hasAlertMisReportes, setHasAlertMisReportes] = useState(false);
 
-    // 1. Cargar Catálogos
+    // 1. Cargar Catálogos usando el Mensajero Oficial
     useEffect(() => {
         const fetchCatalogos = async () => {
             try {
-                const response = await fetch(`http://localhost:3000/api/autorizador/inicial`);
-                const result = await response.json();
+                // Reemplazamos el fetch manual por el método seguro centralizado
+                const result = await api.autorizador.getInicial();
                 if(result.success) {
                     setCatalogos({
                         marcas: result.marcas || [],
                         centrosCosto: result.centrosCosto || [],
                         variables: result.variables || [],
-                        periodos: result.periodos || []
+                        periodos: result.periodos || [],
+                        // 🚀 AGREGADO: Sincronizamos las propiedades dinámicas con la BD
+                        porcentajeCargoMarca: result.porcentajeCargoMarca,
+                        porcentaje: result.porcentajeCargoMarca
                     });
                 }
             } catch (err) {
@@ -93,7 +98,7 @@ export const useLogicaAutorizadorVar = (periodoSeleccionado) => {
         }
     }
 
-    // 4. Cargar Bandejas Paralelas y Gestionar Alertas
+    // 4. Cargar Bandejas Paralelas y Gestionar Alertas usando el Mensajero Oficial
     const cargarBandeja = useCallback(async () => {
         if (!periodoSeleccionado || !user?.codigo) {
             setReportes([]);
@@ -102,9 +107,10 @@ export const useLogicaAutorizadorVar = (periodoSeleccionado) => {
 
         setIsLoading(true);
         try {
+            // ✨ OPTIMIZACIÓN: Despachamos las llamadas gemelas usando el API seguro
             const [resAut, resMis] = await Promise.all([
-                fetch(`http://localhost:3000/api/autorizador/bandeja/AUTORIZACIONES/${periodoSeleccionado}/${user.codigo}`).then(r => r.json()),
-                fetch(`http://localhost:3000/api/autorizador/bandeja/MIS_REPORTES/${periodoSeleccionado}/${user.codigo}`).then(r => r.json())
+                api.autorizador.getBandeja('AUTORIZACIONES', periodoSeleccionado, user.codigo),
+                api.autorizador.getBandeja('MIS_REPORTES', periodoSeleccionado, user.codigo)
             ]);
 
             const dataAut = resAut.data || [];

@@ -12,13 +12,13 @@ export const Contador = () => {
     const logicaVar = useLogicaContadorVar(fase === 'variables' ? periodoSeleccionado : '');
 
     const titulosFase = {
-        'variables': 'Bandeja de Contabilidad - Variables',
-        'horas-extras': 'Bandeja de Contabilidad - Horas Extras',
-        'saldos': 'Bandeja de Contabilidad - Saldos'
+        'variables': 'Bandeja de Reportes - Variables',
+        'horas-extras': 'Bandeja de Reportes - Horas Extras',
+        'saldos': 'Bandeja de Reportes - Saldos'
     };
 
     const iconosFase = {
-        'variables': 'fas fa-file-invoice',
+        'variables': 'fas fa-users-cog',
         'horas-extras': 'far fa-clock',
         'saldos': 'fas fa-book-open'
     };

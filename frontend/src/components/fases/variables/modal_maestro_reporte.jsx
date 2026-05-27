@@ -62,7 +62,8 @@ export const ModalMaestroReporte = ({
     } = useApiReporte(user);
 
     const { descargarPlantilla, procesarCargaMasiva } = useProcesadorExcel();
-    const { subtotal, montoCargoMarca, totalGeneral } = useCalculosTotales(lineas, reporteHeader.cargo_a_marca);
+    const porcentajeReal = catalogos?.porcentajeCargoMarca !== undefined ? catalogos.porcentajeCargoMarca : catalogos?.porcentaje;
+    const { subtotal, montoCargoMarca, totalGeneral } = useCalculosTotales(lineas, reporteHeader.cargo_a_marca, porcentajeReal);
 
     // Función para invocar la alerta desde cualquier lugar de este archivo
     const mostrarAlerta = (mensaje) => {

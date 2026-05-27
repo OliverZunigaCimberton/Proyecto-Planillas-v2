@@ -1,4 +1,6 @@
+// src/components/reportes/modal_maestro/logica/uselogicaadminvar.js
 import { useState, useEffect, useCallback } from 'react';
+// Conectamos de forma limpia el Mensajero Oficial
 import { api } from '../../../../services/api';
 
 export const useLogicaAdminVar = (periodoSeleccionado) => {
@@ -11,18 +13,21 @@ export const useLogicaAdminVar = (periodoSeleccionado) => {
     const [isReporteOpen, setIsReporteOpen] = useState(false);
     const [reporteEdicionId, setReporteEdicionId] = useState(null);
 
-    // 1. Cargar catálogos (Necesarios para que el Modal renderice variables y marcas)
+    // 1. Cargar catálogos usando el Mensajero Oficial
     useEffect(() => {
         const fetchCatalogos = async () => {
             try {
-                const response = await fetch(`http://localhost:3000/api/admin/inicial`);
-                const result = await response.json();
+                // ✨ OPTIMIZACIÓN: Reemplazamos el fetch nativo por la llamada protegida
+                const result = await api.admin.getInicial();
                 if(result.success) {
                     setCatalogos({
                         marcas: result.marcas || [],
                         centrosCosto: result.centrosCosto || [],
                         variables: result.variables || [],
-                        periodos: result.periodos || []
+                        periodos: result.periodos || [],
+                        // 🚀 AGREGADO: Sincronizamos las propiedades dinámicas con la BD
+                        porcentajeCargoMarca: result.porcentajeCargoMarca,
+                        porcentaje: result.porcentajeCargoMarca
                     });
                 }
             } catch (error) {
@@ -32,7 +37,7 @@ export const useLogicaAdminVar = (periodoSeleccionado) => {
         fetchCatalogos();
     }, []);
 
-    // 2. Cargar bandeja de reportes del Admin
+    // 2. Cargar bandeja de reportes del Admin usando el Mensajero Oficial
     const cargarBandeja = useCallback(async () => {
         if (!periodoSeleccionado) {
             setReportes(prev => prev.length > 0 ? [] : prev);

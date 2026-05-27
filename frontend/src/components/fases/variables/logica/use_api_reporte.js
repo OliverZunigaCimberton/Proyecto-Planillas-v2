@@ -12,17 +12,21 @@ export const useApiReporte = (user) => {
         r.onerror = e => rej(e);
     });
 
-    // --- 1. Cargar Detalles del Reporte ---
+    // --- 1. Cargar Detalles del Reporte usando el Mensajero Oficial ---
     const cargarDetallesAPI = useCallback(async (idReporte, modoVista) => {
         setIsLoading(true);
         try {
-            let endpoint = `http://localhost:3000/api/reportante/reporte/${idReporte}`;
-            if (modoVista === 'CONTADOR') endpoint = `http://localhost:3000/api/contador/reporte/${idReporte}`;
-            else if (modoVista === 'JUEZ') endpoint = `http://localhost:3000/api/autorizador/reporte/${idReporte}`;
-            else if (modoVista === 'ADMIN') endpoint = `http://localhost:3000/api/admin/reporte/${idReporte}`;
-                
-            const response = await fetch(endpoint);
-            const result = await response.json();
+            let result;
+            // Llamamos al método correcto del API unificado según el rol de la vista
+            if (modoVista === 'CONTADOR') {
+                result = await api.contador.getReporteById(idReporte);
+            } else if (modoVista === 'JUEZ') {
+                result = await api.autorizador.getReporteById(idReporte);
+            } else if (modoVista === 'ADMIN') {
+                result = await api.admin.getReporteById(idReporte);
+            } else {
+                result = await api.reportante.getReporteById(idReporte);
+            }
             return result; 
         } catch (error) {
             console.error("Error al cargar reporte:", error);
@@ -83,44 +87,74 @@ export const useApiReporte = (user) => {
         }
     }, [user]);
 
-    // --- 3. Ejecutar Acciones Simples (Put requests) ---
-    const ejecutarAccionSimple = useCallback(async (url, method = 'PUT', body = null) => {
+    // --- 3. Acciones de Flujo Específicas usando el Mensajero Oficial ---
+    const cancelarEnvioAPI = useCallback(async (id) => {
         setIsLoading(true);
         try {
-            const options = { method, headers: { 'Content-Type': 'application/json' } };
-            if (body) options.body = JSON.stringify(body);
-            
-            const response = await fetch(url, options);
-            const result = await response.json();
-            
-            if (!result.success) throw new Error(result.error || "Error en la operación");
-
+            const result = await api.reportante.cancelarEnvio(id);
+            if (!result.success) throw new Error(result.error || "Error al cancelar el envío");
             return { success: true };
         } catch (error) {
-            console.error(error);
             return { success: false, error: error.message };
         } finally {
             setIsLoading(false);
         }
     }, []);
 
-    const cancelarEnvioAPI = useCallback((id) => ejecutarAccionSimple(`http://localhost:3000/api/reportante/cancelar/${id}`), [ejecutarAccionSimple]);
-    const eliminarBorradorAPI = useCallback((id) => ejecutarAccionSimple(`http://localhost:3000/api/reportante/eliminar/${id}`), [ejecutarAccionSimple]);
+    const eliminarBorradorAPI = useCallback(async (id) => {
+        setIsLoading(true);
+        try {
+            const result = await api.reportante.eliminarBorrador(id);
+            if (!result.success) throw new Error(result.error || "Error al eliminar el borrador");
+            return { success: true };
+        } catch (error) {
+            return { success: false, error: error.message };
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
     
-    const accionJuezAPI = useCallback((id, accion) => {
-        const payload = accion === 'APROBAR' 
-            ? { estado: 'Autorizado y Enviado a Contabilidad', codigo_autorizador: parseInt(user.codigo) } 
-            : { estado: 'Denegado' };
-        return ejecutarAccionSimple(`http://localhost:3000/api/autorizador/estado/${id}`, 'PUT', payload);
-    }, [ejecutarAccionSimple, user]);
+    const accionJuezAPI = useCallback(async (id, accion) => {
+        setIsLoading(true);
+        try {
+            const payload = accion === 'APROBAR' 
+                ? { estado: 'Autorizado y Enviado a Contabilidad', codigo_autorizador: parseInt(user.codigo) } 
+                : { estado: 'Denegado' };
+            const result = await api.autorizador.actualizarEstado(id, payload);
+            if (!result.success) throw new Error(result.error || "Error en la acción del autorizador");
+            return { success: true };
+        } catch (error) {
+            return { success: false, error: error.message };
+        } finally {
+            setIsLoading(false);
+        }
+    }, [user]);
 
-    const accionContadorAPI = useCallback((id) => {
-        return ejecutarAccionSimple(`http://localhost:3000/api/contador/contabilizar/${id}`, 'PUT', { codigo_contador: parseInt(user.codigo) });
-    }, [ejecutarAccionSimple, user]);
+    const accionContadorAPI = useCallback(async (id) => {
+        setIsLoading(true);
+        try {
+            const result = await api.contador.contabilizar(id, { codigo_contador: parseInt(user.codigo) });
+            if (!result.success) throw new Error(result.error || "Error al contabilizar el reporte");
+            return { success: true };
+        } catch (error) {
+            return { success: false, error: error.message };
+        } finally {
+            setIsLoading(false);
+        }
+    }, [user]);
 
-    const accionAdminAPI = useCallback((id) => {
-        return ejecutarAccionSimple(`http://localhost:3000/api/admin/recepcionar/${id}`, 'PUT', { codigo_recepcion: parseInt(user.codigo), estado: 'Recibido por Planillas' });
-    }, [ejecutarAccionSimple, user]);
+    const accionAdminAPI = useCallback(async (id) => {
+        setIsLoading(true);
+        try {
+            const result = await api.admin.recepcionar(id, { codigo_recepcion: parseInt(user.codigo), estado: 'Recibido por Planillas' });
+            if (!result.success) throw new Error(result.error || "Error al recepcionar el reporte");
+            return { success: true };
+        } catch (error) {
+            return { success: false, error: error.message };
+        } finally {
+            setIsLoading(false);
+        }
+    }, [user]);
 
     // --- 4. Búsqueda de Autorizador y Empleado ---
     const buscarAutorizadorAPI = useCallback(async (codigo) => {

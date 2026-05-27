@@ -12,13 +12,13 @@ export const Reportante = () => {
     const logicaVar = useLogicaReportanteVar(fase === 'variables' ? periodoSeleccionado : '');
 
     const titulosFase = {
-        'variables': 'Mis Reportes - Variables',
-        'horas-extras': 'Mis Reportes - Horas Extras',
-        'saldos': 'Mis Reportes - Saldos'
+        'variables': 'Bandeja de Reportes - Variables',
+        'horas-extras': 'Bandeja de Reportes - Horas Extras',
+        'saldos': 'Bandeja de Reportes - Saldos'
     };
 
     const iconosFase = {
-        'variables': 'fas fa-dollar-sign',
+        'variables': 'fas fa-users-cog',
         'horas-extras': 'far fa-clock',
         'saldos': 'fas fa-book-open'
     };
