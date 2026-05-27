@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { createClient } = require('@supabase/supabase-js');
+// Importamos el motor de correos seguro
+const { enviarCorreo } = require('../services/emailService');
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
@@ -167,7 +169,23 @@ router.put('/contabilizar/:id', async (req, res) => {
             });
         }
 
-        res.json({ success: true, mensaje: "Reporte Contabilizado y firmado exitosamente.", notificaciones });
+        // Disparamos los correos de forma asíncrona desde el servidor eliminando duplicados
+        if (notificaciones.length > 0) {
+            // El filtro asegura que no se repita la combinación de mismo correo + mismo estado
+            const notificacionesUnicas = notificaciones.filter((item, index, self) =>
+                index === self.findIndex((t) => (
+                    t.para_email === item.para_email && t.estado_actual === item.estado_actual
+                ))
+            );
+
+            for (const notif of notificacionesUnicas) {
+                await enviarCorreo(notif);
+            }
+        }
+
+        // Paso 4 integrado: Blindamos la respuesta ocultando el arreglo al frontend por seguridad
+        res.json({ success: true, mensaje: "Reporte Contabilizado y firmado exitosamente." });
+        
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

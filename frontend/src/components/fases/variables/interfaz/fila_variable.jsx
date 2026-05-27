@@ -1,6 +1,6 @@
 // src/components/reportes/modal_maestro/subcomponentes/interfaz/fila_variable.jsx
 import { memo } from 'react';
-import { SmartAutocomplete } from '../../shared/smartdropdown';
+import { SmartAutocomplete } from '../../../shared/smartdropdown';
 
 export const FilaVariable = memo(({ 
     linea, 

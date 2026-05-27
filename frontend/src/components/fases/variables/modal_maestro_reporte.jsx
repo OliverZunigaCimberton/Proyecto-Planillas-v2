@@ -1,9 +1,9 @@
 // src/components/reportes/modal_maestro_reporte.jsx
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { useAuth } from '../../hooks/useauth';
-import { exportarReporteAExcel, exportarReporteAPDF } from '../../utils/exportutils';
-import { api } from '../../services/api';
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 
+import { useAuth } from "../../../hooks/useauth";
+import { exportarReporteAExcel, exportarReporteAPDF } from "../../../utils/exportutils";
+import { api } from "../../../services/api";
 // --- 1. Hooks de Lógica ---
 import { useApiReporte } from './logica/use_api_reporte';
 import { useCalculosTotales } from './logica/use_calculos_totales';

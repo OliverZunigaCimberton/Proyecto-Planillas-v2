@@ -2,13 +2,13 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useauth';
 
-// Importación de las páginas migradas
+// ✨ 1. Importaciones actualizadas a los nuevos nombres limpios
 import { Login } from '../pages/login';
 import { SeleccionApp } from '../pages/seleccionapp';
-import { AdminVariables } from '../pages/adminvariables'; 
-import { ReportanteVariables } from '../pages/reportantevariables'; 
-import { AutorizadorVariables } from '../pages/autorizadorvariables'; 
-import { ContadorVariables } from '../pages/contadorvariables'; // <-- IMPORTACIÓN DEL CONTADOR
+import { Admin } from '../pages/admin'; 
+import { Reportante } from '../pages/reportante'; 
+import { Autorizador } from '../pages/autorizador'; 
+import { Contador } from '../pages/contador';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
     const { isAuthenticated, user } = useAuth();
@@ -30,13 +30,11 @@ export const AppRouter = () => {
                 <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
                 <Route path="/seleccionapp" element={<ProtectedRoute><SeleccionApp /></ProtectedRoute>} />
                 
-                <Route path="/reportantevariables" element={<ProtectedRoute allowedRoles={['REPORTANTE']}><ReportanteVariables /></ProtectedRoute>} />
-                <Route path="/autorizadorvariables" element={<ProtectedRoute allowedRoles={['AUTORIZADOR']}><AutorizadorVariables /></ProtectedRoute>} />
-                
-                {/* Ahora el Contador usa la interfaz real de React */}
-                <Route path="/contadorvariables" element={<ProtectedRoute allowedRoles={['CONTADOR']}><ContadorVariables /></ProtectedRoute>} />
-                
-                <Route path="/adminvariables" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminVariables /></ProtectedRoute>} />
+                {/* ✨ 2. Rutas dinámicas maestras (Nota el parámetro /:fase al final) */}
+                <Route path="/reportante/:fase" element={<ProtectedRoute allowedRoles={['REPORTANTE']}><Reportante /></ProtectedRoute>} />
+                <Route path="/autorizador/:fase" element={<ProtectedRoute allowedRoles={['AUTORIZADOR']}><Autorizador /></ProtectedRoute>} />
+                <Route path="/contador/:fase" element={<ProtectedRoute allowedRoles={['CONTADOR']}><Contador /></ProtectedRoute>} />
+                <Route path="/admin/:fase" element={<ProtectedRoute allowedRoles={['ADMIN']}><Admin /></ProtectedRoute>} />
 
                 <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>

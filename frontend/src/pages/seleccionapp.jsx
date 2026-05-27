@@ -6,36 +6,43 @@ export const SeleccionApp = () => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
 
-    // Verificación de seguridad contra arreglos indefinidos
+    // Matriz de permisos que viene desde la base de datos (Supabase)
     const modulosPermitidos = user?.modulos || [];
 
     const handleNavigate = (modulo) => {
-        if (modulo === 'Variables') {
-            let rol = user?.rol?.toUpperCase() || '';
-            
-            // HOMOLOGACIÓN: Traduce los roles crudos de Supabase al estándar de rutas del Frontend
-            if (rol === 'ADMINISTRACIÓN' || rol === 'ADMINISTRACION') rol = 'ADMIN';
-            if (rol === 'REPORTERO') rol = 'REPORTANTE';
+        // 1. Diccionario de mapeo: Traduce el nombre del botón al parámetro de la URL (:fase)
+        const mapaFases = {
+            'Variables': 'variables',
+            'Horas Extras': 'horas-extras',
+            'Saldos': 'saldos'
+        };
 
-            switch (rol) {
-                case 'ADMIN':
-                    navigate('/adminvariables');
-                    break;
-                case 'REPORTANTE':
-                    navigate('/reportantevariables');
-                    break;
-                case 'AUTORIZADOR':
-                    navigate('/autorizadorvariables');
-                    break;
-                case 'CONTADOR':
-                    navigate('/contadorvariables');
-                    break;
-                default:
-                    alert(`Rol no configurado en el sistema: ${rol}`);
-                    break;
-            }
-        } else {
-            alert('Este módulo estará disponible en las próximas fases del proyecto.');
+        const fase = mapaFases[modulo];
+        if (!fase) return; // Salvaguarda por si acaso
+
+        let rol = user?.rol?.toUpperCase() || '';
+        
+        // HOMOLOGACIÓN: Traduce los roles crudos de Supabase al estándar de rutas del Frontend
+        if (rol === 'ADMINISTRACIÓN' || rol === 'ADMINISTRACION') rol = 'ADMIN';
+        if (rol === 'REPORTERO') rol = 'REPORTANTE';
+
+        // 2. Enrutador Maestro: Envía a cualquier rol a cualquier fase autorizada
+        switch (rol) {
+            case 'ADMIN':
+                navigate(`/admin/${fase}`);
+                break;
+            case 'REPORTANTE':
+                navigate(`/reportante/${fase}`);
+                break;
+            case 'AUTORIZADOR':
+                navigate(`/autorizador/${fase}`);
+                break;
+            case 'CONTADOR':
+                navigate(`/contador/${fase}`);
+                break;
+            default:
+                alert(`Rol no configurado en el sistema: ${rol}`);
+                break;
         }
     };
 
@@ -54,9 +61,9 @@ export const SeleccionApp = () => {
 
                 <section className="apps-grid">
                     
-                    {/* Tarjeta: Horas Extras (Dinámica) */}
+                    {/* Tarjeta: Horas Extras (Gobernada por Base de Datos) */}
                     {modulosPermitidos.includes('Horas Extras') && (
-                        <div className="app-card disabled-card" onClick={() => handleNavigate('Horas Extras')}>
+                        <div className="app-card active-card" onClick={() => handleNavigate('Horas Extras')}>
                             <div className="app-icon">
                                 <i className="far fa-clock"></i>
                             </div>
@@ -65,7 +72,7 @@ export const SeleccionApp = () => {
                         </div>
                     )}
 
-                    {/* Tarjeta: Variables (Dinámica) */}
+                    {/* Tarjeta: Variables (Gobernada por Base de Datos) */}
                     {modulosPermitidos.includes('Variables') && (
                         <div className="app-card active-card" onClick={() => handleNavigate('Variables')}>
                             <div className="app-icon">
@@ -76,9 +83,9 @@ export const SeleccionApp = () => {
                         </div>
                     )}
 
-                    {/* Tarjeta: Saldos (Dinámica) */}
+                    {/* Tarjeta: Saldos (Gobernada por Base de Datos) */}
                     {modulosPermitidos.includes('Saldos') && (
-                        <div className="app-card disabled-card" onClick={() => handleNavigate('Saldos')}>
+                        <div className="app-card active-card" onClick={() => handleNavigate('Saldos')}>
                             <div className="app-icon">
                                 <i className="fas fa-book-open"></i>
                             </div>

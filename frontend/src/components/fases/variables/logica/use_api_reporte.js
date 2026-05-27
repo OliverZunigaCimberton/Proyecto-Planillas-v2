@@ -1,8 +1,6 @@
 // src/components/reportes/logica/use_api_reporte.js
 import { useState, useCallback } from 'react';
-import { api } from '../../../services/api'; 
-// ✨ NUEVO: Importamos el motor orquestador de correos
-import { despacharNotificaciones } from '../../../services/emailService';
+import { api } from '../../../../services/api'; 
 
 export const useApiReporte = (user) => {
     const [isLoading, setIsLoading] = useState(false);
@@ -77,11 +75,6 @@ export const useApiReporte = (user) => {
             
             if (result?.success === false) throw new Error(result.error);
 
-            // ✨ NUEVO: Interceptamos y disparamos correos en segundo plano (Envío a Autorizar)
-            if (result?.notificaciones && result.notificaciones.length > 0) {
-                despacharNotificaciones(result.notificaciones);
-            }
-
             return { success: true };
         } catch (error) { 
             return { success: false, error: error.message }; 
@@ -101,11 +94,6 @@ export const useApiReporte = (user) => {
             const result = await response.json();
             
             if (!result.success) throw new Error(result.error || "Error en la operación");
-
-            // ✨ NUEVO: Interceptamos y disparamos correos en las firmas (Autorizar, Contabilizar, Recepcionar)
-            if (result?.notificaciones && result.notificaciones.length > 0) {
-                despacharNotificaciones(result.notificaciones);
-            }
 
             return { success: true };
         } catch (error) {

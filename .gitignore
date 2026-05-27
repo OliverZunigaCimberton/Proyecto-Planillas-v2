@@ -39,3 +39,10 @@ obj/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# ==========================================
+# ✨ 6. SISTEMAS OPERATIVOS (Basura del sistema)
+# ==========================================
+.DS_Store
+Thumbs.db
+desktop.ini

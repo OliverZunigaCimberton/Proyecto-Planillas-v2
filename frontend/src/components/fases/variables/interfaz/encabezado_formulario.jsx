@@ -1,5 +1,5 @@
 // src/components/reportes/modal_maestro/subcomponentes/interfaz/encabezado_formulario.jsx
-import { SmartAutocomplete } from '../../shared/smartdropdown';
+import { SmartAutocomplete } from '../../../shared/smartdropdown';
 
 export const EncabezadoFormulario = ({ 
     reporteHeader, 

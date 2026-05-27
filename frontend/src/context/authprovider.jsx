@@ -2,9 +2,6 @@
 import { useState, useEffect } from 'react';
 import { AuthContext } from './authcontext';
 import { api } from '../services/api';
-import emailjs from '@emailjs/browser';
-
-emailjs.init("NczwlBYPoc7OWQRJc");
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(() => {
@@ -36,17 +33,12 @@ export const AuthProvider = ({ children }) => {
             const result = await api.auth.login(correo);
             const usuarioObj = result.usuario;
             
-            const tokenOTP = Math.floor(100000 + Math.random() * 900000).toString();
-            setTempHash(btoa(tokenOTP));
+            // Guardamos el hash cifrado que generó el backend de forma segura
+            setTempHash(result.otpHash);
             setUser(usuarioObj);
 
-            await emailjs.send("service_qzzi2xd", "template_rcc4utp", {
-                to_email: usuarioObj.correo,
-                otp_token: tokenOTP,
-                user_name: usuarioObj.nombre 
-            });
-
             return { success: true };
+            
         } catch (error) {
             setTempHash(null);
             setUser(null);

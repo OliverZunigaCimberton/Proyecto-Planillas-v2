@@ -1,24 +1,17 @@
-// src/pages/reportantevariables.jsx
 import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../hooks/useauth';
-import { api } from '../services/api';
-import { BarraSuperior } from '../components/shared/barrasuperior';
-import { BandejaReportes } from '../components/shared/bandejareportes';
-import { ModalMaestroReporte } from "../components/reportes/modal_maestro_reporte";
+import { useAuth } from '../../../../hooks/useauth';
+import { api } from '../../../../services/api';
 
-export const ReportanteVariables = () => {
+export const useLogicaReportanteVar = (periodoSeleccionado) => {
     const { user } = useAuth();
-    const [periodoSeleccionado, setPeriodoSeleccionado] = useState('');
     const [reportes, setReportes] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-    
     const [catalogos, setCatalogos] = useState({ marcas: [], centrosCosto: [], variables: [], periodos: [] });
     const [listaExcepciones, setListaExcepciones] = useState([]);
-
     const [isReporteOpen, setIsReporteOpen] = useState(false);
     const [reporteEdicionId, setReporteEdicionId] = useState(null);
 
-    // Cargar Catálogos Iniciales
+    // 1. Cargar Catálogos Iniciales
     useEffect(() => {
         const cargarCatalogosIniciales = async () => {
             try {
@@ -38,7 +31,7 @@ export const ReportanteVariables = () => {
         cargarCatalogosIniciales();
     }, []);
 
-    // Cargar Excepciones
+    // 2. Cargar Excepciones
     useEffect(() => {
         const verificarExcepciones = async () => {
             if (!periodoSeleccionado || !user?.codigo) {
@@ -56,7 +49,7 @@ export const ReportanteVariables = () => {
         verificarExcepciones();
     }, [periodoSeleccionado, user?.codigo]);
 
-    // ✨ LA REGLA DE ORO: Bloqueo Maestro para Crear Reporte
+    // 3. LA REGLA DE ORO: Bloqueo Maestro
     const periodoActual = catalogos.periodos.find(p => String(p.id) === String(periodoSeleccionado));
     const estadoActual = periodoActual?.estado?.toString().trim().toUpperCase();
     const isCerrado = estadoActual === 'CERRADO' || estadoActual === 'INACTIVO';
@@ -70,7 +63,6 @@ export const ReportanteVariables = () => {
         if (ahora <= finGlobal) {
             puedeCrearReporte = true;
         } else {
-            // Buscamos si tiene excepción explícita para CREAR
             const excComoCreador = listaExcepciones.find(e => 
                 String(e.codigo_empleado) === String(user?.codigo) && 
                 (e.tipo_permiso || 'CREAR') === 'CREAR'
@@ -85,7 +77,8 @@ export const ReportanteVariables = () => {
         }
     }
 
-    const cargarBandejaColaborador = useCallback(async () => {
+    // 4. Cargar Bandeja
+    const cargarBandeja = useCallback(async () => {
         if (!periodoSeleccionado || !user?.codigo) return;
         setIsLoading(true);
         try {
@@ -100,9 +93,9 @@ export const ReportanteVariables = () => {
     }, [periodoSeleccionado, user]);
 
     useEffect(() => {
-        const timeoutId = setTimeout(() => { cargarBandejaColaborador(); }, 0);
+        const timeoutId = setTimeout(() => { cargarBandeja(); }, 0);
         return () => clearTimeout(timeoutId);
-    }, [cargarBandejaColaborador]); 
+    }, [cargarBandeja]);
 
     const handleAbrirNuevoReporte = () => {
         setReporteEdicionId(null);
@@ -115,52 +108,17 @@ export const ReportanteVariables = () => {
         setIsReporteOpen(true);
     };
 
-    return (
-        <div className="layout-dashboard">
-            {/* ✨ Le pasamos vistaActual="MIS_REPORTES" para que la barra sepa cómo comportarse */}
-            <BarraSuperior 
-                periodoSeleccionado={periodoSeleccionado}
-                setPeriodoSeleccionado={setPeriodoSeleccionado}
-                onMenuClick={() => {}} 
-                vistaActual="MIS_REPORTES"
-            />
-
-            <main className="main-container">
-                <div className="action-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: '1200px', width: '100%' }}>
-                    <h2 style={{ color: '#ffffff', fontSize: '1.4rem', fontWeight: '600', margin: 0, display: 'flex', alignItems: 'center' }}>
-                        <i className="fas fa-file-invoice-dollar" style={{ marginRight: '10px' }}></i> 
-                        Mis Reportes
-                    </h2>
-                    
-                    <button 
-                        className="btn-reporte-principal" 
-                        onClick={handleAbrirNuevoReporte}
-                        disabled={!puedeCrearReporte}
-                        title={!puedeCrearReporte ? "Periodo cerrado o tiempo agotado" : "Crear reporte"}
-                    >
-                        <i className="fas fa-plus"></i> Crear reporte
-                    </button>
-                </div>
-
-                <BandejaReportes 
-                    reportes={reportes}
-                    isLoading={isLoading}
-                    codigoPeriodo={periodoSeleccionado}
-                    onVerMas={handleVerDetalleReporte}
-                />
-            </main>
-
-            {isReporteOpen && (
-                <ModalMaestroReporte 
-                    idReporte={reporteEdicionId}
-                    periodoActivo={periodoActual}
-                    periodoSeleccionado={periodoSeleccionado} 
-                    catalogos={catalogos}
-                    modoVista='CREADOR'
-                    onClose={() => setIsReporteOpen(false)}
-                    onRefreshBandeja={cargarBandejaColaborador}
-                />
-            )}
-        </div>
-    );
+    return {
+        reportes,
+        isLoading,
+        catalogos,
+        isReporteOpen,
+        setIsReporteOpen,
+        reporteEdicionId,
+        puedeCrearReporte,
+        periodoActual,
+        cargarBandeja,
+        handleAbrirNuevoReporte,
+        handleVerDetalleReporte
+    };
 };

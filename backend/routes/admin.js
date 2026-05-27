@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { createClient } = require('@supabase/supabase-js');
+// Importamos el motor de correos seguro
+const { enviarCorreo } = require('../services/emailService');
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
@@ -355,7 +357,16 @@ router.put('/recepcionar/:id', async (req, res) => {
             });
         }
 
-        res.json({ success: true, mensaje: "Reporte marcado como recibido", notificaciones });
+        // Disparamos los correos de forma asíncrona desde el servidor
+        if (notificaciones.length > 0) {
+            for (const notif of notificaciones) {
+                await enviarCorreo(notif);
+            }
+        }
+
+        // Blindamos la respuesta ocultando el arreglo al frontend
+        res.json({ success: true, mensaje: "Reporte marcado como recibido" });
+        
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

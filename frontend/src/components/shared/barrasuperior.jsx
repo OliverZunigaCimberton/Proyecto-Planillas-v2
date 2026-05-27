@@ -223,8 +223,7 @@ export const BarraSuperior = ({ periodoSeleccionado, setPeriodoSeleccionado, onM
         };
     }, [periodoSeleccionado, periodos, excepcionActiva]);
 
-    const userRol = user?.rol?.toUpperCase() || 'REPORTANTE';
-    const modulosPermitidos = user?.modulos || []; 
+    const userRol = user?.rol?.toUpperCase() || 'REPORTANTE'; 
 
     const periodoActualEncontrado = periodos.find(p => p.id.toString() === periodoSeleccionado);
     
@@ -329,40 +328,6 @@ export const BarraSuperior = ({ periodoSeleccionado, setPeriodoSeleccionado, onM
                         <button className="dropdown-btn" onClick={() => { setIsMenuOpen(false); navigate('/seleccionapp'); }}>
                             <i className="fas fa-th-large"></i> Panel Principal
                         </button>
-
-                        {modulosPermitidos.includes('Horas Extras') && (
-                            <button 
-                                className="dropdown-btn" 
-                                disabled 
-                                style={{ color: '#8a9ba8', cursor: 'not-allowed', opacity: 0.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}
-                            >
-                                <span><i className="fas fa-clock" style={{ marginRight: '10px' }}></i> Módulo Horas Extras</span>
-                                <i className="fas fa-lock" style={{ fontSize: '0.8rem', color: '#ff4d4d' }}></i>
-                            </button>
-                        )}
-
-                        {modulosPermitidos.includes('Variables') && (
-                            <button className="dropdown-btn" onClick={() => {
-                                setIsMenuOpen(false);
-                                if (userRol === 'ADMIN') navigate('/adminvariables');
-                                else if (userRol === 'REPORTANTE') navigate('/reportantevariables');
-                                else if (userRol === 'AUTORIZADOR') navigate('/autorizadorvariables');
-                                else if (userRol === 'CONTADOR') navigate('/contadorvariables');
-                            }}>
-                                <i className="fas fa-file-invoice-dollar"></i> Módulo Variables
-                            </button>
-                        )}
-
-                        {modulosPermitidos.includes('Saldos') && (
-                            <button 
-                                className="dropdown-btn" 
-                                disabled 
-                                style={{ color: '#8a9ba8', cursor: 'not-allowed', opacity: 0.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}
-                            >
-                                <span><i className="fas fa-book" style={{ marginRight: '10px' }}></i> Módulo Saldos</span>
-                                <i className="fas fa-lock" style={{ fontSize: '0.8rem', color: '#ff4d4d' }}></i>
-                            </button>
-                        )}
                         
                         {userRol === 'ADMIN' && (
                             <>

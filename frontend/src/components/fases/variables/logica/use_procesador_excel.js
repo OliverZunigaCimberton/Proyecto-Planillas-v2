@@ -1,6 +1,6 @@
 // src/components/reportes/modal_maestro/logica/use_procesador_excel.js
 import * as XLSX from 'xlsx';
-import { api } from '../../../services/api'; 
+import { api } from '../../../../services/api'; 
 
 export const useProcesadorExcel = () => {
 

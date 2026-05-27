@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { createClient } = require('@supabase/supabase-js');
 
+const { enviarCorreo } = require('../services/emailService');
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
 router.get('/inicial', async (req, res) => {
@@ -229,7 +230,16 @@ router.post('/guardar', async (req, res) => {
             }
         }
 
-        res.json({ success: true, mensaje: "Guardado correctamente", id_reporte: idReporteGenerado, notificaciones });
+        // Disparamos los correos de forma asíncrona desde el servidor
+        if (notificaciones.length > 0) {
+            for (const notif of notificaciones) {
+                await enviarCorreo(notif);
+            }
+        }
+
+        // Paso 4 integrado: Ya no le devolvemos el arreglo "notificaciones" al frontend por seguridad
+        res.json({ success: true, mensaje: "Guardado correctamente", id_reporte: idReporteGenerado });
+        
     } catch (error) {
         console.error("Error al guardar reporte:", error);
         res.status(500).json({ error: error.message });

@@ -2,6 +2,8 @@
 const express = require('express');
 const router = express.Router();
 const { createClient } = require('@supabase/supabase-js');
+// Importamos el motor de correos dinámico del servidor
+const { enviarCorreo } = require('../services/emailService');
 
 // Conexión segura a la Base de Datos usando las llaves ocultas
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
@@ -56,10 +58,27 @@ router.post('/login', async (req, res) => {
 
         console.log(`🎉 ¡APROBADO! Sesión concedida para: ${usuarioNormalizado.nombre} (${usuarioNormalizado.rol})`);
         
-        // Retorna éxito total y el payload limpio que consumirá el AuthProvider de React
+        // 5. GENERACIÓN SEGURA DEL TOKEN OTP (Se crea del lado del servidor)
+        const tokenOTP = Math.floor(100000 + Math.random() * 900000).toString();
+        
+        // Ciframos el token en Base64 para que el cliente valide sin conocer el texto plano.
+        // Usamos Buffer de Node.js que genera exactamente el mismo resultado que btoa() en el navegador.
+        const otpHash = Buffer.from(tokenOTP).toString('base64'); 
+
+        // 6. DESPACHO DEL CORREO (Pasamos los parámetros esperados por la plantilla de Login)
+        await enviarCorreo({
+            to_email: usuarioNormalizado.correo,
+            otp_token: tokenOTP,
+            user_name: usuarioNormalizado.nombre
+        }, process.env.EMAILJS_TEMPLATE_OTP);
+
+        console.log(`🔑 Token OTP enviado con éxito y de forma oculta a: ${usuarioNormalizado.correo}`);
+
+        // Retorna éxito total, el usuario y el hash blindado para la verificación
         res.json({
             success: true,
-            usuario: usuarioNormalizado
+            usuario: usuarioNormalizado,
+            otpHash
         });
 
     } catch (err) {
