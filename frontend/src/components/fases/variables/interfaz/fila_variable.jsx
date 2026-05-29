@@ -1,5 +1,5 @@
 // src/components/reportes/modal_maestro/subcomponentes/interfaz/fila_variable.jsx
-import { memo } from 'react';
+import { memo, useState, useEffect } from 'react';
 import { SmartAutocomplete } from '../../../shared/smartdropdown';
 
 export const FilaVariable = memo(({ 
@@ -14,6 +14,32 @@ export const FilaVariable = memo(({
     onBlurMonto, 
     onEliminarFila 
 }) => {
+
+    // ✨ NUEVO: Estados locales para escritura ultra-rápida (Evita el Input Lag)
+    const [codigoLocal, setCodigoLocal] = useState(linea.codigo_empleado || '');
+    const [montoLocal, setMontoLocal] = useState(linea.monto || '');
+
+    // ✨ NUEVO: Sincronización automática si los datos vienen masivamente desde el padre (ej. Carga de Excel)
+    useEffect(() => {
+        setCodigoLocal(linea.codigo_empleado || '');
+        setMontoLocal(linea.monto || '');
+    }, [linea.codigo_empleado, linea.monto]);
+
+    // ✨ NUEVO: Disparadores diferidos (Solo avisan al padre cuando el usuario termina de escribir)
+    const handleCodigoBlur = () => {
+        if (codigoLocal !== linea.codigo_empleado) {
+            onChangeLinea(index, 'codigo_empleado', codigoLocal);
+        }
+        onBlurEmpleado(index, codigoLocal);
+    };
+
+    const handleMontoBlur = () => {
+        if (montoLocal !== linea.monto) {
+            onChangeLinea(index, 'monto', montoLocal);
+        }
+        onBlurMonto(index);
+    };
+
     return (
         <tr>
             <td>
@@ -21,10 +47,11 @@ export const FilaVariable = memo(({
                     type="text" 
                     className="smart-input" 
                     style={{ textAlign: 'center' }} 
-                    value={linea.codigo_empleado} 
+                    value={codigoLocal} 
                     disabled={isReadOnly || isLoading || isTiempoAgotado} 
-                    onChange={(e) => onChangeLinea(index, 'codigo_empleado', e.target.value)} 
-                    onBlur={(e) => onBlurEmpleado(index, e.target.value)}
+                    // El onChange ahora es instantáneo y local, e incluye validación de solo números
+                    onChange={(e) => setCodigoLocal(e.target.value.replace(/\D/g, ''))} 
+                    onBlur={handleCodigoBlur}
                 />
             </td>
             <td className="cell-ro font-bold" style={{ textAlign: 'left', paddingLeft: '10px' }}>{linea.empleado_nombre}</td>
@@ -33,9 +60,8 @@ export const FilaVariable = memo(({
                 <SmartAutocomplete 
                     placeholder="" 
                     data={catalogos.variables} 
-                    displayKey="codigo_variable"
-                    searchKeys={['codigo_variable', 'nombre_variable']} 
-                    value={linea.codigo_variable} 
+                    displayKey="nombre_variable"
+                    value={linea.nombre_variable} 
                     disabled={isReadOnly || isLoading || isTiempoAgotado}
                     onSelect={(item) => {
                         onChangeLinea(index, 'id_variable', item.id);
@@ -52,10 +78,11 @@ export const FilaVariable = memo(({
                         type="text" 
                         className="smart-input font-bold text-vino" 
                         style={{ background: 'transparent', border: 'none' }} 
-                        value={linea.monto} 
+                        value={montoLocal} 
                         disabled={isReadOnly || isLoading || isTiempoAgotado} 
-                        onChange={(e) => onChangeLinea(index, 'monto', e.target.value)} 
-                        onBlur={() => onBlurMonto(index)} 
+                        // Escritura de monto instantánea y local
+                        onChange={(e) => setMontoLocal(e.target.value)} 
+                        onBlur={handleMontoBlur} 
                     />
                 </div>
             </td>

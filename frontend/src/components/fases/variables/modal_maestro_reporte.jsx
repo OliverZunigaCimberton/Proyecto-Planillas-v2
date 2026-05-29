@@ -4,6 +4,10 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useAuth } from "../../../hooks/useauth";
 import { exportarReporteAExcel, exportarReporteAPDF } from "../../../utils/exportutils";
 import { api } from "../../../services/api";
+
+// ✨ NUEVO: Importación de la Regla de Oro Cronológica Centralizada
+import { checkTiempoAgotado } from "../../../utils/dateValidation";
+
 // --- 1. Hooks de Lógica ---
 import { useApiReporte } from './logica/use_api_reporte';
 import { useCalculosTotales } from './logica/use_calculos_totales';
@@ -38,7 +42,7 @@ export const ModalMaestroReporte = ({
     const [isReadOnly, setIsReadOnly] = useState(false);
     const [hayCambios, setHayCambios] = useState(false);
 
-    // Estado para la alerta estética (ahora viaja por props)
+    // Estado para la alerta estética
     const [alertaEmergente, setAlertaEmergente] = useState({ activa: false, mensaje: '' });
 
     const [reporteHeader, setReporteHeader] = useState({
@@ -98,45 +102,10 @@ export const ModalMaestroReporte = ({
         verificarExcepciones();
     }, [periodoSeleccionado, periodoActivo, user?.codigo]);
 
+    // ✨ OPTIMIZACIÓN: Lógica cronológica delegada al Validador Maestro
     const isTiempoAgotado = useMemo(() => {
-        if (!perActual) return false;
-        
-        const estadoActual = perActual.estado?.toString().trim().toUpperCase();
-        if (estadoActual === 'CERRADO' || estadoActual === 'INACTIVO') return true;
-        
-        let globalExpirado = false;
-        if (perActual.fecha_corte && perActual.hora_corte) {
-            const finGlobal = new Date(`${perActual.fecha_corte}T${perActual.hora_corte}`).getTime();
-            globalExpirado = new Date().getTime() > finGlobal;
-        }
-
-        if (!globalExpirado) return false;
-
-        let excAplicable = null;
-
-        if (modoVista === 'CREADOR') {
-            excAplicable = listaExcepciones.find(e => 
-                String(e.codigo_empleado) === String(user?.codigo) && 
-                (e.tipo_permiso || 'CREAR') === 'CREAR'
-            );
-        } else if (modoVista === 'JUEZ') {
-            if (excepcionLocal) {
-                excAplicable = excepcionLocal;
-            } else {
-                excAplicable = listaExcepciones.find(e => 
-                    String(e.codigo_autorizador) === String(user?.codigo) &&
-                    e.tipo_permiso === 'AUTORIZAR'
-                );
-            }
-        }
-
-        if (excAplicable && excAplicable.nueva_fecha_corte) {
-            const finGracia = new Date(`${excAplicable.nueva_fecha_corte.split('T')[0]}T${excAplicable.nueva_hora_corte.substring(0, 8)}`).getTime();
-            return new Date().getTime() > finGracia; 
-        }
-
-        return true;
-    }, [perActual, modoVista, listaExcepciones, excepcionLocal, user]);
+        return checkTiempoAgotado(perActual, listaExcepciones, user?.codigo, modoVista, excepcionLocal);
+    }, [perActual, modoVista, listaExcepciones, excepcionLocal, user?.codigo]);
 
     // --- CARGA INICIAL DE DATOS ---
     useEffect(() => {
@@ -160,7 +129,7 @@ export const ModalMaestroReporte = ({
 
                 const ccEncontrado = catalogos.centrosCosto.find(c => String(c.id) === String(dbLineas[0]?.id_cc));
 
-                // ✨ CORRECCIÓN: Procesamos la fecha como texto puro para evitar desfases de zona horaria
+                // Procesamos la fecha como texto puro para evitar desfases de zona horaria
                 const rawFecha = rep.fecha_envio || rep.fecha_creacion || '';
                 let fechaInmune = '--/--/----';
                 if (rawFecha) {
@@ -232,14 +201,14 @@ export const ModalMaestroReporte = ({
     }, []);
 
     const handleEmpleadoBlur = useCallback(async (index, code) => {
-        if (idReporte) { 
-            mostrarAlerta('Por seguridad e integridad, no se puede modificar el personal una vez creado el borrador del reporte.'); 
-            return; 
-        }
+        // 🚀 ELIMINAMOS EL CANDADO DEL ID. 
+        // La seguridad la maneja el estado "isReadOnly" directamente en el input de la FilaVariable.
         const targetCode = String(code).trim();
         if (!targetCode) return;
+        
         handleLineaChange(index, 'empleado_nombre', 'Buscando...');
         const emp = await buscarEmpleadoRowAPI(targetCode, perActual?.id);
+        
         if (emp) {
             handleLineaChange(index, 'empleado_nombre', emp.nombres_apellidos);
             handleLineaChange(index, 'empleado_puesto', emp.puesto);
@@ -247,7 +216,7 @@ export const ModalMaestroReporte = ({
             handleLineaChange(index, 'empleado_nombre', 'NO ENCONTRADO');
             handleLineaChange(index, 'empleado_puesto', '-');
         }
-    }, [idReporte, perActual, buscarEmpleadoRowAPI, handleLineaChange]);
+    }, [perActual, buscarEmpleadoRowAPI, handleLineaChange]);
 
     const handleMontoBlur = useCallback((index) => {
         setLineas(prev => {
@@ -291,7 +260,7 @@ export const ModalMaestroReporte = ({
             return mostrarAlerta("Campos incompletos: Por favor seleccione la Marca, el Centro de Costo y si aplica Cargo a Marca.");
         }
 
-        // ✨ 2. ESCUDO DE VALIDACIÓN PARA LA TABLA DE VARIABLES
+        // 2. ESCUDO DE VALIDACIÓN PARA LA TABLA DE VARIABLES
         // Filtramos la fila en blanco automática y nos quedamos solo con las que el usuario escribió
         const lineasLlenas = lineas.filter(l => l.codigo_empleado && String(l.codigo_empleado).trim() !== '');
 
@@ -372,7 +341,7 @@ export const ModalMaestroReporte = ({
                 <BarraBotonesAccion modoVista={modoVista} reporteHeader={reporteHeader} esEstadoBorrador={['Guardado en borrador', 'Borrador'].includes(reporteHeader.estado)} isReadOnly={isReadOnly} isLoading={isLoading} isTiempoAgotado={isTiempoAgotado} esAutorizador={user?.rol?.toUpperCase() === 'AUTORIZADOR'} onExportar={handleExportar} onGuardarBorrador={() => ejecutarGuardar('Guardado en borrador')} onAutoAutorizar={() => ejecutarGuardar('Autorizado y Enviado a Contabilidad')} onAbrirModal={setModalActivo} />
             </div>
             
-            {/* ✨ COMPONENTE CENTRALIZADO QUE AHORA INCLUYE LA ALERTA */}
+            {/* COMPONENTE CENTRALIZADO DE MODALES */}
             <OrquestadorModales 
                 modalActivo={modalActivo} 
                 setModalActivo={setModalActivo} 

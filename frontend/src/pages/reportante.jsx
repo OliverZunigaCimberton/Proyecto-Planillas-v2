@@ -3,13 +3,15 @@ import { useParams } from 'react-router-dom';
 import { BarraSuperior } from '../components/shared/barrasuperior';
 import { BandejaReportes } from '../components/shared/bandejareportes';
 import { ModalMaestroReporte } from "../components/fases/variables/modal_maestro_reporte";
-import { useLogicaReportanteVar } from '../components/fases/variables/logica/useLogicaReportanteVar';
+
+import { useBandejaVariables } from '../components/fases/variables/logica/useBandejaVariables';
 
 export const Reportante = () => {
     const { fase } = useParams();
     const [periodoSeleccionado, setPeriodoSeleccionado] = useState('');
 
-    const logicaVar = useLogicaReportanteVar(fase === 'variables' ? periodoSeleccionado : '');
+    // 🚀 Inyectamos el parámetro 'CREADOR'
+    const logicaVar = useBandejaVariables(fase === 'variables' ? periodoSeleccionado : '', 'CREADOR');
 
     const titulosFase = {
         'variables': 'Bandeja de Reportes - Variables',

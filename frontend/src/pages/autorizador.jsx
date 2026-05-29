@@ -3,13 +3,14 @@ import { useParams } from 'react-router-dom';
 import { BarraSuperior } from '../components/shared/barrasuperior';
 import { BandejaReportes } from '../components/shared/bandejareportes';
 import { ModalMaestroReporte } from "../components/fases/variables/modal_maestro_reporte";
-import { useLogicaAutorizadorVar } from '../components/fases/variables/logica/useLogicaAutorizadorVar';
+import { useBandejaVariables } from '../components/fases/variables/logica/useBandejaVariables';
 
 export const Autorizador = () => {
     const { fase } = useParams();
     const [periodoSeleccionado, setPeriodoSeleccionado] = useState('');
 
-    const logicaVar = useLogicaAutorizadorVar(fase === 'variables' ? periodoSeleccionado : '');
+    // 🚀 Inyectamos el parámetro 'JUEZ'
+    const logicaVar = useBandejaVariables(fase === 'variables' ? periodoSeleccionado : '', 'JUEZ');
 
     return (
         <div className="layout-dashboard">

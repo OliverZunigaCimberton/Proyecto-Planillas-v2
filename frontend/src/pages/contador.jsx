@@ -3,13 +3,15 @@ import { useParams } from 'react-router-dom';
 import { BarraSuperior } from '../components/shared/barrasuperior';
 import { BandejaReportes } from '../components/shared/bandejareportes';
 import { ModalMaestroReporte } from "../components/fases/variables/modal_maestro_reporte";
-import { useLogicaContadorVar } from '../components/fases/variables/logica/useLogicaContadorVar';
+
+import { useBandejaVariables } from '../components/fases/variables/logica/useBandejaVariables';
 
 export const Contador = () => {
     const { fase } = useParams();
     const [periodoSeleccionado, setPeriodoSeleccionado] = useState('');
 
-    const logicaVar = useLogicaContadorVar(fase === 'variables' ? periodoSeleccionado : '');
+    // 🚀 Inyectamos el parámetro 'CONTADOR'
+    const logicaVar = useBandejaVariables(fase === 'variables' ? periodoSeleccionado : '', 'CONTADOR');
 
     const titulosFase = {
         'variables': 'Bandeja de Reportes - Variables',
@@ -43,21 +45,21 @@ export const Contador = () => {
                     <BandejaReportes 
                         reportes={logicaVar.reportes} 
                         isLoading={logicaVar.isLoading} 
-                        onVerMas={logicaVar.handleAbrirReporte} 
+                        onVerMas={logicaVar.handleVerDetalleReporte} 
                     />
                 )}
 
             </main>
 
-            {fase === 'variables' && logicaVar.modalOpen && (
+            {fase === 'variables' && logicaVar.isReporteOpen && (
                 <ModalMaestroReporte 
                     idReporte={logicaVar.reporteEdicionId} 
-                    periodoActivo={logicaVar.periodoActivoObj} 
+                    periodoActivo={logicaVar.periodoActual} 
                     periodoSeleccionado={periodoSeleccionado}
                     catalogos={logicaVar.catalogos} 
                     modoVista='CONTADOR'
                     onRefreshBandeja={logicaVar.cargarBandeja}
-                    onClose={() => logicaVar.setModalOpen(false)} 
+                    onClose={() => logicaVar.setIsReporteOpen(false)} 
                 />
             )}
         </div>

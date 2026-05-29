@@ -6,13 +6,17 @@ import { ModalPeriodos } from '../components/admin/modalperiodos';
 import { ModalExcepciones } from '../components/admin/modalexcepciones';
 import { ModalUsuarios } from '../components/admin/modalusuarios';
 import { ModalMaestroReporte } from "../components/fases/variables/modal_maestro_reporte";
-import { useLogicaAdminVar } from '../components/fases/variables/logica/useLogicaAdminVar';
+// 🚀 Importamos el hook maestro
+import { useBandejaVariables } from '../components/fases/variables/logica/useBandejaVariables';
 
 export const Admin = () => {
     const { fase } = useParams(); 
     const [periodoSeleccionado, setPeriodoSeleccionado] = useState('');
+    // 🚀 Recuperamos el estado de los modales administrativos que estaba en el viejo hook
+    const [modalActivo, setModalActivo] = useState(null); 
 
-    const logicaVar = useLogicaAdminVar(fase === 'variables' ? periodoSeleccionado : '');
+    // 🚀 Inyectamos el parámetro 'ADMIN'
+    const logicaVar = useBandejaVariables(fase === 'variables' ? periodoSeleccionado : '', 'ADMIN');
 
     const titulosFase = {
         'variables': 'Bandeja de Reportes - Variables',
@@ -31,7 +35,7 @@ export const Admin = () => {
             <BarraSuperior 
                 periodoSeleccionado={periodoSeleccionado} 
                 setPeriodoSeleccionado={setPeriodoSeleccionado} 
-                onMenuClick={(modal) => logicaVar.setModalActivo(modal)} 
+                onMenuClick={(modal) => setModalActivo(modal)} 
             />
 
             <main className="main-container">
@@ -47,22 +51,22 @@ export const Admin = () => {
                         reportes={logicaVar.reportes} 
                         isLoading={logicaVar.isLoading} 
                         codigoPeriodo={periodoSeleccionado}
-                        onVerMas={logicaVar.handleVerMas} 
+                        onVerMas={logicaVar.handleVerDetalleReporte} 
                     />
                 )}
 
             </main>
 
             {/* Modales globales del Admin */}
-            {logicaVar.modalActivo === 'PERIODOS' && <ModalPeriodos onClose={() => logicaVar.setModalActivo(null)} />}
-            {logicaVar.modalActivo === 'EXCEPCIONES' && <ModalExcepciones onClose={() => logicaVar.setModalActivo(null)} />}
-            {logicaVar.modalActivo === 'USUARIOS' && <ModalUsuarios onClose={() => logicaVar.setModalActivo(null)} />}
+            {modalActivo === 'PERIODOS' && <ModalPeriodos onClose={() => setModalActivo(null)} />}
+            {modalActivo === 'EXCEPCIONES' && <ModalExcepciones onClose={() => setModalActivo(null)} />}
+            {modalActivo === 'USUARIOS' && <ModalUsuarios onClose={() => setModalActivo(null)} />}
 
             {/* Modal de Variables */}
             {fase === 'variables' && logicaVar.isReporteOpen && (
                 <ModalMaestroReporte 
                     idReporte={logicaVar.reporteEdicionId} 
-                    periodoActivo={logicaVar.periodoActivoObj} 
+                    periodoActivo={logicaVar.periodoActual} 
                     periodoSeleccionado={periodoSeleccionado}
                     catalogos={logicaVar.catalogos} 
                     modoVista='ADMIN'

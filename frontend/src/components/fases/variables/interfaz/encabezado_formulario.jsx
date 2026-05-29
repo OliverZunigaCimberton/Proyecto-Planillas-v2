@@ -1,9 +1,7 @@
 // src/components/reportes/modal_maestro/subcomponentes/interfaz/encabezado_formulario.jsx
 import { SmartAutocomplete } from '../../../shared/smartdropdown';
-
-import logoCimsa from "../../../../styles/logos/cimsa.png";
-import logoDietco from "../../../../styles/logos/dietco.png";
-import logoSq from "../../../../styles/logos/sq.png";
+// 🚀 Importamos el componente desde la carpeta shared
+import { CabeceraCorporativa } from '../../../shared/cabecera_corporativa';
 
 export const EncabezadoFormulario = ({ 
     reporteHeader, 
@@ -17,28 +15,11 @@ export const EncabezadoFormulario = ({
 }) => {
     return (
         <div className="reporte-body-header">
-           {/* 📁 Contenedor relativo calibrado para la nueva distribución de marcas */}
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1px', minHeight: '1px' }}>
-                
-                {/* 🎯 Orden solicitado: CIMSA -> DIETCO -> SQ | Gap ultra-compacto de 4px para unificarlos */}
-                <div style={{ position: 'absolute', left: '0', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <img src={logoCimsa} alt="CIMSA" style={{ height: '60px', width: 'auto', objectFit: 'contain' }} />
-                    <img src={logoDietco} alt="DIETCO" style={{ height: '60px', width: 'auto', objectFit: 'contain' }} />
-                    <img src={logoSq} alt="SQ" style={{ height: '54px', width: 'auto', objectFit: 'contain' }} />
-                </div>
-                
-                {/* Título de la Planilla (Centrado perfecto con colchón de seguridad optimizado) */}
-                <h2 className="reporte-titulo" style={{ 
-                    margin: 0, 
-                    textAlign: 'center', 
-                    width: '100%', 
-                    paddingLeft: '240px', 
-                    paddingRight: '240px',
-                    boxSizing: 'border-box'
-                }}>
-                    REPORTE DE COMISIONES, PREMIOS Y BONIFICACIONES
-                </h2>
-            </div>
+            {/* 🚀 Invocamos la cabecera dinámica pasándole el título y el tamaño exclusivo de esta fase */}
+            <CabeceraCorporativa 
+                titulo="REPORTE DE COMISIONES, PREMIOS Y BONIFICACIONES" 
+                altoLogos={48} 
+            />
             
             <div className="reporte-header-grid">
                 <div className="rh-group">
