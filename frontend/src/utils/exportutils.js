@@ -1,4 +1,7 @@
 // src/utils/exportutils.js
+import logoCimsa from "../styles/logos/cimsa.png";
+import logoDietco from "../styles/logos/dietco.png";
+import logoSq from "../styles/logos/sq.png";
 
 const formatoMoneda = new Intl.NumberFormat('en-US', {
     minimumFractionDigits: 2,
@@ -190,7 +193,7 @@ export const exportarReporteAPDF = (reporte, lineas, firmantes = [], userRol = '
 
     const doc = iframe.contentWindow.document;
 
-    const ROWS_PER_PAGE = 40;
+    const ROWS_PER_PAGE = 38;
     const totalPages = Math.ceil(lineas.length / ROWS_PER_PAGE) || 1;
     let paginasHTML = '';
 
@@ -259,8 +262,22 @@ export const exportarReporteAPDF = (reporte, lineas, firmantes = [], userRol = '
 
         paginasHTML += `
             <div class="hoja-impresion">
-                <div class="reporte-titulo">Reporte de Comisiones, Premios y Bonificaciones</div>
-                <div class="reporte-codigo">CÓDIGO: ${codigoUnicoInterno}</div>
+                <div style="position: relative; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; min-height: 60px; width: 100%;">
+                    
+                    <div style="position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 4px;">
+                        <img src="${logoCimsa}" style="height: 60px; width: auto; object-fit: contain;" />
+                        <img src="${logoDietco}" style="height: 60px; width: auto; object-fit: contain;" />
+                        <img src="${logoSq}" style="height: 54px; width: auto; object-fit: contain;" />
+                    </div>
+                    
+                    <div class="reporte-titulo" style="margin: 0; text-align: center; width: 100%; padding-left: 240px; padding-right: 240px; box-sizing: border-box; font-size: 13.5px;">
+                        REPORTE DE COMISIONES, PREMIOS Y BONIFICACIONES
+                    </div>
+
+                    <div style="position: absolute; right: 0; top: 18px; font-weight: 800; color: #cc0000; font-size: 12.5px; font-family: 'Segoe UI', Arial, sans-serif; white-space: nowrap;">
+                        CÓDIGO: ${codigoUnicoInterno}
+                    </div>
+                </div>
                 
                 <div class="reporte-header-grid">
                     <div class="rh-group"><label>Periodo de Planilla:</label><div class="rh-value">${repPeriodo}</div></div>

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useAuth } from '../hooks/useauth';
 
 // Importación unificada del logo desde su ubicación física real en el proyecto
-import logoMain from '../styles/img/Logos.png';
+import logoMain from '../styles/logos/login.png';
 
 export const Login = () => {
     const { requestAccess, validateToken } = useAuth();
