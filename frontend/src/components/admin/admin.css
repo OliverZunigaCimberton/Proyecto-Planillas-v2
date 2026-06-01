@@ -1,0 +1,1183 @@
+/* ==========================================================================
+   1. COMPONENTES COMUNES Y MÁSCARAS DE DIÁLOGO (Base, Encabezado y Alertas)
+========================================================================== */
+
+.admin-modal-base-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.admin-modal-base-content {
+    display: flex;
+    flex-direction: column;
+    max-width: 95vw;
+    max-height: 85vh !important;
+    height: auto !important;   
+    overflow: hidden !important;
+    transition: width 0.2s ease-in-out;
+}
+
+.admin-header-container {
+    padding-bottom: 12px;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.admin-header-group-left {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.admin-header-title {
+    margin: 0;
+    white-space: nowrap;
+}
+
+.admin-header-icon {
+    margin-right: 8px;
+}
+
+.admin-header-group-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin-header-close {
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.admin-confirm-overlay {
+    position: fixed; 
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(15, 23, 42, 0.4); 
+    backdrop-filter: blur(3px); 
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
+    z-index: 9999; 
+}
+
+.admin-confirm-content {
+    width: 420px;
+    max-width: 90vw;
+    overflow: hidden;
+    padding: 24px;
+}
+
+.admin-confirm-title {
+    margin: 0 0 10px 0;
+}
+
+.admin-confirm-text {
+    color: #475569;
+    font-size: 13.5px;
+    margin-bottom: 24px;
+}
+
+.admin-confirm-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.admin-confirm-btn-cancel {
+    flex: 1;
+    height: 36px;
+    font-weight: 700;
+}
+
+.admin-confirm-btn-action {
+    flex: 1;
+    height: 36px;
+    font-weight: 700;
+    color: white;
+    border: none;
+}
+
+.admin-toast-container {
+    position: fixed; 
+    z-index: 99999;
+}
+
+
+/* ==========================================================================
+   2. ORQUESTRADOR DE CONFIGURACIÓN GENERAL (Panel Confi Maestro)
+========================================================================== */
+
+.admin-confi-overlay {
+    display: flex;
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100vw; 
+    height: 100vh; 
+    z-index: 3000; 
+    background-color: rgba(15, 23, 42, 0.4); 
+    backdrop-filter: blur(4px); 
+    align-items: center; 
+    justify-content: center;
+}
+
+.admin-confi-modal-base {
+    background-color: #ffffff; 
+    border-radius: 12px; 
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); 
+    display: flex; 
+    flex-direction: column; 
+    transition: all 0.25s ease; 
+    overflow: hidden;
+}
+
+.admin-confi-toast {
+    position: fixed;
+    top: 25px;
+    right: 25px;
+    background-color: #ffffff;
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+    padding: 14px 20px;
+    border-radius: 8px;
+    z-index: 4000;
+    min-width: 300px;
+    max-width: 400px;
+}
+
+.admin-confi-toast-flex {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.admin-confi-toast-title {
+    display: block;
+    font-size: 14px;
+    color: #0f172a;
+}
+
+.admin-confi-toast-msg {
+    font-size: 13px;
+    color: #64748b;
+}
+
+.admin-confi-header-box {
+    padding: 16px 20px;
+}
+
+.admin-confi-body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+    overflow: hidden;
+}
+
+.admin-confi-loader {
+    text-align: center;
+    color: #64748b;
+    padding: 30px 0;
+}
+
+.admin-confi-menu-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+
+.admin-confi-menu-desc {
+    font-size: 13px;
+    color: #64748b;
+    margin: 0 0 10px 0;
+    text-align: center;
+}
+
+.admin-confi-menu-opt {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 14px 16px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    gap: 14px;
+    transition: all 0.15s ease;
+}
+
+.admin-confi-menu-icon-box {
+    width: 38px;
+    height: 38px;
+    border-radius: 6px;
+    background: #f1f5f9;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+}
+
+.admin-confi-menu-lbl-box {
+    text-align: left;
+}
+
+.admin-confi-menu-lbl-main {
+    display: block;
+    color: #1e293b;
+}
+
+.admin-confi-menu-lbl-sub {
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+.admin-confi-menu-arrow {
+    margin-left: auto;
+    color: #94a3b8;
+    font-size: 0.85rem;
+}
+
+
+/* ==========================================================================
+   3. CATÁLOGOS MAESTROS Y CONFIGURACIONES (Marcas, Variables y Recargo)
+========================================================================== */
+
+.admin-config-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 15px;
+    font-family: system-ui;
+    flex: 1;
+    overflow: hidden;
+}
+
+.admin-config-search-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    flex-shrink: 0;
+}
+
+.admin-config-search-box-var {
+    position: relative;
+    width: 340px;
+}
+
+.admin-config-search-box-brand {
+    position: relative;
+    width: 320px;
+}
+
+.admin-config-search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 0.85rem;
+}
+
+.admin-config-search-input {
+    width: 100%;
+    height: 36px;
+    padding-left: 36px;
+    padding-right: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 13px;
+    outline: none;
+    background: #ffffff;
+    color: #334155;
+}
+
+.admin-config-counter-lbl {
+    font-size: 12.5px;
+    color: #475569;
+    font-weight: 500;
+}
+
+.admin-config-counter-total {
+    color: #0f172a;
+    font-weight: 700;
+}
+
+.admin-config-form-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+    background: #ffffff;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    flex-shrink: 0;
+}
+
+.admin-config-grid-layout {
+    display: grid;
+    grid-template-columns: 1.2fr 3fr auto;
+    gap: 12px;
+    align-items: flex-end;
+    width: 100%;
+}
+
+.admin-config-flex-layout {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    width: 100%;
+}
+
+.admin-config-form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-config-form-group-flex {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.admin-config-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+}
+
+.admin-config-input-code {
+    width: 100%;
+    height: 38px;
+    padding: 0 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 13px;
+    text-transform: uppercase;
+    text-align: center;
+    font-weight: 700;
+    color: #b91c1c;
+    outline: none;
+}
+
+.admin-config-input-desc {
+    width: 100%;
+    height: 38px;
+    padding: 0 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+    outline: none;
+}
+
+.admin-config-input-brand {
+    width: 100%;
+    height: 38px;
+    padding: 0 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 13px;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: #1e3a8a;
+    outline: none;
+}
+
+.admin-config-btn-group {
+    display: flex;
+    gap: 6px;
+}
+
+.admin-config-btn-save {
+    height: 38px;
+    width: 42px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    background-color: #10b981;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+}
+
+.admin-config-btn-cancel {
+    height: 38px;
+    width: 42px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    background: #fff;
+    cursor: pointer;
+}
+
+.admin-config-btn-add {
+    height: 38px;
+    width: 42px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    background-color: #0f172a;
+    border: none;
+    color: #ffffff;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.admin-config-table-container {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-config-table-scroll {
+    flex: 1;
+    overflow-y: auto;
+    width: 100%;
+    height: 100%;
+}
+
+.admin-config-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+}
+
+.admin-config-thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #f8fafc;
+}
+
+.admin-config-th-row {
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.admin-config-th-code {
+    width: 22%;
+    padding: 11px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+    text-align: center;
+    letter-spacing: 0.3px;
+}
+
+.admin-config-th-id {
+    width: 18%;
+    padding: 11px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+    text-align: center;
+    letter-spacing: 0.3px;
+}
+
+.admin-config-th-desc {
+    text-align: left;
+    padding: 11px 20px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+    letter-spacing: 0.3px;
+}
+
+.admin-config-th-actions {
+    width: 15%;
+    padding: 11px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+    text-align: center;
+    letter-spacing: 0.3px;
+}
+
+.admin-config-th-actions-brand {
+    width: 18%;
+    padding: 11px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+    text-align: center;
+    letter-spacing: 0.3px;
+}
+
+.admin-config-empty-row {
+    text-align: center;
+    padding: 30px;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.admin-config-tbody-row {
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.admin-config-td-code {
+    text-align: center;
+    padding: 11px;
+    font-size: 13px;
+    font-weight: 800;
+    color: #b91c1c;
+}
+
+.admin-config-td-id {
+    text-align: center;
+    padding: 11px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #1e3a8a;
+}
+
+.admin-config-td-desc {
+    text-align: left;
+    padding: 11px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+}
+
+.admin-config-td-actions {
+    text-align: center;
+    padding: 11px;
+}
+
+.admin-config-actions-flex {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+}
+
+.admin-config-icon-edit {
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: #64748b;
+}
+
+.admin-config-icon-trash {
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: #ef4444;
+}
+
+/* CARGO A MARCA PARÁMETRO UNITARIO */
+.admin-cargo-container {
+    max-width: 400px;
+    margin: 20px auto;
+    text-align: center;
+}
+
+.admin-cargo-title {
+    color: #1e293b;
+    margin-bottom: 10px;
+}
+
+.admin-cargo-text {
+    font-size: 13px;
+    color: #64748b;
+    margin-bottom: 20px;
+}
+
+.admin-cargo-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+}
+
+.admin-cargo-input {
+    width: 120px;
+    text-align: center;
+    font-size: 1.2rem;
+    padding: 8px;
+}
+
+.admin-cargo-symbol {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #475569;
+}
+
+
+/* ==========================================================================
+   4. GESTIÓN DE PERIODOS CONTABLES (Lista, Formulario y Modales)
+========================================================================== */
+
+.admin-period-container {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    padding: 4px 20px 16px 20px;
+    background-color: #ffffff;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.admin-period-row {
+    display: flex;
+    gap: 14px;
+    width: 100%;
+}
+
+.admin-period-group {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 4px;
+}
+
+.admin-period-label {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.admin-period-input {
+    width: 100%;
+    height: 34px;
+    padding: 0 10px;
+    font-size: 12.5px;
+    color: #334155;
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.admin-period-file-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 34px;
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.admin-period-file-btn {
+    background-color: #f1f5f9;
+    color: #334155;
+    border-right: 1px solid #cbd5e1;
+    padding: 0 12px;
+    height: 100%;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    user-select: none;
+}
+
+.admin-period-file-text {
+    font-size: 12px;
+    color: #475569;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-left: 8px;
+    flex: 1;
+}
+
+.admin-period-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.admin-period-btn-cancel {
+    padding: 0 18px;
+    height: 34px;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #475569;
+    background-color: #f1f5f9;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.2px;
+}
+
+.admin-period-btn-save {
+    padding: 0 18px;
+    height: 34px;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #ffffff;
+    background-color: #0f172a;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.2px;
+}
+
+/* HISTORIAL COMPONENT ACCIONES */
+.admin-list-th-actions {
+    text-align: center;
+}
+
+.admin-list-td-actions {
+    text-align: center;
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.admin-list-btn-edit {
+    padding: 6px 10px;
+    font-size: 13px;
+}
+
+.admin-list-btn-lock {
+    padding: 6px 10px;
+    font-size: 13px;
+    color: #800020;
+}
+
+.admin-list-btn-users {
+    padding: 6px 10px;
+    font-size: 13px;
+    color: #0f172a;
+}
+
+/* MAESTRO CONTAINER DE CONTROL */
+.admin-period-btn-recharge {
+    height: 34px; 
+    cursor: pointer; 
+    margin: 0; 
+    display: flex; 
+    align-items: center; 
+    padding: 0 16px; 
+    font-size: 11.5px; 
+    font-weight: 700;
+}
+
+.admin-period-icon-spacing {
+    margin-right: 6px;
+}
+
+.admin-period-hidden-input {
+    display: none;
+}
+
+.admin-period-btn-empty {
+    background-color: #0f172a; 
+    height: 34px; 
+    border: none; 
+    padding: 0 16px; 
+    font-size: 11.5px; 
+    font-weight: 700;
+}
+
+
+/* ==========================================================================
+   5. MANTENIMIENTO DE PERSONAL MAESTRO (Tabla Compacta de Colaboradores)
+========================================================================== */
+
+.admin-personal-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 4px 24px 24px 24px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: #ffffff;
+    box-sizing: border-box;
+    height: 70vh !important;    /* 🚀 Mantiene la vista de personal alta y perfecta en su sección */
+    overflow: hidden !important;
+}
+
+.admin-personal-actions-row {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 2px;
+}
+
+.admin-personal-search-wrapper {
+    position: relative;
+    width: 360px;
+    display: flex;
+    align-items: center;
+}
+
+.admin-personal-search-icon {
+    position: absolute;
+    left: 12px;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.admin-personal-search-input {
+    width: 100%;
+    height: 34px;
+    padding: 0 12px 0 34px;
+    font-size: 12.5px;
+    color: #334155;
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 5px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.admin-personal-form-inline {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    background: #ffffff;
+    padding: 10px 14px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    width: 100%;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.admin-personal-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.admin-personal-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.admin-personal-input {
+    height: 34px;
+    padding: 0 10px;
+    font-size: 12.5px;
+    color: #334155;
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 5px;
+    outline: none;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.admin-personal-btn-submit-wrap {
+    width: 6%;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.admin-personal-btn-del {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #cc0000;
+    padding: 4px 8px;
+    font-size: 13px;
+}
+
+.admin-personal-validation-notice {
+    position: absolute;
+    bottom: -16px;
+    left: 14px;
+    font-size: 10.5px;
+    color: #cc0000;
+    font-weight: 600;
+}
+
+.admin-personal-table-scroll {
+    flex: 1;                     
+    min-height: 0;               
+    overflow-y: auto !important; 
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    margin-bottom: 5px;
+}
+
+.admin-personal-table {
+    margin: 0;
+    width: 100%;
+    table-layout: fixed;
+}
+
+.admin-personal-table tbody td {
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+}
+
+.admin-personal-thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: #f8fafc;
+}
+
+.admin-personal-th-1 { width: 12%; text-align: center; padding: 10px 0; } /* Código */
+.admin-personal-th-2 { width: 38%; text-align: left; padding-left: 12px; } /* Nombres */
+.admin-personal-th-3 { width: 26%; text-align: left; padding-left: 12px; } /* Puesto */
+.admin-personal-th-4 { width: 14%; text-align: center; }                  /* Empresa */
+.admin-personal-th-5 { width: 10%; text-align: center; }                  /* Basura (Espacio seguro anti-scroll) */
+
+.admin-personal-empty-state {
+    font-size: 13px;
+    font-style: italic;
+    background-color: #ffffff;
+}
+
+.admin-personal-tr-bg {
+    background-color: #ffffff;
+}
+
+.admin-personal-td-code { text-align: center; font-size: 12.5px; padding: 6px 0; }
+.admin-personal-td-name { text-align: left; padding-left: 12px; font-size: 12.5px; font-weight: 600; color: #1e293b; padding: 6px 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.admin-personal-td-post { text-align: left; padding-left: 12px; font-size: 12.5px; color: #475569; padding: 6px 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.admin-personal-td-company { 
+    text-align: center; 
+    color: #64748b; 
+    font-size: 12px; 
+    padding: 2px 8px !important; 
+    white-space: nowrap !important; 
+    overflow: hidden !important; 
+    text-overflow: ellipsis !important; 
+}
+
+.admin-personal-td-del { text-align: center; padding: 6px 0; }
+.admin-personal-counter-lbl { color: #64748b; font-size: 12px; }
+.admin-personal-counter-total { color: #1e293b; }
+
+.admin-personal-btn-submit {
+    padding: 0;
+    width: 100%;
+    height: 34px;
+    font-size: 13px;
+    font-weight: 700;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* ==========================================================================
+   6. CONTROL DE USUARIOS INTERNOS Y ACCESOS (CRUD Panel de Seguridad)
+========================================================================== */
+
+/* 🚀 NUEVO: Contenedor principal de la tarjeta del modal de usuarios (Evita desbordes) */
+.admin-user-modal-card {
+    max-width: 500px;
+    width: 100%;
+    max-height: 85vh !important; /* Blinda el modal para que jamás exceda el alto de la pantalla */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden !important;
+    background: #ffffff;
+    border-radius: 12px;
+}
+
+/* 🚀 NUEVO: Cuerpo interno donde viven los inputs (Con scroll inteligente de respaldo) */
+.admin-user-modal-body {
+    padding: 16px 24px;
+    overflow-y: auto !important; /* Si la pantalla es pequeña, este bloque absorbe el scroll */
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* Espaciado compacto y estético entre filas de inputs */
+}
+
+/* Clases de búsqueda y filtros en la bandeja general */
+.admin-user-search-padding {
+    padding: 0 20px 15px 20px;
+}
+
+.admin-user-search-relative {
+    position: relative;
+}
+
+.admin-user-search-icon {
+    position: absolute;
+    left: 12px;
+    top: 12px;
+    color: var(--gris-texto);
+}
+
+.admin-user-search-input {
+    width: 100%;
+    padding-left: 35px;
+}
+
+/* Caja contenedora de los Checkboxes de accesos */
+.admin-user-modules-box {
+    background: rgba(15, 23, 42, 0.05);
+    padding: 10px 14px !important; /* 🚀 Optimizado para ahorrar espacio vertical */
+    border-radius: 8px;
+    margin-top: 2px;
+}
+
+.admin-user-modules-label {
+    margin-bottom: 6px !important; /* 🚀 Más pegado a las opciones */
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+}
+
+.admin-user-checkbox-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.admin-user-checkbox-lbl {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 400;
+    cursor: pointer;
+}
+
+/* 🚀 Optimizado: Footer institucional de botones fijo en la base del modal */
+.admin-user-form-footer {
+    margin-top: 0 !important;
+    padding: 14px 24px;
+    background-color: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* Alineaciones y Badges para la tabla de usuarios en pantalla */
+.admin-user-th-center {
+    text-align: center;
+}
+
+.admin-user-td-center {
+    text-align: center;
+}
+
+.admin-user-badge-role {
+    background: #e2e8f0; 
+    color: #475569;
+}
+
+
+/* ==========================================================================
+   7. EXCEPCIONES OPERATIVAS Y TIEMPOS DE GRACIA (Flow de Permisos Extensivos)
+========================================================================== */
+
+.admin-exc-body-padding {
+    padding-bottom: 10px;
+}
+
+.admin-exc-form-row-start {
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+}
+
+.admin-exc-col-35 {
+    width: 35%;
+}
+
+.admin-exc-col-65-pad {
+    width: 65%;
+    padding-top: 22px;
+}
+
+.admin-exc-rh-value-box {
+    display: flex;
+    align-items: center;
+    background: #f8fafc;
+    padding: 0 12px;
+    border-radius: 4px;
+    border: 1px solid #e2e8f0;
+    height: 34px;
+    font-size: 11.5px;
+    box-sizing: border-box;
+}
+
+.admin-exc-text-ellipsis {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.admin-exc-form-row {
+    display: flex;
+    gap: 15px;
+}
+
+.admin-exc-footer-margin {
+    margin-top: 10px;
+}
+
+.admin-exc-badge {
+    color: white; 
+    padding: 4px 8px; 
+    border-radius: 6px; 
+    font-size: 0.7rem; 
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.admin-exc-td-blue {
+    color: var(--azul-oscuro);
+}
+
+.admin-exc-th-center {
+    text-align: center;
+}
+
+.admin-exc-select-bold {
+    font-weight: bold;
+}
+
+/* ==========================================================================
+   9. CONTROL DE FLUIDEZ DE PERIODOS (ANTI ESPACIOS BLANCOS)
+========================================================================== */
+.admin-period-list-scroll {
+    max-height: 335px !important; /* 🚀 Ajuste perfecto: Muestra 5 filas fluidas; al entrar la 6.ª, activa el scroll */
+    overflow-y: auto !important;
+}

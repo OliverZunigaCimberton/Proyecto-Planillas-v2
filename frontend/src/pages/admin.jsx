@@ -5,9 +5,13 @@ import { BandejaReportes } from '../components/shared/bandejareportes';
 import { ModalPeriodos } from '../components/admin/modalperiodos';
 import { ModalExcepciones } from '../components/admin/modalexcepciones';
 import { ModalUsuarios } from '../components/admin/modalusuarios';
+import { Confi } from '../components/admin/confi'; // 🚀 Importamos el orquestador de configuraciones
 import { ModalMaestroReporte } from "../components/fases/variables/modal_maestro_reporte";
 // 🚀 Importamos el hook maestro
 import { useBandejaVariables } from '../components/fases/variables/logica/useBandejaVariables';
+
+/* 🎨 Importamos los estilos encapsulados y limpios del Administrador */
+import '../components/admin/admin.css';
 
 export const Admin = () => {
     const { fase } = useParams(); 
@@ -61,6 +65,7 @@ export const Admin = () => {
             {modalActivo === 'PERIODOS' && <ModalPeriodos onClose={() => setModalActivo(null)} />}
             {modalActivo === 'EXCEPCIONES' && <ModalExcepciones onClose={() => setModalActivo(null)} />}
             {modalActivo === 'USUARIOS' && <ModalUsuarios onClose={() => setModalActivo(null)} />}
+            {modalActivo === 'CONFIGURACIONES' && <Confi onClose={() => setModalActivo(null)} />}
 
             {/* Modal de Variables */}
             {fase === 'variables' && logicaVar.isReporteOpen && (

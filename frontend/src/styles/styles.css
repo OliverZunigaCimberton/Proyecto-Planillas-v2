@@ -147,7 +147,6 @@ body {
 .checkbox-wrapper { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.85rem; color: var(--gris-texto-p); user-select: none; }
 .checkbox-wrapper input[type="checkbox"] { width: auto; margin: 0; accent-color: var(--vino); cursor: pointer; }
 
-/* El btn-login ahora comparte la transición global en la Sección 7, pero mantenemos su estructura base aquí */
 .btn-login { width: 100%; padding: 18px; background: var(--gris-fondo); color: white; border: none; border-radius: 15px; font-family: var(--font-titulos); font-weight: 700; letter-spacing: 1px; cursor: pointer; margin-top: 20px; font-size: 0.95rem; }
 
 /* =========================================
@@ -305,20 +304,17 @@ button,
 .btn-sm { padding: 8px 15px; font-size: 0.8rem; }
 
 /* 7.3 EL EFECTO HOVER MAESTRO (ESTILO LOGIN: LEVANTAMIENTO, SOMBRA Y COLOR VINO) */
-
-/* Botones que cambian a Vino Oscuro al pasar el cursor (Login, Principales y Reportes) */
 .btn-login:not(:disabled):hover,
 .btn-pri:not(:disabled):hover,
 .btn-reporte-principal:not(:disabled):hover,
 .btn-nuevo:not(:disabled):hover,
 .btn-static:not(:disabled):hover {
     background-color: var(--vino) !important;
-    transform: translateY(-3px) !important; /* Movimiento elegante hacia arriba */
-    box-shadow: 0 10px 25px rgba(128, 0, 32, 0.35) !important; /* Sombra estilo neomorfismo */
+    transform: translateY(-3px) !important;
+    box-shadow: 0 10px 25px rgba(128, 0, 32, 0.35) !important;
     color: white !important;
 }
 
-/* Botones Secundarios (Levantamiento sutil y oscurecimiento del gris) */
 .btn-sec:not(:disabled):hover {
     background-color: #e2e8f0 !important;
     color: var(--azul-oscuro) !important;
@@ -326,17 +322,14 @@ button,
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08) !important;
 }
 
-/* 7.4 EXCEPCIONES SOLICITADAS POR EL USUARIO */
-
-/* Excepción 1: Botones de íconos en las tablas (.btn-sm) -> No tienen fondo, solo crecen y cambian a vino */
+/* Excepciones de Botones */
 .btn-sm:not(:disabled):hover {
     background-color: transparent !important;
-    transform: scale(1.15) translateY(0) !important; /* Crece el ícono un 15% */
+    transform: scale(1.15) translateY(0) !important;
     color: var(--vino) !important;
     box-shadow: none !important;
 }
 
-/* Excepción 2: Botón Recargar Excel (es un label) -> Efecto sutil para no desentonar */
 label[for="xlsx-personal-recharge"] {
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -346,7 +339,7 @@ label[for="xlsx-personal-recharge"]:hover {
     color: var(--azul-oscuro);
 }
 
-/* 7.5 BOTONES DE ESTADOS ESPECÍFICOS (Peligro, Éxito, Draft) */
+/* 7.5 BOTONES DE ESTADOS ESPECÍFICOS */
 .btn-danger { background-color: #fee2e2 !important; color: #ef4444 !important; border: 1px solid #fca5a5 !important; }
 .btn-danger:not(:disabled):hover { background-color: #fecaca !important; transform: translateY(-1px); box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2) !important; }
 
@@ -365,7 +358,7 @@ label[for="xlsx-personal-recharge"]:hover {
 .btn-del-row { background: #ef4444; color: white; border: none; width: 25px; height: 25px; border-radius: 4px; cursor: pointer; font-weight: bold; }
 .btn-del-row:not(:disabled):hover { background: #dc2626; transform: scale(1.1); }
 
-/* 7.6 ESTADO DESHABILITADO GENERAL (Bloquea todos los hovers) */
+/* Estado Deshabilitado General */
 button:disabled, .btn-disabled { 
     opacity: 0.6 !important; 
     cursor: not-allowed !important; 
@@ -375,7 +368,6 @@ button:disabled, .btn-disabled {
     color: #94a3b8 !important; 
 }
 
-/* 7.7 MISCELÁNEAS DE BOTONES */
 .btn-active-tab { background-color: rgba(204, 0, 0, 0.08) !important; color: var(--vino) !important; border-color: var(--vino) !important; box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05); }
 .btn-search-auth { flex: 0 0 auto !important; padding: 0 20px !important; }
 .label-excel-masivo { cursor: pointer; display: flex; align-items: center; gap: 5px; }
@@ -484,12 +476,11 @@ button:disabled, .btn-disabled {
 .modal-footer { grid-area: footer; display: flex; gap: 10px; align-items: center; justify-content: flex-end; }
 .modal-footer button { height: 45px; padding: 0 20px; font-size: 0.85rem; border-radius: 8px; white-space: nowrap; }
 
-/* Para Admin */
 .file-list-footer { display: flex; flex-wrap: wrap; gap: 10px; flex: 1; }
 .footer-actions-group { display: flex; gap: 12px; white-space: nowrap; }
 
 /* =========================================
-   11. PANELES DE ADMINISTRACIÓN Y EXCEPCIONES
+   11. PANELES DE ADMINISTRACIÓN Y EXCEPCIONES BASE
 ========================================= */
 .table-scroll { flex-grow: 1; overflow-y: auto; border: 1px solid var(--gris-borde); border-radius: 15px; margin-top: 10px; }
 .tabla-historial { width: 100%; border-collapse: collapse; }
@@ -502,6 +493,69 @@ button:disabled, .btn-disabled {
 .form-group { display: flex; flex-direction: column; gap: 6px; }
 .form-group label { font-size: 0.8rem; font-weight: 700; color: var(--gris-texto); text-transform: uppercase; letter-spacing: 0.5px; }
 .form-row { display: flex; gap: 15px; }
+
+/* =========================================
+   11.5 PESTAÑAS (TABS) - AUTORIZADOR PREMIUM
+========================================= */
+.aut-tab {
+    padding: 12px 26px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.6) !important;
+    cursor: pointer;
+    background-color: rgba(15, 23, 42, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: none;
+    border-radius: 12px 12px 0 0;
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    user-select: none;
+}
+
+.aut-tab:hover {
+    color: #ffffff !important;
+    background-color: rgba(15, 23, 42, 0.7);
+}
+
+.aut-tab i {
+    color: rgba(255, 255, 255, 0.5) !important;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+}
+
+.aut-tab:hover i {
+    color: #ffffff !important;
+}
+
+.aut-tab.active {
+    color: var(--vino) !important;
+    background-color: var(--blanco) !important;
+    border-color: rgba(255, 255, 255, 0.15);
+    font-weight: 700;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.aut-tab.active i {
+    color: var(--vino) !important;
+}
+
+.notification-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #ff4d4d;
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 8px #ff4d4d;
+    margin-left: 2px;
+    animation: pulseAlertDot 1.6s infinite alternate ease-in-out;
+}
+
+@keyframes pulseAlertDot {
+    0% { transform: scale(0.85); box-shadow: 0 0 4px #ff4d4d; opacity: 0.7; }
+    100% { transform: scale(1.25); box-shadow: 0 0 10px #ff4d4d; opacity: 1; }
+}
 
 /* =========================================
    12. MEDIA QUERIES RESPONSIVAS
@@ -529,77 +583,4 @@ button:disabled, .btn-disabled {
         padding: 15px;
     }
     .modal-footer { flex-wrap: wrap; justify-content: center; }
-}
-
-/* =========================================
-   11.5 PESTAÑAS (TABS) - AUTORIZADOR PREMIUM
-========================================= */
-.aut-tab {
-    padding: 12px 26px;
-    font-size: 0.88rem;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.6) !important;
-    cursor: pointer;
-    background-color: rgba(15, 23, 42, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-bottom: none;
-    border-radius: 12px 12px 0 0;
-    transition: all 0.2s ease-in-out;
-    display: flex;
-    align-items: center;
-    gap: 10px; /* Incrementado levemente para dar espacio al punto */
-    user-select: none;
-}
-
-.aut-tab:hover {
-    color: #ffffff !important;
-    background-color: rgba(15, 23, 42, 0.7);
-}
-
-.aut-tab i {
-    color: rgba(255, 255, 255, 0.5) !important;
-    font-size: 0.95rem;
-    transition: all 0.2s;
-}
-
-.aut-tab:hover i {
-    color: #ffffff !important;
-}
-
-/* Pestaña Activa: Texto e ícono en color VINO institucional sobre fondo claro */
-.aut-tab.active {
-    color: var(--vino) !important;
-    background-color: var(--blanco) !important;
-    border-color: rgba(255, 255, 255, 0.15);
-    font-weight: 700;
-    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.aut-tab.active i {
-    color: var(--vino) !important;
-}
-
-/* ✨ NUEVO: Punto de Notificación Pulsante Premium */
-.notification-dot {
-    width: 8px;
-    height: 8px;
-    background-color: #ff4d4d; /* Rojo vibrante de alerta */
-    border-radius: 50%;
-    display: inline-block;
-    box-shadow: 0 0 8px #ff4d4d;
-    margin-left: 2px;
-    animation: pulseAlertDot 1.6s infinite alternate ease-in-out;
-}
-
-@keyframes pulseAlertDot {
-    0% {
-        transform: scale(0.85);
-        box-shadow: 0 0 4px #ff4d4d;
-        opacity: 0.7;
-    }
-    100% {
-        transform: scale(1.25);
-        box-shadow: 0 0 10px #ff4d4d;
-        opacity: 1;
-    }
 }

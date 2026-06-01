@@ -64,15 +64,10 @@ export const ModalExcepciones = ({ onClose }) => {
                                         
                                         {/* ✨ ETIQUETA VISUAL DE TIPO DE PERMISO */}
                                         <td>
-                                            <span style={{ 
-                                                backgroundColor: exc.tipo_permiso === 'AUTORIZAR' ? 'var(--azul-oscuro)' : 'var(--vino)', 
-                                                color: 'white', 
-                                                padding: '4px 8px', 
-                                                borderRadius: '6px', 
-                                                fontSize: '0.7rem', 
-                                                fontWeight: '700',
-                                                letterSpacing: '0.5px'
-                                            }}>
+                                            <span 
+                                                className="admin-exc-badge" 
+                                                style={{ backgroundColor: exc.tipo_permiso === 'AUTORIZAR' ? 'var(--azul-oscuro)' : 'var(--vino)' }}
+                                            >
                                                 {exc.tipo_permiso === 'AUTORIZAR' ? 'AUTORIZAR' : 'CREAR'}
                                             </span>
                                         </td>
@@ -80,12 +75,12 @@ export const ModalExcepciones = ({ onClose }) => {
                                         <td className="font-bold text-vino">
                                             <i className="fas fa-user-edit"></i> {exc.codigo_empleado || 'N/A'}
                                         </td>
-                                        <td className="font-bold" style={{ color: 'var(--azul-oscuro)' }}>
+                                        <td className="font-bold admin-exc-td-blue">
                                             <i className="fas fa-user-check"></i> {exc.codigo_autorizador || 'Mismo (Auto)'}
                                         </td>
                                         <td>{formatearFecha(exc.nueva_fecha_corte)} - {exc.nueva_hora_corte?.substring(0, 5)}</td>
                                         <td className="text-muted italic">{exc.motivo || '-'}</td>
-                                        <td style={{ textAlign: 'center' }}>
+                                        <td className="admin-exc-th-center">
                                             <button className="btn-sec btn-sm" onClick={() => handleEditarExcepcion(exc.id)}>
                                                 <i className="fas fa-edit"></i> EDITAR
                                             </button>
@@ -97,7 +92,7 @@ export const ModalExcepciones = ({ onClose }) => {
                     </table>
                 </div>
             ) : (
-                <div className="modal-body" style={{ paddingBottom: '10px' }}>
+                <div className="modal-body admin-exc-body-padding">
                     
                     <div className="form-group">
                         <label>Periodo de Planilla en Curso:</label>
@@ -110,8 +105,8 @@ export const ModalExcepciones = ({ onClose }) => {
                     <div className="form-group">
                         <label>Tipo de Permiso de Gracia:</label>
                         <select 
-                            className="m-input" 
-                            style={{ fontWeight: 'bold', color: formData.tipo_permiso === 'AUTORIZAR' ? 'var(--azul-oscuro)' : 'var(--vino)' }}
+                            className="m-input admin-exc-select-bold" 
+                            style={{ color: formData.tipo_permiso === 'AUTORIZAR' ? 'var(--azul-oscuro)' : 'var(--vino)' }}
                             value={formData.tipo_permiso || 'CREAR'} 
                             onChange={(e) => {
                                 const nuevoTipo = e.target.value;
@@ -131,8 +126,8 @@ export const ModalExcepciones = ({ onClose }) => {
 
                     {/* ✨ FORMULARIO DINÁMICO: Solo mostramos al reportante si el permiso es CREAR */}
                     {(!formData.tipo_permiso || formData.tipo_permiso === 'CREAR') && (
-                        <div className="form-row" style={{ display: 'flex', gap: '15px', alignItems: 'flex-start' }}>
-                            <div className="form-group" style={{ width: '35%' }}>
+                        <div className="form-row admin-exc-form-row-start">
+                            <div className="form-group admin-exc-col-35">
                                 <label>Reportante:</label>
                                 <input 
                                     type="number" className="m-input" placeholder="" 
@@ -141,10 +136,10 @@ export const ModalExcepciones = ({ onClose }) => {
                                     onBlur={(e) => handleReportanteBlur(e.target.value)} disabled={isLoading} 
                                 />
                             </div>
-                            <div className="form-group" style={{ width: '65%', paddingTop: '22px' }}>
-                                <span className="rh-value" style={{ display: 'flex', alignItems: 'center', background: '#f8fafc', padding: '0 12px', borderRadius: '4px', border: '1px solid #e2e8f0', height: '34px', fontSize: '11.5px', boxSizing: 'border-box' }}>
+                            <div className="form-group admin-exc-col-65-pad">
+                                <span className="rh-value admin-exc-rh-value-box">
                                     {infoReportante ? (
-                                        <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                        <span className="admin-exc-text-ellipsis">
                                             <strong>{infoReportante.nombre}</strong> <span style={{ color: '#64748b' }}>({infoReportante.email})</span>
                                         </span>
                                     ) : <span className="text-muted italic">Ingrese código...</span>}
@@ -154,8 +149,8 @@ export const ModalExcepciones = ({ onClose }) => {
                     )}
 
                     {/* El Autorizador siempre se muestra, pero cambia su contexto visualmente */}
-                    <div className="form-row" style={{ display: 'flex', gap: '15px', alignItems: 'flex-start' }}>
-                        <div className="form-group" style={{ width: '35%' }}>
+                    <div className="form-row admin-exc-form-row-start">
+                        <div className="form-group admin-exc-col-35">
                             <label>{formData.tipo_permiso === 'AUTORIZAR' ? 'Código del Autorizador:' : 'Autorizador:'}</label>
                             <input 
                                 type="number" className="m-input" placeholder="" 
@@ -164,10 +159,10 @@ export const ModalExcepciones = ({ onClose }) => {
                                 onBlur={(e) => handleAutorizadorBlur(e.target.value)} disabled={isLoading} 
                             />
                         </div>
-                        <div className="form-group" style={{ width: '65%', paddingTop: '22px' }}>
-                            <span className="rh-value" style={{ display: 'flex', alignItems: 'center', background: '#f8fafc', padding: '0 12px', borderRadius: '4px', border: '1px solid #e2e8f0', height: '34px', fontSize: '11.5px', boxSizing: 'border-box' }}>
+                        <div className="form-group admin-exc-col-65-pad">
+                            <span className="rh-value admin-exc-rh-value-box">
                                 {infoAutorizador ? (
-                                    <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    <span className="admin-exc-text-ellipsis">
                                         <strong>{infoAutorizador.nombre}</strong> <span style={{ color: '#64748b' }}>({infoAutorizador.email})</span>
                                     </span>
                                 ) : <span className="text-muted italic">Ingrese código...</span>}
@@ -175,7 +170,7 @@ export const ModalExcepciones = ({ onClose }) => {
                         </div>
                     </div>
 
-                    <div className="form-row" style={{ display: 'flex', gap: '15px' }}>
+                    <div className="form-row admin-exc-form-row">
                         <div className="form-group flex-1">
                             <label>Nueva Fecha de Corte:</label>
                             <input type="date" className="m-input" value={formData.nueva_fecha_corte || ''} onChange={(e) => setFormData({...formData, nueva_fecha_corte: e.target.value})} disabled={isLoading} />
@@ -191,7 +186,7 @@ export const ModalExcepciones = ({ onClose }) => {
                         <input type="text" className="m-input" placeholder="" value={formData.motivo || ''} onChange={(e) => setFormData({...formData, motivo: e.target.value})} disabled={isLoading} />
                     </div>
                     
-                    <div className="modal-footer" style={{ marginTop: '10px' }}>
+                    <div className="modal-footer admin-exc-footer-margin">
                         <button className="btn-sec" onClick={() => setView('LIST')} disabled={isLoading}>CANCELAR</button>
                         <button className="btn-pri" onClick={handleGuardar} disabled={isLoading}>
                             {isLoading ? <><i className="fas fa-spinner fa-spin"></i> PROCESANDO</> : "GUARDAR"}

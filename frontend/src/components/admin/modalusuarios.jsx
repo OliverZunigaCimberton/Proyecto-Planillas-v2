@@ -62,7 +62,7 @@ export const ModalUsuarios = ({ onClose }) => {
 
             {/* Alertas Toast */}
             {notificacion.mensaje && (
-                <div id="notif-container" style={{ position: 'fixed', zIndex: 99999 }}>
+                <div id="notif-container" className="admin-toast-container">
                     <div className={`toast-notif ${notificacion.tipo}`}>{notificacion.mensaje}</div>
                 </div>
             )}

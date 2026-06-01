@@ -54,36 +54,36 @@ export const ConfigVariables = ({ variables, onRefresh }) => {
     };
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', width: '100%', gap: '15px', fontFamily: 'system-ui', flex: 1, overflow: 'hidden' }}>
+        <div className="admin-config-wrapper">
             
             {/* SEARCH & COUNTER */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', flexShrink: 0 }}>
-                <div style={{ position: 'relative', width: '340px' }}>
-                    <i className="fas fa-search" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', fontSize: '0.85rem' }}></i>
+            <div className="admin-config-search-row">
+                <div className="admin-config-search-box-var">
+                    <i className="fas fa-search admin-config-search-icon"></i>
                     <input 
                         type="text" 
-                        style={{ width: '100%', height: '36px', paddingLeft: '36px', paddingRight: '12px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '13px', outline: 'none', background: '#ffffff', color: '#334155' }}
+                        className="admin-config-search-input"
                         placeholder="Buscar por código contable o descripción..." 
                         value={filtro}
                         onChange={(e) => setFiltro(e.target.value)}
                     />
                 </div>
-                <span style={{ fontSize: '12.5px', color: '#475569', fontWeight: '500' }}>
-                    Registros en pantalla: <strong style={{ color: '#0f172a', fontWeight: '700' }}>{variablesFiltradas.length} conceptos</strong>
+                <span className="admin-config-counter-lbl">
+                    Registros en pantalla: <strong className="admin-config-counter-total">{variablesFiltradas.length} conceptos</strong>
                 </span>
             </div>
 
             {/* FORM CARD (FIJO - NO CRECE) */}
-            <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px', background: '#ffffff', boxShadow: '0 1px 2px rgba(0,0,0,0.02)', flexShrink: 0 }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 3fr auto', gap: '12px', alignItems: 'flex-end', width: '100%' }}>
+            <div className="admin-config-form-card">
+                <div className="admin-config-grid-layout">
                     
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <label style={{ fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '6px', letterSpacing: '0.5px' }}>
+                    <div className="admin-config-form-group">
+                        <label className="admin-config-label">
                             CÓDIGO VARIABLE:
                         </label>
                         <input 
                             type="text" 
-                            style={{ width: '100%', height: '38px', padding: '0 12px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '13px', textTransform: 'uppercase', textAlign: 'center', fontWeight: '700', color: '#b91c1c', outline: 'none' }}
+                            className="admin-config-input-code"
                             placeholder="" 
                             value={varEditando ? varEditando.codigo_variable : nuevoVarCodigo}
                             onChange={(e) => varEditando ? setVarEditando(p => ({ ...p, codigo_variable: e.target.value })) : setNuevoVarCodigo(e.target.value)}
@@ -91,13 +91,13 @@ export const ConfigVariables = ({ variables, onRefresh }) => {
                         />
                     </div>
 
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <label style={{ fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '6px', letterSpacing: '0.5px' }}>
+                    <div className="admin-config-form-group">
+                        <label className="admin-config-label">
                             DESCRIPCIÓN DEL CONCEPTO FINANCIERO:
                         </label>
                         <input 
                             type="text" 
-                            style={{ width: '100%', height: '38px', padding: '0 12px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '13px', fontWeight: '600', color: '#334155', outline: 'none' }}
+                            className="admin-config-input-desc"
                             placeholder="" 
                             value={varEditando ? varEditando.nombre_variable : nuevoVarNombre}
                             onChange={(e) => varEditando ? setVarEditando(p => ({ ...p, nombre_variable: e.target.value })) : setNuevoVarNombre(e.target.value)}
@@ -106,17 +106,17 @@ export const ConfigVariables = ({ variables, onRefresh }) => {
                     </div>
 
                     {varEditando ? (
-                        <div style={{ display: 'flex', gap: '6px' }}>
-                            <button className="btn-pri" style={{ height: '38px', width: '42px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '6px', backgroundColor: '#10b981', border: 'none', color: '#fff', cursor: 'pointer' }} onClick={handleGuardarEditar} disabled={isLoading}>
+                        <div className="admin-config-btn-group">
+                            <button className="btn-pri admin-config-btn-save" onClick={handleGuardarEditar} disabled={isLoading}>
                                 <i className="fas fa-check"></i>
                             </button>
-                            <button className="btn-sec" style={{ height: '38px', width: '42px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '6px', border: '1px solid #cbd5e1', background: '#fff', cursor: 'pointer' }} onClick={() => setVarEditando(null)} disabled={isLoading}>
+                            <button className="btn-sec admin-config-btn-cancel" onClick={() => setVarEditando(null)} disabled={isLoading}>
                                 <i className="fas fa-times"></i>
                             </button>
                         </div>
                     ) : (
                         <button 
-                            style={{ height: '38px', width: '42px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '6px', backgroundColor: '#0f172a', border: 'none', color: '#ffffff', cursor: 'pointer', fontWeight: '700' }} 
+                            className="admin-config-btn-add"
                             onClick={handleAgregar} 
                             disabled={isLoading || !nuevoVarCodigo.trim() || !nuevoVarNombre.trim()}
                         >
@@ -127,30 +127,30 @@ export const ConfigVariables = ({ variables, onRefresh }) => {
             </div>
 
             {/* 📊 ÁREA DE TABLA LIQUIDA RECOLECTORA (FLEX: 1 ABSOLUTO) */}
-            <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden', background: '#ffffff', boxShadow: '0 1px 3px rgba(0,0,0,0.02)', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <div style={{ flex: 1, overflowY: 'auto', width: '100%', height: '100%' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', margin: 0 }}>
-                        <thead style={{ position: 'sticky', top: 0, zIndex: 10, background: '#f8fafc' }}>
-                            <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
-                                <th style={{ width: '22%', padding: '11px', fontSize: '11px', fontWeight: '700', color: '#475569', textAlign: 'center', letterSpacing: '0.3px' }}>CÓDIGO CONTABLE</th>
-                                <th style={{ textAlign: 'left', padding: '11px 20px', fontSize: '11px', fontWeight: '700', color: '#475569', letterSpacing: '0.3px' }}>DESCRIPCIÓN DE LA VARIABLE CONTEBLE</th>
-                                <th style={{ width: '15%', padding: '11px', fontSize: '11px', fontWeight: '700', color: '#475569', textAlign: 'center', letterSpacing: '0.3px' }}>ACCIONES</th>
+            <div className="admin-config-table-container">
+                <div className="admin-config-table-scroll">
+                    <table className="admin-config-table">
+                        <thead className="admin-config-thead">
+                            <tr className="admin-config-th-row">
+                                <th className="admin-config-th-code">CÓDIGO CONTABLE</th>
+                                <th className="admin-config-th-desc">DESCRIPCIÓN DE LA VARIABLE CONTEBLE</th>
+                                <th className="admin-config-th-actions">ACCIONES</th>
                             </tr>
                         </thead>
                         <tbody>
                             {variablesFiltradas.length === 0 ? (
                                 <tr>
-                                    <td colSpan="3" style={{ textAlign: 'center', padding: '30px', color: '#64748b', fontSize: '13px' }}>No se encontraron registros coincidentes.</td>
+                                    <td colSpan="3" className="admin-config-empty-row">No se encontraron registros coincidentes.</td>
                                 </tr>
                             ) : (
                                 variablesFiltradas.map(v => (
-                                    <tr key={v.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                                        <td style={{ textAlign: 'center', padding: '11px', fontSize: '13px', fontWeight: '800', color: '#b91c1c' }}>{v.codigo_variable}</td>
-                                        <td style={{ textAlign: 'left', padding: '11px 20px', fontSize: '13px', fontWeight: '600', color: '#334155' }}>{v.nombre_variable}</td>
-                                        <td style={{ textAlign: 'center', padding: '11px' }}>
-                                            <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
-                                                <i className="fas fa-edit" style={{ cursor: 'pointer', fontSize: '0.95rem', color: '#64748b' }} onClick={() => setVarEditando(v)} title="Editar"></i>
-                                                <i className="fas fa-trash-alt" style={{ cursor: 'pointer', fontSize: '0.95rem', color: '#ef4444' }} onClick={() => handleEliminar(v.id)} title="Eliminar"></i>
+                                    <tr key={v.id} className="admin-config-tbody-row">
+                                        <td className="admin-config-td-code">{v.codigo_variable}</td>
+                                        <td className="admin-config-td-desc">{v.nombre_variable}</td>
+                                        <td className="admin-config-td-actions">
+                                            <div className="admin-config-actions-flex">
+                                                <i className="fas fa-edit admin-config-icon-edit" onClick={() => setVarEditando(v)} title="Editar"></i>
+                                                <i className="fas fa-trash-alt admin-config-icon-trash" onClick={() => handleEliminar(v.id)} title="Eliminar"></i>
                                             </div>
                                         </td>
                                     </tr>

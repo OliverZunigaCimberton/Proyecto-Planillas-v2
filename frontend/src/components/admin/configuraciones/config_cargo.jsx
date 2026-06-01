@@ -49,23 +49,22 @@ export const ConfigCargo = ({ porcentajeInicial, onRefresh, notificar }) => {
     };
 
     return (
-        <div style={{ maxWidth: '400px', margin: '20px auto', textAlign: 'center' }}>
-            <h4 style={{ color: '#1e293b', marginBottom: '10px' }}>Porcentaje de Recargo de Gestión</h4>
-            <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '20px' }}>
+        <div className="admin-cargo-container">
+            <h4 className="admin-cargo-title">Porcentaje de Recargo de Gestión</h4>
+            <p className="admin-cargo-text">
                 Este porcentaje se aplica de forma automática al subtotal de los reportes cuando se marca la opción "Sí".
             </p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'center' }}>
+            <div className="admin-cargo-input-wrap">
                 <input 
                     type="number" 
-                    className="smart-input font-bold" 
-                    style={{ width: '120px', textAlign: 'center', fontSize: '1.2rem', padding: '8px' }} 
+                    className="smart-input font-bold admin-cargo-input" 
                     value={porcentajeInput} 
                     onChange={(e) => setPorcentajeInput(e.target.value)}
                     placeholder="17.25"
                     step="0.01"
                     disabled={isLoading}
                 />
-                <span style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#475569' }}>%</span>
+                <span className="admin-cargo-symbol">%</span>
             </div>
             <button className="btn-pri mt-20" style={{ width: '100%' }} onClick={handleGuardar} disabled={isLoading}>
                 <i className={isLoading ? "fas fa-spinner fa-spin" : "fas fa-save"}></i> Guardar Configuración

@@ -5,14 +5,13 @@ export const ListaUsuarios = ({
 }) => {
     return (
         <>
-            <div style={{ padding: '0 20px 15px 20px' }}>
-                <div className="search-container" style={{ position: 'relative' }}>
-                    <i className="fas fa-search" style={{ position: 'absolute', left: '12px', top: '12px', color: 'var(--gris-texto)' }}></i>
+            <div className="admin-user-search-padding">
+                <div className="search-container admin-user-search-relative">
+                    <i className="fas fa-search admin-user-search-icon"></i>
                     <input 
                         type="text" 
-                        className="m-input" 
+                        className="m-input admin-user-search-input" 
                         placeholder="Buscar por código, nombre o correo..." 
-                        style={{ width: '100%', paddingLeft: '35px' }}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         disabled={isLoading}
@@ -29,7 +28,7 @@ export const ListaUsuarios = ({
                             <th>Correo</th>
                             <th>Rol</th>
                             <th>Estado</th>
-                            <th style={{ textAlign: 'center' }}>Acciones</th>
+                            <th className="admin-user-th-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -41,13 +40,13 @@ export const ListaUsuarios = ({
                                     <td className="font-bold">{u.codigo || '-'}</td>
                                     <td>{u.nombre || <span className="text-muted italic">Sin nombre</span>}</td>
                                     <td>{u.email || '-'}</td>
-                                    <td><span className="badge" style={{ background: '#e2e8f0', color: '#475569' }}>{u.rol || 'REPORTANTE'}</span></td>
+                                    <td><span className="badge admin-user-badge-role">{u.rol || 'REPORTANTE'}</span></td>
                                     <td>
                                         <span className={`badge ${(u.estado || 'Activo').toLowerCase() === 'activo' ? 'ACTIVO' : 'INACTIVO'}`}>
                                             {(u.estado || 'Activo').toUpperCase()}
                                         </span>
                                     </td>
-                                    <td style={{ textAlign: 'center' }}>
+                                    <td className="admin-user-td-center">
                                         <button className="btn-sec btn-sm" onClick={() => handleEditarUsuario(u.codigo)} disabled={isLoading || !u.codigo}>
                                             <i className="fas fa-edit"></i> EDITAR
                                         </button>

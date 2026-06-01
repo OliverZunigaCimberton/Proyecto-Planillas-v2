@@ -10,12 +10,12 @@ export const Encabezado = ({
     children // Permite inyectar botones extra (como los de Excel)
 }) => {
     return (
-        <div className="modal-header-box" style={{ paddingBottom: '12px', display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between' }}>
+        <div className="modal-header-box admin-header-container">
             
             {/* GRUPO IZQUIERDO: Título y Botón Principal */}
-            <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-                <h3 className="no-margin-title" style={{ margin: 0, whiteSpace: 'nowrap' }}>
-                    {icono && <i className={icono} style={{ marginRight: '8px' }}></i>}
+            <div className="admin-header-group-left">
+                <h3 className="no-margin-title admin-header-title">
+                    {icono && <i className={`${icono} admin-header-icon`}></i>}
                     {titulo}
                 </h3>
                 {mostrarBoton && (
@@ -24,13 +24,12 @@ export const Encabezado = ({
             </div>
 
             {/* GRUPO DERECHO: Herramientas Extra y Botón Cerrar */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div className="admin-header-group-right">
                 {children}
                 {onClose && (
                     <i 
-                        className="fas fa-times close-modal" 
+                        className="fas fa-times close-modal admin-header-close" 
                         onClick={onClose} 
-                        style={{ cursor: 'pointer', marginLeft: '10px' }}
                         title="Cerrar"
                     ></i>
                 )}

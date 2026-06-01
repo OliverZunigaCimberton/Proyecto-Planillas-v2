@@ -25,24 +25,21 @@ export const BandejaReportes = ({ reportes, isLoading, onVerMas }) => {
             </div>
             
             <div className="table-wrapper" style={{ height: 'calc(100vh - 280px)', overflowY: 'auto' }}>
-                <table className="imberton-table" style={{ width: '100%' }}>
-                    <tbody>
-                        {isLoading ? (
-                            <tr>
-                                <td colSpan="6" className="text-center p-80 text-muted">
-                                    <i className="fas fa-spinner fa-spin"></i> Cargando reportes...
-                                </td>
-                            </tr>
-                        ) : reportes.length === 0 ? (
-                            <tr>
-                                <td colSpan="6" className="text-center p-80 text-muted" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100px' }}>
-                                    {rolActual === 'AUTORIZADOR' 
-                                        ? 'No tienes reportes pendientes de revisar en esta bandeja.' 
-                                        : 'No se encontraron registros de variables en este periodo.'}
-                                </td>
-                            </tr>
-                        ) : (
-                            reportes.map(r => {
+                {/* 🚀 CONDICIONALES EXTRAÍDAS: Al usar DIVs directos liberamos al texto del colapso de la tabla */}
+                {isLoading ? (
+                    <div className="text-center text-muted" style={{ textAlign: 'center', padding: '80px 0', width: '100%' }}>
+                        <i className="fas fa-spinner fa-spin"></i> Cargando reportes...
+                    </div>
+                ) : reportes.length === 0 ? (
+                    <div className="text-center text-muted" style={{ textAlign: 'center', padding: '80px 0', width: '100%', fontSize: '14px' }}>
+                        {rolActual === 'AUTORIZADOR' 
+                            ? 'No tienes reportes pendientes de revisar en esta bandeja.' 
+                            : 'No se encontraron registros de variables en este periodo.'}
+                    </div>
+                ) : (
+                    <table className="imberton-table" style={{ width: '100%' }}>
+                        <tbody>
+                            {reportes.map(r => {
                                 const codigoUnico = `RV-${String(r.id).padStart(5, '0')}`;
                                 
                                 // Adaptación condicional de etiquetas de visualización según Rol
@@ -50,7 +47,6 @@ export const BandejaReportes = ({ reportes, isLoading, onVerMas }) => {
                                 let claseBadge = 'ACTIVO';
 
                                 if (rolActual === 'ADMIN') {
-                                    // ✨ CORRECCIÓN: Actualizamos el estado esperado de la BD y la etiqueta visual
                                     if (r.estado === 'Validado y Enviado a Planillas') {
                                         estadoVisual = 'Pendiente de Revisión Planillas';
                                         claseBadge = 'INACTIVO';
@@ -85,10 +81,10 @@ export const BandejaReportes = ({ reportes, isLoading, onVerMas }) => {
                                         </td>
                                     </tr>
                                 );
-                            })
-                        )}
-                    </tbody>
-                </table>
+                            })}
+                        </tbody>
+                    </table>
+                )}
             </div>
         </div>
     );

@@ -4,9 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useauth';
 import { api } from '../../services/api';
 
-// ✨ NUEVO: Importación quirúrgica del panel de configuración global
-import { Confi } from '../admin/confi';
-
 const formatearFecha = (fechaStr) => {
     if (!fechaStr) return "--/--/--";
     const [y, m, d] = fechaStr.split('T')[0].split('-');
@@ -51,9 +48,6 @@ export const BarraSuperior = ({ periodoSeleccionado, setPeriodoSeleccionado, onM
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isPeriodDropOpen, setIsPeriodDropOpen] = useState(false);
     
-    // ✨ NUEVO: Estado local para controlar la apertura del modal Confi.jsx
-    const [isConfigOpen, setIsConfigOpen] = useState(false);
-    
     const menuRef = useRef(null);
     const periodDropRef = useRef(null); 
     const menuTimeoutRef = useRef(null); 
@@ -77,32 +71,35 @@ export const BarraSuperior = ({ periodoSeleccionado, setPeriodoSeleccionado, onM
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    // Cargar catálogo de periodos
+    // 1. Descarga el catálogo completo de periodos una sola vez al cargar la app
     useEffect(() => {
         const fetchPeriodos = async () => {
             try {
                 const result = await api.admin.getPeriodos();
                 const data = result.data || [];
                 setPeriodos(data);
-                
-                if (!periodoSeleccionado) {
-                    const activo = data.find(p => {
-                        const est = p.estado?.toString().trim().toUpperCase();
-                        return est === 'ABIERTO' || est === 'ACTIVO';
-                    });
-                    
-                    if (activo) {
-                        setPeriodoSeleccionado(activo.id.toString());
-                    } else if (data.length > 0) {
-                        setPeriodoSeleccionado(data[0].id.toString());
-                    }
-                }
             } catch (error) {
                 console.error("Error al cargar periodos en cabecera:", error);
             }
         };
         fetchPeriodos();
-    }, [periodoSeleccionado, setPeriodoSeleccionado]);
+    }, []); // 🚀 Array vacío: Solo consulta al servidor una vez al iniciar
+
+    // 2. Controla la quincena activa por defecto al entrar por primera vez
+    useEffect(() => {
+        if (periodos.length > 0 && !periodoSeleccionado) {
+            const activo = periodos.find(p => {
+                const est = p.estado?.toString().trim().toUpperCase();
+                return est === 'ABIERTO' || est === 'ACTIVO';
+            });
+            
+            if (activo) {
+                setPeriodoSeleccionado(activo.id.toString());
+            } else {
+                setPeriodoSeleccionado(periodos[0].id.toString());
+            }
+        }
+    }, [periodos, periodoSeleccionado, setPeriodoSeleccionado]); // 🚀 Reacciona de forma fluida sin tocar la red
 
     // 1. CARGAMOS TODAS LAS EXCEPCIONES DEL USUARIO UNA SOLA VEZ
     useEffect(() => {
@@ -337,7 +334,7 @@ export const BarraSuperior = ({ periodoSeleccionado, setPeriodoSeleccionado, onM
                                     className="dropdown-btn" 
                                     onClick={(e) => { 
                                         e.stopPropagation(); 
-                                        setIsConfigOpen(true); 
+                                        onMenuClick('CONFIGURACIONES'); 
                                         setIsMenuOpen(false); 
                                     }}
                                 >
@@ -352,10 +349,7 @@ export const BarraSuperior = ({ periodoSeleccionado, setPeriodoSeleccionado, onM
                 </div>
             </div>
 
-            {/* ✨ NUEVO: Inyección del modal de configuraciones dinámicas */}
-            {isConfigOpen && (
-                <Confi onClose={() => setIsConfigOpen(false)} />
-            )}
+            {/* El modal ahora es controlado de forma centralizada por admin.jsx */}
         </header>
     );
 };

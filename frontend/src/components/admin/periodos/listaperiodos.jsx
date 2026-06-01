@@ -2,7 +2,7 @@
 
 export const ListaPeriodos = ({ periodos, handleEditarPeriodo, handleGestionarPersonal, handlePrepararCierre, formatearFecha }) => {
     return (
-        <div className="table-scroll">
+        <div className="table-scroll admin-period-list-scroll">
             <table className="tabla-historial">
                 <thead>
                     <tr>
@@ -11,7 +11,7 @@ export const ListaPeriodos = ({ periodos, handleEditarPeriodo, handleGestionarPe
                         <th>Hasta</th>
                         <th>Corte de Variables</th>
                         <th>Estado Sistema</th>
-                        <th style={{ textAlign: 'center' }}>Acciones</th>
+                        <th className="admin-list-th-actions">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -30,18 +30,18 @@ export const ListaPeriodos = ({ periodos, handleEditarPeriodo, handleGestionarPe
                                     <td>{formatearFecha(p.fecha_hasta)}</td>
                                     <td>{formatearFecha(p.fecha_corte)}</td>
                                     <td><span className={`badge ${badgeClass}`}>{badgeText}</span></td>
-                                    <td style={{ textAlign: 'center', display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                    <td className="admin-list-td-actions">
                                         {isOpen && (
                                             <>
-                                                <button className="btn-sec btn-sm" title="Editar fechas" onClick={() => handleEditarPeriodo(p.id)} style={{ padding: '6px 10px', fontSize: '13px' }}>
+                                                <button className="btn-sec btn-sm admin-list-btn-edit" title="Editar fechas" onClick={() => handleEditarPeriodo(p.id)}>
                                                     <i className="fas fa-edit"></i>
                                                 </button>
-                                                <button className="btn-sec btn-sm" title="Cerrar periodo" onClick={() => handlePrepararCierre(p)} style={{ padding: '6px 10px', fontSize: '13px', color: '#800020' }}>
+                                                <button className="btn-sec btn-sm admin-list-btn-lock" title="Cerrar periodo" onClick={() => handlePrepararCierre(p)}>
                                                     <i className="fas fa-lock"></i>
                                                 </button>
                                             </>
                                         )}
-                                        <button className="btn-sec btn-sm" title="Gestionar personal" onClick={() => handleGestionarPersonal(p)} style={{ padding: '6px 10px', fontSize: '13px', color: '#0f172a' }}>
+                                        <button className="btn-sec btn-sm admin-list-btn-users" title="Gestionar personal" onClick={() => handleGestionarPersonal(p)}>
                                             <i className="fas fa-users"></i>
                                         </button>
                                     </td>

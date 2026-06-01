@@ -39,11 +39,11 @@ export const FormularioUsuario = ({
                 </select>
             </div>
 
-            <div className="form-group" style={{ background: 'rgba(15, 23, 42, 0.05)', padding: '15px', borderRadius: '8px', marginTop: '5px' }}>
-                <label style={{ marginBottom: '10px', display: 'block' }}><i className="fas fa-shield-alt"></i> MÓDULOS CON ACCESO:</label>
-                <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+            <div className="form-group admin-user-modules-box">
+                <label className="admin-user-modules-label"><i className="fas fa-shield-alt"></i> MÓDULOS CON ACCESO:</label>
+                <div className="admin-user-checkbox-row">
                     {['Variables', 'Horas Extras', 'Saldos'].map(modulo => (
-                        <label key={modulo} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '400', cursor: 'pointer' }}>
+                        <label key={modulo} className="admin-user-checkbox-lbl">
                             <input 
                                 type="checkbox" 
                                 checked={Array.isArray(formData.modulos) && formData.modulos.includes(modulo)}
@@ -56,7 +56,7 @@ export const FormularioUsuario = ({
                 </div>
             </div>
 
-            <div className="modal-footer" style={{ marginTop: '20px' }}>
+            <div className="modal-footer admin-user-form-footer">
                 <button className="btn-sec" onClick={() => setView('LIST')} disabled={isLoading}>CANCELAR</button>
                 <button className="btn-pri" onClick={handleGuardar} disabled={isLoading}>
                     {isLoading ? <><i className="fas fa-spinner fa-spin"></i> PROCESANDO</> : "GUARDAR"}

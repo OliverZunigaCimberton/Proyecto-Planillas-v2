@@ -62,13 +62,13 @@ export const ModalPeriodos = ({ onClose }) => {
                 {/* Inyección dinámica de botones extra solo en la vista PERSONNEL */}
                 {view === 'PERSONNEL' && !isPeriodoBloqueado && (
                     <>
-                        <label htmlFor="xlsx-personal-recharge" className="btn-sec" style={{ height: '34px', cursor: 'pointer', margin: 0, display: 'flex', alignItems: 'center', padding: '0 16px', fontSize: '11.5px', fontWeight: '700' }}>
-                            <i className="fas fa-file-upload" style={{ marginRight: '6px' }}></i> RECARGAR EXCEL
+                        <label htmlFor="xlsx-personal-recharge" className="btn-sec admin-period-btn-recharge">
+                            <i className="fas fa-file-upload admin-period-icon-spacing"></i> RECARGAR EXCEL
                         </label>
-                        <input type="file" id="xlsx-personal-recharge" accept=".xlsx" style={{ display: 'none' }} onChange={handleCargaMasivaPersonal} disabled={isLoading} />
+                        <input type="file" id="xlsx-personal-recharge" accept=".xlsx" className="admin-period-hidden-input" onChange={handleCargaMasivaPersonal} disabled={isLoading} />
                         
-                        <button type="button" className="btn-pri" style={{ backgroundColor: '#0f172a', height: '34px', border: 'none', padding: '0 16px', fontSize: '11.5px', fontWeight: '700' }} onClick={() => setShowModalVaciar(true)} disabled={isLoading}>
-                            <i className="fas fa-trash-sweep" style={{ marginRight: '6px' }}></i> VACIAR TODO
+                        <button type="button" className="btn-pri admin-period-btn-empty" onClick={() => setShowModalVaciar(true)} disabled={isLoading}>
+                            <i className="fas fa-trash-sweep admin-period-icon-spacing"></i> VACIAR TODO
                         </button>
                     </>
                 )}
@@ -94,28 +94,38 @@ export const ModalPeriodos = ({ onClose }) => {
             {view === 'PERSONNEL' && (
                 <GestionPersonal 
                     periodo={periodoSeleccionadoObj} empleados={empleados} isLoading={isLoading}
-                    handleAgregarManual={handleContainerManualSubmit} handleEliminarEmpleadoManual={handleEliminarEmpleadoManual}
+                    handleAgregarManual={handleContainerManualSubmit} handleEliminarManual={handleEliminarEmpleadoManual}
                 />
             )}
 
             {/* Modales de Confirmación de Peligro */}
             <Confirmacion
-                isOpen={!!periodoACerrar} onClose={() => setPeriodoACerrar(null)} onConfirm={confirmarCierrePeriodo}
-                title="Sellar Periodo" icon="fas fa-lock" confirmColor="#800020"
-                confirmText={isLoading ? "Cerrando..." : "Cerrar Definitivamente"} isLoading={isLoading}
+                isOpen={!!periodoACerrar} 
+                onClose={() => setPeriodoACerrar(null)} 
+                onConfirm={confirmarCierrePeriodo}
+                title="Cerrar Periodo" 
+                icon="fas fa-lock" 
+                confirmColor="#800020"
+                confirmText={isLoading ? "Cerrando..." : "CERRAR DEFINITIVAMENTE"} 
+                isLoading={isLoading}
                 message={<p>¿Está seguro de cerrar el periodo <strong>{periodoACerrar?.codigo_periodo}</strong>? Ya no podrá editar fechas ni modificar la planilla maestro.</p>}
             />
 
             <Confirmacion
-                isOpen={showModalVaciar} onClose={() => setShowModalVaciar(false)} onConfirm={() => { setShowModalVaciar(false); handleVaciarPersonal(); }}
-                title="Vaciar Personal" icon="fas fa-exclamation-triangle" confirmColor="#cc0000"
-                confirmText="Confirmar" isLoading={isLoading}
+                isOpen={showModalVaciar} 
+                onClose={() => setShowModalVaciar(false)} 
+                onConfirm={() => { setShowModalVaciar(false); handleVaciarPersonal(); }}
+                title="Vaciar Personal" 
+                icon="fas fa-exclamation-triangle" 
+                confirmColor="#800020"
+                confirmText={isLoading ? "Vaciando..." : "VACIAR DEFINITIVAMENTE"} 
+                isLoading={isLoading}
                 message={<p>¿Está seguro de eliminar <strong>TODO</strong> el personal de este periodo? Esta acción es irreversible.</p>}
             />
 
             {/* Notificaciones Flotantes */}
             {notificacion.mensaje && (
-                <div id="notif-container" style={{ position: 'fixed', zIndex: 99999 }}>
+                <div id="notif-container" className="admin-toast-container">
                     <div className={`toast-notif ${notificacion.tipo}`}>{notificacion.mensaje}</div>
                 </div>
             )}

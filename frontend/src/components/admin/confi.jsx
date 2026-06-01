@@ -72,24 +72,24 @@ export const Confi = ({ onClose }) => {
     })();
 
     return (
-        <div className="modal-overlay" style={overlayStyle}>
+        <div className="admin-confi-overlay">
             {toast.visible && (
-                <div style={{...toastContainerStyle, borderLeft: toast.tipo === 'success' ? '6px solid #10b981' : '6px solid #ef4444'}}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div className="admin-confi-toast" style={{ borderLeft: toast.tipo === 'success' ? '6px solid #10b981' : '6px solid #ef4444' }}>
+                    <div className="admin-confi-toast-flex">
                         <i className={toast.tipo === 'success' ? "fas fa-check-circle" : "fas fa-exclamation-circle"} style={{ fontSize: '1.4rem', color: toast.tipo === 'success' ? '#10b981' : '#ef4444' }}></i>
                         <div>
-                            <strong style={{ display: 'block', fontSize: '14px', color: '#0f172a' }}>{toast.titulo}</strong>
-                            <span style={{ fontSize: '13px', color: '#64748b' }}>{toast.mensaje}</span>
+                            <strong className="admin-confi-toast-title">{toast.titulo}</strong>
+                            <span className="admin-confi-toast-msg">{toast.mensaje}</span>
                         </div>
                     </div>
                 </div>
             )}
 
-            <div className="modal-content modal-reporte-lg" style={{ ...modalBaseStyle, maxWidth: dimensiones.maxWidth, height: dimensiones.height }}>
-                <div className="modal-header-box" style={{ padding: '16px 20px' }}>
+            <div className="modal-content modal-reporte-lg admin-confi-modal-base" style={{ maxWidth: dimensiones.maxWidth, height: dimensiones.height }}>
+                <div className="modal-header-box admin-confi-header-box">
                 <h3>
                     {/* 🚀 Eliminamos por completo la flecha izquierda para limpiar la UI */}
-                    <i className="fas fa-cogs" style={{ marginRight: '8px' }}></i> 
+                    <i className="fas fa-cogs admin-period-icon-spacing"></i> 
                     {vistaActiva === 'SELECTOR' && "Configuración General"}
                     {vistaActiva === 'CARGO' && "Cargo a Marca"}
                     {vistaActiva === 'MARCAS' && "Catálogo de Marcas"}
@@ -98,32 +98,31 @@ export const Confi = ({ onClose }) => {
                 <i 
                     className="fas fa-times close-modal" 
                     onClick={() => vistaActiva === 'SELECTOR' ? onClose() : setVistaActiva('SELECTOR')} 
-                    style={{ cursor: 'pointer' }}
                 ></i>
             </div>
 
-                <div className="config-modal-body" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px', flex: 1, overflow: 'hidden' }}>
-                    {isLoading && <p style={{ textAlign: 'center', color: '#64748b', padding: '30px 0' }}><i className="fas fa-spinner fa-spin"></i> Cargando parámetros...</p>}
+                <div className="config-modal-body admin-confi-body">
+                    {isLoading && <p className="admin-confi-loader"><i className="fas fa-spinner fa-spin"></i> Cargando parámetros...</p>}
                     
                     {!isLoading && (
                         <>
                             {vistaActiva === 'SELECTOR' && (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%' }}>
-                                    <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 10px 0', textAlign: 'center' }}>Selecciona el parámetro global corporativo que deseas administrar.</p>
-                                    <button style={btnMenuOptStyle} onClick={() => setVistaActiva('CARGO')}>
-                                        <div style={iconBoxStyle}><i className="fas fa-percentage"></i></div>
-                                        <div style={{ textAlign: 'left' }}><strong style={{ display: 'block', color: '#1e293b' }}>Cargo a Marca %</strong><span style={{ fontSize: '11px', color: '#94a3b8' }}>Porcentaje financiero automatizado</span></div>
-                                        <i className="fas fa-chevron-right" style={arrowRightStyle}></i>
+                                <div className="admin-confi-menu-layout">
+                                    <p className="admin-confi-menu-desc">Selecciona el parámetro global corporativo que deseas administrar.</p>
+                                    <button className="admin-confi-menu-opt" onClick={() => setVistaActiva('CARGO')}>
+                                        <div className="admin-confi-menu-icon-box"><i className="fas fa-percentage"></i></div>
+                                        <div className="admin-confi-menu-lbl-box"><strong className="admin-confi-menu-lbl-main">Cargo a Marca %</strong><span className="admin-confi-menu-lbl-sub">Porcentaje financiero automatizado</span></div>
+                                        <i className="fas fa-chevron-right admin-confi-menu-arrow"></i>
                                     </button>
-                                    <button style={btnMenuOptStyle} onClick={() => setVistaActiva('MARCAS')}>
-                                        <div style={iconBoxStyle}><i className="fas fa-tags"></i></div>
-                                        <div style={{ textAlign: 'left' }}><strong style={{ display: 'block', color: '#1e293b' }}>Actualizar Marcas</strong><span style={{ fontSize: '11px', color: '#94a3b8' }}>Agregar, editar o remover empresas</span></div>
-                                        <i className="fas fa-chevron-right" style={arrowRightStyle}></i>
+                                    <button className="admin-confi-menu-opt" onClick={() => setVistaActiva('MARCAS')}>
+                                        <div className="admin-confi-menu-icon-box"><i className="fas fa-tags"></i></div>
+                                        <div className="admin-confi-menu-lbl-box"><strong className="admin-confi-menu-lbl-main">Actualizar Marcas</strong><span className="admin-confi-menu-lbl-sub">Agregar, editar o remover empresas</span></div>
+                                        <i className="fas fa-chevron-right admin-confi-menu-arrow"></i>
                                     </button>
-                                    <button style={btnMenuOptStyle} onClick={() => setVistaActiva('VARIABLES')}>
-                                        <div style={iconBoxStyle}><i className="fas fa-sliders-h"></i></div>
-                                        <div style={{ textAlign: 'left' }}><strong style={{ display: 'block', color: '#1e293b' }}>Actualizar Variables</strong><span style={{ fontSize: '11px', color: '#94a3b8' }}>Códigos contables y descriptores</span></div>
-                                        <i className="fas fa-chevron-right" style={arrowRightStyle}></i>
+                                    <button className="admin-confi-menu-opt" onClick={() => setVistaActiva('VARIABLES')}>
+                                        <div className="admin-confi-menu-icon-box"><i className="fas fa-sliders-h"></i></div>
+                                        <div className="admin-confi-menu-lbl-box"><strong className="admin-confi-menu-lbl-main">Actualizar Variables</strong><span className="admin-confi-menu-lbl-sub">Códigos contables y descriptores</span></div>
+                                        <i className="fas fa-chevron-right admin-confi-menu-arrow"></i>
                                     </button>
                                 </div>
                             )}
@@ -137,10 +136,3 @@ export const Confi = ({ onClose }) => {
         </div>
     );
 };
-
-const overlayStyle = { display: 'flex', position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 3000, backgroundColor: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(4px)', alignItems: 'center', justifyContent: 'center' };
-const modalBaseStyle = { backgroundColor: '#ffffff', borderRadius: '12px', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column', transition: 'all 0.25s ease', overflow: 'hidden' };
-const btnMenuOptStyle = { display: 'flex', alignItems: 'center', width: '100%', padding: '14px 16px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: 'pointer', gap: '14px', transition: 'all 0.15s ease' };
-const iconBoxStyle = { width: '38px', height: '38px', borderRadius: '6px', background: '#f1f5f9', color: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem' };
-const arrowRightStyle = { marginLeft: 'auto', color: '#94a3b8', fontSize: '0.85rem' };
-const toastContainerStyle = { position: 'fixed', top: '25px', right: '25px', backgroundColor: '#ffffff', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', padding: '14px 20px', borderRadius: '8px', zIndex: 4000, minWidth: '300px', maxWidth: '400px' };

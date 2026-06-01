@@ -26,22 +26,10 @@ export const Base = ({ children, view }) => {
     const bgClass = `modal-content ${config.class}`;
 
     return (
-        <div className="modal-overlay" style={{ 
-            position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', 
-            display: 'flex', justifyContent: 'center', alignItems: 'center', 
-            backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000 
-        }}>
+        <div className="admin-modal-base-overlay">
             <div 
-                className={bgClass} 
-                style={{ 
-                    display: 'flex', 
-                    flexDirection: 'column', 
-                    width: config.width, 
-                    maxWidth: '95vw', 
-                    maxHeight: '95vh', 
-                    overflow: 'hidden', 
-                    transition: 'width 0.2s ease-in-out' 
-                }}
+                className={`${bgClass} admin-modal-base-content`} 
+                style={{ width: config.width }}
             >
                 {children}
             </div>

@@ -10,20 +10,19 @@ export const SmartAutocomplete = ({
     onSelect, 
     disabled 
 }) => {
+    // 1. Guardamos una copia de la propiedad original para detectar si cambia en el futuro
+    const [prevValue, setPrevValue] = useState(value);
     const [buscarTexto, setBuscarTexto] = useState(value || '');
     const [filtrados, setFiltrados] = useState([]);
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef(null);
 
-    useEffect(() => {
-        let isMounted = true;
-        Promise.resolve().then(() => {
-            if (isMounted) {
-                setBuscarTexto(value || '');
-            }
-        });
-        return () => { isMounted = false; };
-    }, [value]);
+    // ✨ SOLUCIÓN FINANCIERA/LINTER: Sincronización instantánea en la fase de renderizado.
+    // Esto evita usar useEffect, elimina re-renders duplicados y silencia a ESLint de raíz.
+    if (value !== prevValue) {
+        setPrevValue(value);
+        setBuscarTexto(value || '');
+    }
 
     useEffect(() => {
         const handleClickOutside = (e) => {
