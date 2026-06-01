@@ -15,17 +15,17 @@ export const FilaVariable = memo(({
     onEliminarFila 
 }) => {
 
-    // ✨ NUEVO: Estados locales para escritura ultra-rápida (Evita el Input Lag)
+    // ✨ Estados locales para escritura ultra-rápida (Evita el Input Lag)
     const [codigoLocal, setCodigoLocal] = useState(linea.codigo_empleado || '');
     const [montoLocal, setMontoLocal] = useState(linea.monto || '');
 
-    // ✨ NUEVO: Sincronización automática si los datos vienen masivamente desde el padre (ej. Carga de Excel)
+    // ✨ Sincronización automática si los datos vienen masivamente desde el padre (ej. Carga de Excel)
     useEffect(() => {
         setCodigoLocal(linea.codigo_empleado || '');
         setMontoLocal(linea.monto || '');
     }, [linea.codigo_empleado, linea.monto]);
 
-    // ✨ NUEVO: Disparadores diferidos (Solo avisan al padre cuando el usuario termina de escribir)
+    // ✨ Disparadores diferidos (Solo avisan al padre cuando el usuario termina de escribir)
     const handleCodigoBlur = () => {
         if (codigoLocal !== linea.codigo_empleado) {
             onChangeLinea(index, 'codigo_empleado', codigoLocal);
@@ -49,7 +49,6 @@ export const FilaVariable = memo(({
                     style={{ textAlign: 'center' }} 
                     value={codigoLocal} 
                     disabled={isReadOnly || isLoading || isTiempoAgotado} 
-                    // El onChange ahora es instantáneo y local, e incluye validación de solo números
                     onChange={(e) => setCodigoLocal(e.target.value.replace(/\D/g, ''))} 
                     onBlur={handleCodigoBlur}
                 />
@@ -57,11 +56,12 @@ export const FilaVariable = memo(({
             <td className="cell-ro font-bold" style={{ textAlign: 'left', paddingLeft: '10px' }}>{linea.empleado_nombre}</td>
             <td className="cell-ro" style={{ textAlign: 'left', paddingLeft: '10px' }}>{linea.empleado_puesto}</td>
             <td>
+                {/* 🚀 CORRECCIÓN: Cambiamos displayKey y value para renderizar exclusivamente el CÓDIGO de la variable */}
                 <SmartAutocomplete 
                     placeholder="" 
                     data={catalogos.variables} 
-                    displayKey="nombre_variable"
-                    value={linea.nombre_variable} 
+                    displayKey="codigo_variable" 
+                    value={linea.codigo_variable} 
                     disabled={isReadOnly || isLoading || isTiempoAgotado}
                     onSelect={(item) => {
                         onChangeLinea(index, 'id_variable', item.id);
@@ -70,9 +70,10 @@ export const FilaVariable = memo(({
                     }}
                 />
             </td>
+            {/* La siguiente columna mantiene el Nombre completo en modo lectura para perfecta referencia del usuario */}
             <td className="cell-ro" style={{ textAlign: 'left', paddingLeft: '10px' }}>{linea.nombre_variable}</td>
             <td className="bg-gray">
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--vino)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifycontent: 'center', color: 'var(--vino)' }}>
                     <span>$</span>
                     <input 
                         type="text" 
@@ -80,7 +81,6 @@ export const FilaVariable = memo(({
                         style={{ background: 'transparent', border: 'none' }} 
                         value={montoLocal} 
                         disabled={isReadOnly || isLoading || isTiempoAgotado} 
-                        // Escritura de monto instantánea y local
                         onChange={(e) => setMontoLocal(e.target.value)} 
                         onBlur={handleMontoBlur} 
                     />

@@ -84,7 +84,7 @@ export const Login = () => {
                         {/* Se vincula la imagen empaquetada modular por Vite */}
                         <img src={logoMain} alt="Logos Grupo Imberton" className="logo-main" />
                         <div className="brand-info">
-                            <h1>Grupo Imberton</h1>
+                            <h1>GRUPO IMBERTON</h1>
                             <p>Portal de Planillas - Gestión Humana</p>
                             <div className="accent-line"></div>
                         </div>
