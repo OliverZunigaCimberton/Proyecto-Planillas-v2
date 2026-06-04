@@ -1,0 +1,66 @@
+.adminExcBodyPadding {
+    padding-bottom: 10px;
+}
+
+.adminExcFormRowStart {
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+}
+
+.adminExcCol35 {
+    width: 35%;
+}
+
+.adminExcCol65Pad {
+    width: 65%;
+    padding-top: 22px;
+}
+
+.adminExcRhValueBox {
+    display: flex;
+    align-items: center;
+    background: #f8fafc;
+    padding: 0 12px;
+    border-radius: 4px;
+    border: 1px solid #e2e8f0;
+    height: 34px;
+    font-size: 11.5px;
+    box-sizing: border-box;
+}
+
+.adminExcTextEllipsis {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.adminExcFormRow {
+    display: flex;
+    gap: 15px;
+}
+
+.adminExcFooterMargin {
+    margin-top: 10px;
+}
+
+.adminExcBadge {
+    color: white; 
+    padding: 4px 8px; 
+    border-radius: 6px; 
+    font-size: 0.7rem; 
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.adminExcTdBlue {
+    color: var(--azul-oscuro);
+}
+
+.adminExcThCenter {
+    text-align: center;
+}
+
+.adminExcSelectBold {
+    font-weight: bold;
+}

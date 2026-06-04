@@ -331,6 +331,24 @@ export const api = {
     },
 
     shared: {
+        getPeriodoActivo: async () => {
+            try {
+                // Reutilizamos la ruta segura de periodos para deducir el activo en el frontend
+                const res = await fetch(`${BASE_URL}/admin/periodos`);
+                if (!res.ok) return { success: false, data: null };
+                
+                const json = await res.json();
+                const listaPeriodos = Array.isArray(json) ? json : (json.data || []);
+                
+                // Filtramos estrictamente el periodo que se encuentre ABIERTO
+                const periodoActivo = listaPeriodos.find(p => p.estado === 'ABIERTO');
+                
+                return { success: true, data: periodoActivo || null };
+            } catch (error) {
+                console.error("Error deduciendo periodo activo a partir de lista:", error);
+                return { success: false, data: null };
+            }
+        },
         actualizarEstadoReporte: async (idReporte, payload) => {
             const res = await fetch(`${BASE_URL}/shared/reporte/${idReporte}/estado`, {
                 method: 'PUT',

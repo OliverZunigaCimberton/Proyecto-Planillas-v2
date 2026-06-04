@@ -1,0 +1,514 @@
+/* ==========================================================================
+   1. ORQUESTRADOR DE CONFIGURACIÓN GENERAL (Panel Confi Maestro)
+========================================================================== */
+
+.adminConfiOverlay {
+    display: flex;
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100vw; 
+    height: 100vh; 
+    z-index: 3000; 
+    background-color: rgba(15, 23, 42, 0.4); 
+    backdrop-filter: blur(4px); 
+    align-items: center; 
+    justify-content: center;
+}
+
+.adminConfiModalBase {
+    background-color: #ffffff; 
+     border-radius: 12px; 
+     box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); 
+     display: flex; 
+     flex-direction: column; 
+     overflow: hidden;
+}
+
+.adminConfiToast {
+    position: fixed;
+    top: 25px;
+    right: 25px;
+    background-color: #ffffff;
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+    padding: 14px 20px;
+    border-radius: 8px;
+    z-index: 4000;
+    min-width: 300px;
+    max-width: 400px;
+}
+
+.adminConfiToastFlex {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.adminConfiToastTitle {
+    display: block;
+    font-size: 14px;
+    color: #0f172a;
+}
+
+.adminConfiToastMsg {
+    font-size: 13px;
+    color: #64748b;
+}
+
+.adminConfiHeaderBox {
+    padding: 16px 20px;
+}
+
+.adminConfiBody {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+    overflow: hidden;
+}
+
+.adminConfiLoader {
+    text-align: center;
+    color: #64748b;
+    padding: 30px 0;
+}
+
+.adminConfiMenuLayout {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+
+.adminConfiMenuDesc {
+    font-size: 13px;
+    color: #64748b;
+    margin: 0 0 10px 0;
+    text-align: center;
+}
+
+.adminConfiMenuOpt {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 14px 16px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    gap: 14px;
+    transition: all 0.15s ease;
+}
+
+.adminConfiMenuIconBox {
+    width: 38px;
+    height: 38px;
+    border-radius: 6px;
+    background: #f1f5f9;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+}
+
+.adminConfiMenuLblBox {
+    text-align: left;
+}
+
+.adminConfiMenuLblMain {
+    display: block;
+    color: #1e293b;
+}
+
+.adminConfiMenuLblSub {
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+.adminConfiMenuArrow {
+    margin-left: auto;
+    color: #94a3b8;
+    font-size: 0.85rem;
+}
+
+
+/* ==========================================================================
+   2. CATÁLOGOS MAESTROS (Marcas, Variables y Recargo Financiero)
+========================================================================== */
+
+.adminConfigWrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 15px;
+    font-family: system-ui, -apple-system, sans-serif;
+    flex: 1;
+    overflow: hidden;
+}
+
+.adminConfigSearchRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    flex-shrink: 0;
+}
+
+.adminConfigSearchBoxVar {
+    position: relative;
+    width: 340px;
+}
+
+.adminConfigSearchBoxBrand {
+    position: relative;
+    width: 320px;
+}
+
+.adminConfigSearchIcon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 0.85rem;
+}
+
+.adminConfigSearchInput {
+    width: 100%;
+    height: 36px;
+    padding-left: 36px;
+    padding-right: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 13px;
+    outline: none;
+    background: #ffffff;
+    color: #334155;
+}
+
+.adminConfigCounterLbl {
+    font-size: 12.5px;
+    color: #475569;
+    font-weight: 500;
+}
+
+.adminConfigCounterTotal {
+    color: #0f172a;
+    font-weight: 700;
+}
+
+.adminConfigFormCard {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+    background: #ffffff;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    flex-shrink: 0;
+}
+
+.adminConfigGridLayout {
+    display: grid;
+    grid-template-columns: 1.2fr 3fr auto;
+    gap: 12px;
+    align-items: flex-end;
+    width: 100%;
+}
+
+.adminConfigFlexLayout {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    width: 100%;
+}
+
+.adminConfigFormGroup {
+    display: flex;
+    flex-direction: column;
+}
+
+.adminConfigFormGroupFlex {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.adminConfigLabel {
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+}
+
+.adminConfigInputCode {
+    width: 100%;
+    height: 38px;
+    padding: 0 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 13px;
+    text-transform: uppercase;
+    text-align: center;
+    font-weight: 700;
+    color: #b91c1c;
+    outline: none;
+}
+
+.adminConfigInputDesc {
+    width: 100%;
+    height: 38px;
+    padding: 0 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+    outline: none;
+}
+
+.adminConfigInputBrand {
+    width: 100%;
+    height: 38px;
+    padding: 0 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 13px;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: #1e3a8a;
+    outline: none;
+}
+
+.adminConfigBtnGroup {
+    display: flex;
+    gap: 6px;
+}
+
+.adminConfigBtnSave {
+    height: 38px;
+    width: 42px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    background-color: #10b981;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+}
+
+.adminConfigBtnCancel {
+    height: 38px;
+    width: 42px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    background: #fff;
+    cursor: pointer;
+}
+
+.adminConfigBtnAdd {
+    height: 38px;
+    width: 42px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    background-color: #0f172a;
+    border: none;
+    color: #ffffff;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.adminConfigTableContainer {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.adminConfigTableScroll {
+    flex: 1;
+    overflow-y: auto;
+    width: 100%;
+    height: 100%;
+}
+
+.adminConfigTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+}
+
+.adminConfigThead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #f8fafc;
+}
+
+.adminConfigThRow {
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.adminConfigThCode {
+    width: 22%;
+    padding: 11px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+    text-align: center;
+    letter-spacing: 0.3px;
+}
+
+.adminConfigThId {
+    width: 18%;
+    padding: 11px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+    text-align: center;
+    letter-spacing: 0.3px;
+}
+
+.adminConfigThDesc {
+    text-align: left;
+    padding: 11px 20px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+    letter-spacing: 0.3px;
+}
+
+.adminConfigThActions {
+    width: 15%;
+    padding: 11px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+    text-align: center;
+    letter-spacing: 0.3px;
+}
+
+.adminConfigThActionsBrand {
+    width: 18%;
+    padding: 11px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+    text-align: center;
+    letter-spacing: 0.3px;
+}
+
+.adminConfigEmptyRow {
+    text-align: center;
+    padding: 30px;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.adminConfigTbodyRow {
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.adminConfigTdCode {
+    text-align: center;
+    padding: 11px;
+    font-size: 13px;
+    font-weight: 800;
+    color: #b91c1c;
+}
+
+.adminConfigTdId {
+    text-align: center;
+    padding: 11px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #1e3a8a;
+}
+
+.adminConfigTdDesc {
+    text-align: left;
+    padding: 11px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+}
+
+.adminConfigTdActions {
+    text-align: center;
+    padding: 11px;
+}
+
+.adminConfigActionsFlex {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+}
+
+.adminConfigIconEdit {
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: #64748b;
+}
+
+.adminConfigIconTrash {
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: #ef4444;
+}
+
+
+/* ==========================================================================
+   3. CARGO A MARCA (Parámetro Unitario Financiero)
+========================================================================== */
+
+.adminCargoContainer {
+    max-width: 400px;
+    margin: 20px auto;
+    text-align: center;
+}
+
+.adminCargoTitle {
+    color: #1e293b;
+    margin-bottom: 10px;
+}
+
+.adminCargoText {
+    font-size: 13px;
+    color: #64748b;
+    margin-bottom: 20px;
+}
+
+.adminCargoInputWrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+}
+
+.adminCargoInput {
+    width: 120px;
+    text-align: center;
+    font-size: 1.2rem;
+    padding: 8px;
+}
+
+.adminCargoSymbol {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #475569;
+}

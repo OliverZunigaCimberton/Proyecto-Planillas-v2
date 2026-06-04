@@ -2,24 +2,22 @@ import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { BarraSuperior } from '../components/shared/barrasuperior';
 import { BandejaReportes } from '../components/shared/bandejareportes';
-import { ModalPeriodos } from '../components/admin/modalperiodos';
-import { ModalExcepciones } from '../components/admin/modalexcepciones';
-import { ModalUsuarios } from '../components/admin/modalusuarios';
-import { Confi } from '../components/admin/confi'; // 🚀 Importamos el orquestador de configuraciones
+
 import { ModalMaestroReporte } from "../components/fases/variables/modal_maestro_reporte";
-// 🚀 Importamos el hook maestro
+import { VistaPrincipal } from '../components/admin/vista_principal';
 import { useBandejaVariables } from '../components/fases/variables/logica/useBandejaVariables';
 
-/* 🎨 Importamos los estilos encapsulados y limpios del Administrador */
-import '../components/admin/admin.css';
-
+/**
+ * Página Principal del Rol Administrador.
+ * Gobierna la visualización de las bandejas de control global y orquesta
+ * la apertura de los modales administrativos unificados de la plataforma.
+ */
 export const Admin = () => {
     const { fase } = useParams(); 
     const [periodoSeleccionado, setPeriodoSeleccionado] = useState('');
-    // 🚀 Recuperamos el estado de los modales administrativos que estaba en el viejo hook
     const [modalActivo, setModalActivo] = useState(null); 
 
-    // 🚀 Inyectamos el parámetro 'ADMIN'
+    // Inyectamos el parámetro 'ADMIN' para la carga polimórfica de reportes
     const logicaVar = useBandejaVariables(fase === 'variables' ? periodoSeleccionado : '', 'ADMIN');
 
     const titulosFase = {
@@ -36,6 +34,7 @@ export const Admin = () => {
 
     return (
         <div className="layout-dashboard">
+            {/* Barra de navegación superior con enlace al selector de modales del administrador */}
             <BarraSuperior 
                 periodoSeleccionado={periodoSeleccionado} 
                 setPeriodoSeleccionado={setPeriodoSeleccionado} 
@@ -49,7 +48,7 @@ export const Admin = () => {
                     </h2>
                 </div>
 
-                {/* 🚀 ENRUTADOR INTERNO DE COMPONENTES */}
+                {/* Enrutador interno para las bandejas de cada fase */}
                 {fase === 'variables' && (
                     <BandejaReportes 
                         reportes={logicaVar.reportes} 
@@ -58,16 +57,14 @@ export const Admin = () => {
                         onVerMas={logicaVar.handleVerDetalleReporte} 
                     />
                 )}
-
             </main>
 
-            {/* Modales globales del Admin */}
-            {modalActivo === 'PERIODOS' && <ModalPeriodos onClose={() => setModalActivo(null)} />}
-            {modalActivo === 'EXCEPCIONES' && <ModalExcepciones onClose={() => setModalActivo(null)} />}
-            {modalActivo === 'USUARIOS' && <ModalUsuarios onClose={() => setModalActivo(null)} />}
-            {modalActivo === 'CONFIGURACIONES' && <Confi onClose={() => setModalActivo(null)} />}
+            {/* Renderizado dinámico encapsulado a través del punto de entrada único */}
+            {modalActivo && (
+                <VistaPrincipal panel={modalActivo} onClose={() => setModalActivo(null)} />
+            )}
 
-            {/* Modal de Variables */}
+            {/* Modal Maestro de visualización y auditoría de reportes */}
             {fase === 'variables' && logicaVar.isReporteOpen && (
                 <ModalMaestroReporte 
                     idReporte={logicaVar.reporteEdicionId} 

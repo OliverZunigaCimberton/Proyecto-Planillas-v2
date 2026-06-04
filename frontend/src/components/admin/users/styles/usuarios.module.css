@@ -1,0 +1,93 @@
+/* admin/users/styles/usuarios.module.css */
+
+.adminUserModalCard {
+    max-width: 500px;
+    width: 100%;
+    max-height: 85vh !important;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden !important;
+    background: #ffffff;
+    border-radius: 12px;
+}
+
+.adminUserModalBody {
+    padding: 16px 24px;
+    overflow-y: auto !important;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.adminUserSearchPadding {
+    padding: 0 20px 15px 20px;
+}
+
+.adminUserSearchRelative {
+    position: relative;
+}
+
+.adminUserSearchIcon {
+    position: absolute;
+    left: 12px;
+    top: 12px;
+    color: var(--gris-texto);
+}
+
+.adminUserSearchInput {
+    width: 100%;
+    padding-left: 35px;
+}
+
+.adminUserModulesBox {
+    background: rgba(15, 23, 42, 0.05);
+    padding: 10px 14px !important;
+    border-radius: 8px;
+    margin-top: 2px;
+}
+
+.adminUserModulesLabel {
+    margin-bottom: 6px !important;
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+}
+
+.adminUserCheckboxRow {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.adminUserCheckboxLbl {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 400;
+    cursor: pointer;
+}
+
+.adminUserFormFooter {
+    margin-top: 0 !important;
+    padding: 14px 24px;
+    background-color: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.adminUserThCenter {
+    text-align: center;
+}
+
+.adminUserTdCenter {
+    text-align: center;
+}
+
+.adminUserBadgeRole {
+    background: #e2e8f0; 
+    color: #475569;
+}
