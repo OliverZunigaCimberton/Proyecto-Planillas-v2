@@ -14,7 +14,8 @@ router.get('/inicial', async (req, res) => {
             supabase.from('maestro_centro_costos').select('*'),
             supabase.from('maestro_variables').select('*'),
             supabase.from('periodos').select('*').order('codigo_periodo', { ascending: false }),
-            supabase.from('configuraciones_sistema').select('valor').eq('clave', 'porcentaje_cargo_marca').maybeSingle()
+            // 🔄 ORDENAMIENTO HISTÓRICO: Trae el último registro insertado basándose en el ID correlativo
+            supabase.from('configuraciones_sistema').select('valor').eq('clave', 'porcentaje_cargo_marca').order('id', { ascending: false }).limit(1).maybeSingle()
         ]);
         
         res.json({
@@ -43,6 +44,22 @@ router.get('/bandeja/:periodoId', async (req, res) => {
 
         if(error) throw error;
         
+        // 🧠 Inyección dinámica del subtotal y cargo_a_marca calculados en tiempo real
+        if (data && data.length > 0) {
+            const reportIds = data.map(r => r.id);
+            const { data: lineas } = await supabase
+                .from('registro_variables')
+                .select('id_reporte, cargo_a_marca, monto')
+                .in('id_reporte', reportIds);
+
+            data.forEach(r => {
+                const lineasReporte = lineas?.filter(l => l.id_reporte === r.id) || [];
+                const tieneCargoMarca = lineasReporte.some(l => l.cargo_a_marca === 'Si');
+                r.cargo_a_marca = tieneCargoMarca ? 'Si' : 'No';
+                r.subtotal = lineasReporte.reduce((acc, curr) => acc + (parseFloat(curr.monto) || 0), 0);
+            });
+        }
+
         res.json({ success: true, data: data || [] });
     } catch (error) {
         res.status(500).json({ error: error.message });

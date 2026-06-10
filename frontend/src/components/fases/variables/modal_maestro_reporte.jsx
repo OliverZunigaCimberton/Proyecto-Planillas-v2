@@ -46,7 +46,7 @@ export const ModalMaestroReporte = ({
     const [alertaEmergente, setAlertaEmergente] = useState({ activa: false, mensaje: '' });
 
     const [reporteHeader, setReporteHeader] = useState({
-        id: null, codigo_usuario: '', fecha: '', marca: '', id_marca: '', cargo_a_marca: '', centro_costo: '', nombre_cc_descriptivo: '', id_cc: '', estado: 'Borrador'
+        id: null, codigo_usuario: '', fecha: '', marca: '', id_marca: '', cargo_a_marca: '', centro_costo: '', nombre_cc_descriptivo: '', id_cc: '', estado: 'Borrador', monto_total_historico: null
     });
 
     const [lineas, setLineas] = useState([]);
@@ -67,7 +67,13 @@ export const ModalMaestroReporte = ({
 
     const { descargarPlantilla, procesarCargaMasiva } = useProcesadorExcel();
     const porcentajeReal = catalogos?.porcentajeCargoMarca !== undefined ? catalogos.porcentajeCargoMarca : catalogos?.porcentaje;
-    const { subtotal, montoCargoMarca, totalGeneral } = useCalculosTotales(lineas, reporteHeader.cargo_a_marca, porcentajeReal);
+    const { subtotal, montoCargoMarca, totalGeneral } = useCalculosTotales(
+        lineas, 
+        reporteHeader.cargo_a_marca, 
+        porcentajeReal,
+        reporteHeader.monto_total_historico,
+        reporteHeader.estado
+    );
 
     // Función para invocar la alerta desde cualquier lugar de este archivo
     const mostrarAlerta = (mensaje) => {
@@ -150,7 +156,8 @@ export const ModalMaestroReporte = ({
                     centro_costo: ccEncontrado?.nomenclatura_cc || '',
                     nombre_cc_descriptivo: ccEncontrado?.nombre_cc || ccEncontrado?.descripcion || '',
                     id_cc: dbLineas[0]?.id_cc || '',
-                    estado: rep.estado
+                    estado: rep.estado,
+                    monto_total_historico: rep.monto_total // 🌟 CAPTURAMOS EL TOTAL INMUTABLE DIRECTO DESDE SUPABASE
                 });
 
                 setAdjuntosExistentes(rep.adjuntos || []);
@@ -289,6 +296,20 @@ export const ModalMaestroReporte = ({
             return mostrarAlerta("Todos los empleados listados deben tener un monto válido mayor a cero.");
         }
 
+        // D) Validación de adjuntos obligatorios cuando es Cargo a Marca y se va a Enviar o Auto-Autorizar
+        if (reporteHeader.cargo_a_marca === 'Si') {
+            const tieneAdjuntos = (adjuntosExistentes?.length || 0) + (archivosParaSubir?.length || 0) > 0;
+            
+            if (!tieneAdjuntos) {
+                if (estadoDeseado === 'Pendiente de Autorización') {
+                    return mostrarAlerta("Debes adjuntar el correo de autorización de la marca para proceder con el envío");
+                }
+                if (estadoDeseado === 'Autorizado y Enviado a Contabilidad') {
+                    return mostrarAlerta("Debes adjuntar el correo de autorización de la marca para proceder con la auto-autorización.");
+                }
+            }
+        }
+
         // 3. Si todo está perfecto, procedemos a guardar o enviar
         const res = await guardarFlujoAPI({
             estadoDeseado, 
@@ -351,6 +372,9 @@ export const ModalMaestroReporte = ({
                 codigoAuthBusca={codigoAuthBusca} 
                 setCodigoAuthBusca={setCodigoAuthBusca} 
                 autorizadorEncontrado={autorizadorEncontrado} 
+                reporteHeader={reporteHeader}
+                subtotal={subtotal}
+                totalGeneral={totalGeneral} 
                 onBuscarAutorizador={async () => setAutorizadorEncontrado(await buscarAutorizadorAPI(codigoAuthBusca))} 
                 onGuardarBorrador={() => ejecutarGuardar('Guardado en borrador')} 
                 onSalirSinGuardar={onClose} 

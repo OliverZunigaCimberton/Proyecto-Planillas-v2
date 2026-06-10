@@ -333,19 +333,19 @@ export const api = {
     shared: {
         getPeriodoActivo: async () => {
             try {
-                // Reutilizamos la ruta segura de periodos para deducir el activo en el frontend
+                // Consultamos de forma segura la lista general de periodos existentes
                 const res = await fetch(`${BASE_URL}/admin/periodos`);
                 if (!res.ok) return { success: false, data: null };
                 
                 const json = await res.json();
                 const listaPeriodos = Array.isArray(json) ? json : (json.data || []);
                 
-                // Filtramos estrictamente el periodo que se encuentre ABIERTO
+                // Filtramos estrictamente la quincena que se encuentre ABIERTA
                 const periodoActivo = listaPeriodos.find(p => p.estado === 'ABIERTO');
                 
                 return { success: true, data: periodoActivo || null };
             } catch (error) {
-                console.error("Error deduciendo periodo activo a partir de lista:", error);
+                console.error("Error deduciendo periodo activo en el submundo de excepciones:", error);
                 return { success: false, data: null };
             }
         },

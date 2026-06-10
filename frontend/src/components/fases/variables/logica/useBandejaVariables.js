@@ -80,6 +80,9 @@ export const useBandejaVariables = (periodoSeleccionado, modoVista = 'CREADOR') 
         // Los Auditores y Planillas nunca crean reportes desde su bandeja de revisión
         if (modoVista === 'ADMIN' || modoVista === 'CONTADOR') return false; 
         
+        // 🔒 CANDADO ESTRICTO: Si no hay período seleccionado o el período actual NO está ABIERTO, se bloquea la creación
+        if (!periodoActual || periodoActual.estado !== 'ABIERTO') return false;
+
         // Invertimos la lógica utilitaria: Si el tiempo NO está agotado, PUEDE crear
         return !checkTiempoAgotado(periodoActual, listaExcepciones, user?.codigo, 'CREADOR');
     }, [periodoActual, listaExcepciones, user?.codigo, modoVista]);

@@ -1,8 +1,8 @@
 // src/components/reportes/modal_maestro/logica/use_calculos_totales.js
 import { useMemo } from 'react';
 
-// ✨ AHORA RECIBE 'porcentajeDinamico' DESDE LA CONFIGURACIÓN DE LA BASE DE DATOS
-export const useCalculosTotales = (lineas, aplicaCargoMarca, porcentajeDinamico) => {
+// ✨ AHORA RECIBE EL TOTAL HISTÓRICO Y EL ESTADO PARA PROTEGER LOS REPORTES DEL PASADO
+export const useCalculosTotales = (lineas, aplicaCargoMarca, porcentajeDinamico, montoTotalHistorico, estadoReporte) => {
     
     const totales = useMemo(() => {
         let subtotalCalculado = 0;
@@ -17,25 +17,34 @@ export const useCalculosTotales = (lineas, aplicaCargoMarca, porcentajeDinamico)
             }
         });
 
-        // 🛡️ RESPALDO: Si por algún retraso de red o error no viniera el dato, 
-        // usa el 17.25% de fábrica para que el sistema nunca deje de operar.
-        const factorAplicable = porcentajeDinamico !== undefined && porcentajeDinamico !== null
-            ? parseFloat(porcentajeDinamico)
-            : 0.1725;
+        // Un reporte es histórico fijo si ya tiene un total guardado y no es un borrador modificable
+        const esReporteHistoricoFijo = montoTotalHistorico && !['Borrador', 'Guardado en borrador'].includes(estadoReporte);
 
-        // Calculamos el cargo usando el factor real de la Base de Datos
-        const cargoCalculado = aplicaCargoMarca === 'Si' ? subtotalCalculado * factorAplicable : 0;
-        
-        // Total final
-        const totalCalculado = subtotalCalculado + cargoCalculado;
+        let cargoCalculado;
+        let totalCalculado;
+
+        if (esReporteHistoricoFijo) {
+            // 🔒 CONGELACIÓN HISTÓRICA: Respetamos el total absoluto guardado en la base de datos
+            totalCalculado = parseFloat(montoTotalHistorico) || 0;
+            cargoCalculado = aplicaCargoMarca === 'Si' ? (totalCalculado - subtotalCalculado) : 0;
+            if (cargoCalculado < 0) cargoCalculado = 0; // Escudo ante decimales de redondeo masivos
+        } else {
+            // CÓMPUTO DINÁMICO: Para reportes nuevos o borradores activos usando el porcentaje de las configuraciones
+            const factorAplicable = porcentajeDinamico !== undefined && porcentajeDinamico !== null
+                ? parseFloat(porcentajeDinamico)
+                : 0.1725;
+
+            cargoCalculado = aplicaCargoMarca === 'Si' ? subtotalCalculado * factorAplicable : 0;
+            totalCalculado = subtotalCalculado + cargoCalculado;
+        }
 
         return { 
             subtotal: subtotalCalculado, 
             montoCargoMarca: cargoCalculado, 
             totalGeneral: totalCalculado 
         };
-    // 🌟 Vigilamos 'porcentajeDinamico' para recalcular si el administrador lo cambia
-    }, [lineas, aplicaCargoMarca, porcentajeDinamico]);
+    // 🌟 Añadimos montoTotalHistorico y estadoReporte a la escucha del Memoizer
+    }, [lineas, aplicaCargoMarca, porcentajeDinamico, montoTotalHistorico, estadoReporte]);
 
     return totales;
 };

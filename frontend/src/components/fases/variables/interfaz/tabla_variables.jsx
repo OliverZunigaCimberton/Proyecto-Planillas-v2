@@ -18,10 +18,16 @@ export const TablaVariables = ({
     onEliminarFila
 }) => {
 
-    const porcentajeValor = catalogos?.porcentajeCargoMarca !== undefined ? catalogos.porcentajeCargoMarca : catalogos?.porcentaje;
-    const porcentajeTexto = porcentajeValor 
-        ? `${(parseFloat(porcentajeValor) * 100).toFixed(2)}%` 
-        : '17.25%';
+    // 🧠 DEDUCCIÓN CRONOLÓGICA: Deducimos el porcentaje real dividiendo el recargo histórico entre el subtotal
+    let porcentajeTexto = '17.25%';
+    if (subtotal > 0 && montoCargoMarca > 0) {
+        porcentajeTexto = `${((montoCargoMarca / subtotal) * 100).toFixed(2)}%`;
+    } else {
+        const porcentajeValor = catalogos?.porcentajeCargoMarca !== undefined ? catalogos.porcentajeCargoMarca : catalogos?.porcentaje;
+        if (porcentajeValor) {
+            porcentajeTexto = `${(parseFloat(porcentajeValor) * 100).toFixed(2)}%`;
+        }
+    }
 
     return (
         <table className="reporte-detalle-table">

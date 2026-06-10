@@ -114,13 +114,43 @@ export const PanelPeriodos = ({ onClose }) => {
 
             {/* Conmutador de Pantallas del Submundo */}
             {view === 'LIST' && (
-                <TablaHistorial 
-                    periodos={periodos} 
-                    handleEditarPeriodo={handleEditarPeriodo}
-                    handleGestionarPersonal={handleGestionarPersonal} 
-                    handlePrepararCierre={setPeriodoACerrar}
-                    formatearFecha={formatearFechaVista}
-                />
+                <div style={{ width: '100%', position: 'relative' }}>
+                    {/* Al atacar directamente el contenedor nativo de la tabla, evitamos conflictos de capas en el DOM */}
+                    <style>{`
+                        /* 1. Forzamos la altura dinámica de bandeja al contenedor interno de la tabla */
+                        .admin-period-list-scroll {
+                            max-height: calc(100vh - 270px) !important;
+                            overflow-y: auto !important;
+                            padding-right: 4px;
+                        }
+
+                        /* 2. Separamos bordes internos (Requisito indispensable para que funcione sticky en th) */
+                        .admin-period-list-scroll table {
+                            border-collapse: separate !important;
+                            border-spacing: 0 !important;
+                            width: 100% !important;
+                        }
+
+                        /* 3. Congelamos magnéticamente el encabezado en el techo absoluto del scroll */
+                        .admin-period-list-scroll table thead th {
+                            position: sticky !important;
+                            top: 0 !important;
+                            z-index: 100 !important;
+                            background-color: #f8fafc !important; /* Color gris suave idéntico a las bandejas */
+                            box-shadow: inset 0 -1px 0 #e2e8f0 !important; /* Línea divisoria nítida */
+                            padding-top: 12px !important;
+                            padding-bottom: 12px !important;
+                        }
+                    `}</style>
+                    
+                    <TablaHistorial 
+                        periodos={periodos} 
+                        handleEditarPeriodo={handleEditarPeriodo}
+                        handleGestionarPersonal={handleGestionarPersonal} 
+                        handlePrepararCierre={setPeriodoACerrar}
+                        formatearFecha={formatearFechaVista}
+                    />
+                </div>
             )}
 
             {view === 'FORM' && (

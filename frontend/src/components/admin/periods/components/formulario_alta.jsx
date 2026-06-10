@@ -48,7 +48,7 @@ export const FormularioAlta = ({
                         id="period-codigo-input"
                         type="number" 
                         className={styles.adminPeriodInput}
-                        placeholder="Ej: 202611"
+                        placeholder=""
                         value={formData?.codigo_periodo || ''} 
                         onChange={(e) => setFormData({ ...formData, codigo_periodo: e.target.value })} 
                         disabled={isLoading} 

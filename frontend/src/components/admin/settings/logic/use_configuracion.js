@@ -8,7 +8,8 @@ import { api } from '../../../../services/api';
 export const useConfiguraciones = () => {
     const [vistaActiva, setVistaActiva] = useState('SELECTOR'); // 'SELECTOR' | 'CARGO' | 'MARCAS' | 'VARIABLES'
     const [isLoading, setIsLoading] = useState(true);
-    const [catalogos, setCatalogos] = useState({ marcas: [], variables: [], porcentaje: 0.1725 });
+    const [catalogos, setCatalogos] = useState({ marcas: [], variables: [], porcentaje: 0 });
+    const [tienePeriodoAbierto, setTienePeriodoAbierto] = useState(false);
     const [toast, setToast] = useState({ visible: false, titulo: '', mensaje: '', tipo: 'success' });
 
     // Lanzador controlado de avisos con limpieza automática por temporizador
@@ -26,12 +27,14 @@ export const useConfiguraciones = () => {
             const res = await api.admin.getInicial();
             
             if (res && res.success) {
-                setCatalogos({
-                    marcas: res.marcas || [],
-                    variables: res.variables || [],
-                    porcentaje: res.porcentajeCargoMarca ?? 0.1725
-                });
-            }
+            const listaPeriodos = res.periodos || [];
+            setTienePeriodoAbierto(listaPeriodos.some(p => p.estado === 'ABIERTO'));
+            setCatalogos({
+                marcas: res.marcas || [],
+                variables: res.variables || [],
+                porcentaje: res.porcentajeCargoMarca ?? 0
+            });
+        }
         } catch (error) {
             console.error("Error crítico recuperando catálogos de configuración:", error);
             lanzarToast(
@@ -65,12 +68,14 @@ export const useConfiguraciones = () => {
             setIsLoading(true);
             const res = await api.admin.getInicial();
             if (res && res.success) {
-                setCatalogos({
+            const listaPeriodos = res.periodos || [];
+            setTienePeriodoAbierto(listaPeriodos.some(p => p.estado === 'ABIERTO'));
+            setCatalogos({
                     marcas: res.marcas || [],
                     variables: res.variables || [],
-                    porcentaje: res.porcentajeCargoMarca ?? 0.1725
+                    porcentaje: res.porcentajeCargoMarca ?? 0
                 });
-                lanzarToast(
+            lanzarToast(
                     "¡Sincronizado!", 
                     `El catálogo de ${tipoConfig} se actualizó con éxito en el servidor.`, 
                     "success"
@@ -89,6 +94,7 @@ export const useConfiguraciones = () => {
         setVistaActiva,
         isLoading,
         catalogos,
+        tienePeriodoAbierto,
         toast,
         lanzarToast,
         handleRefrescoExitoso

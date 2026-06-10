@@ -62,6 +62,10 @@ export const BandejaReportes = ({ reportes, isLoading, onVerMas }) => {
                                     claseBadge = 'INACTIVO';
                                 }
 
+                                // 🧠 LÓGICA DE NEGOCIO PURA DESDE EL BACKEND (CERO DATOS QUEMADOS)
+                                const esCargoMarca = r.cargo_a_marca === 'Si';
+                                const montoExhibir = esCargoMarca ? (r.subtotal || 0) : (r.monto_total || 0);
+
                                 return (
                                     <tr key={r.id} style={{ 
                                         backgroundImage: 'linear-gradient(to right, rgba(148, 163, 184, 0) 0%, rgba(148, 163, 184, 0.6) 50%, rgba(148, 163, 184, 0) 100%)',
@@ -72,7 +76,7 @@ export const BandejaReportes = ({ reportes, isLoading, onVerMas }) => {
                                         <td className="font-bold text-dark">{codigoUnico}</td>
                                         <td>{formatearFecha(r.fecha_envio || r.fecha_creacion)}</td>
                                         <td>{r.marca || 'N/A'}</td>
-                                        <td className="font-bold text-vino">$ {formatoMoneda.format(r.monto_total || 0)}</td>
+                                        <td className="font-bold text-vino">$ {formatoMoneda.format(montoExhibir)}</td>
                                         <td><span className={`badge ${claseBadge}`}>{estadoVisual}</span></td>
                                         <td className="text-right">
                                             <button className="btn-sec btn-sm" onClick={() => onVerMas(r)}>

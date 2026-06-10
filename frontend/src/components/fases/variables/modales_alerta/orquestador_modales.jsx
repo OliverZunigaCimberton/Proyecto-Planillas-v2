@@ -3,7 +3,7 @@
 export const OrquestadorModales = ({ 
     modalActivo, 
     setModalActivo, 
-    isTiempoAgotado,
+    isTiempoAgotado, 
     
     // ✨ Estados para la alerta estilizada
     alertaEmergente,
@@ -23,8 +23,16 @@ export const OrquestadorModales = ({
     onEnviarAutorizador,
     onAccionJuez,
     onAccionContador,
-    onAccionAdmin
+    onAccionAdmin,
+
+    // Datos dinámicos del reporte para confirmación inteligente
+    reporteHeader,
+    subtotal,
+    totalGeneral
 }) => {
+    const formatoMonedaLocal = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const esCargoMarca = reporteHeader?.cargo_a_marca === 'Si';
+    const montoAMostrar = esCargoMarca ? (subtotal || 0) : (totalGeneral || 0);
 
     // Permitimos renderizar si hay un modal activo O si hay una alerta emergente activa
     if (!modalActivo && (!alertaEmergente || !alertaEmergente.activa)) return null;
@@ -125,9 +133,17 @@ export const OrquestadorModales = ({
                             ¿Estás seguro que deseas enviar este reporte para su autorización a la siguiente persona?
                         </p>
                         
+                        {/* Resumen ejecutivo de los datos del reporte seleccionado */}
+                        <div style={{ marginTop: '12px', padding: '12px', backgroundColor: '#fffbeb', borderRadius: '6px', textAlign: 'left', border: '1px solid #fef3c7', fontSize: '13px' }}>
+                            <div style={{ color: '#92400e' }}><strong>Marca:</strong> {reporteHeader?.marca || 'No especificada'}</div>
+                            <div style={{ color: '#92400e', marginTop: '4px' }}>
+                                <strong>Monto {esCargoMarca ? '(Subtotal)' : '(Total)'}:</strong> $ {formatoMonedaLocal.format(montoAMostrar)}
+                            </div>
+                        </div>
+
                         {autorizadorEncontrado && (
-                            <div style={{ marginTop: '15px', padding: '12px', backgroundColor: '#f8fafc', borderRadius: '6px', textAlign: 'left', border: '1px solid #e2e8f0', fontSize: '13px' }}>
-                                <div style={{ color: '#334155' }}><strong>Código:</strong> {codigoAuthBusca}</div>
+                            <div style={{ marginTop: '10px', padding: '12px', backgroundColor: '#f8fafc', borderRadius: '6px', textAlign: 'left', border: '1px solid #e2e8f0', fontSize: '13px' }}>
+                                <div style={{ color: '#334155' }}><strong>Código Autorizador:</strong> {codigoAuthBusca}</div>
                                 <div style={{ color: '#334155', margin: '4px 0' }}><strong>Nombre:</strong> {autorizadorEncontrado.nombre}</div>
                                 <div style={{ color: '#334155' }}><strong>Correo:</strong> {autorizadorEncontrado.email}</div>
                             </div>

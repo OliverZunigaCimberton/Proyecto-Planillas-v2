@@ -14,7 +14,8 @@ router.get('/inicial', async (req, res) => {
             supabase.from('maestro_centro_costos').select('*'),
             supabase.from('maestro_variables').select('*'),
             supabase.from('periodos').select('*').order('codigo_periodo', { ascending: false }),
-            supabase.from('configuraciones_sistema').select('valor').eq('clave', 'porcentaje_cargo_marca').maybeSingle()
+            // 🔄 ORDENAMIENTO HISTÓRICO: Trae el último registro insertado basándose en el ID correlativo
+            supabase.from('configuraciones_sistema').select('valor').eq('clave', 'porcentaje_cargo_marca').order('id', { ascending: false }).limit(1).maybeSingle()
         ]);
         
         res.json({
@@ -36,6 +37,23 @@ router.get('/periodos', async (req, res) => {
     try {
         const { data, error } = await supabase.from('periodos').select('*').order('codigo_periodo', { ascending: false });
         if (error) throw error;
+
+        // 🧠 Inyección dinámica del subtotal y cargo_a_marca calculados en tiempo real
+        if (data && data.length > 0) {
+            const reportIds = data.map(r => r.id);
+            const { data: lineas } = await supabase
+                .from('registro_variables')
+                .select('id_reporte, cargo_a_marca, monto')
+                .in('id_reporte', reportIds);
+
+            data.forEach(r => {
+                const lineasReporte = lineas?.filter(l => l.id_reporte === r.id) || [];
+                const tieneCargoMarca = lineasReporte.some(l => l.cargo_a_marca === 'Si');
+                r.cargo_a_marca = tieneCargoMarca ? 'Si' : 'No';
+                r.subtotal = lineasReporte.reduce((acc, curr) => acc + (parseFloat(curr.monto) || 0), 0);
+            });
+        }
+
         res.json({ success: true, data });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -493,9 +511,6 @@ router.put('/excepciones/:id', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
-// ====================================================================
-// ✨ NUEVO: ACTUALIZAR PORCENTAJE DE CARGO A MARCA DESDE LA INTERFAZ
-// ====================================================================
 router.put('/configuraciones/porcentaje', async (req, res) => {
     try {
         const { nuevoPorcentaje } = req.body;
@@ -504,15 +519,27 @@ router.put('/configuraciones/porcentaje', async (req, res) => {
             return res.status(400).json({ success: false, error: "El valor del porcentaje enviado no es válido." });
         }
 
-        // Modificamos el registro de la clave exacta en tu tabla configuraciones_sistema
+        // 🔒 CANDADO DE SEGURIDAD SERVER-SIDE: Evitamos cambios si hay periodos ABIERTOS
+        const { data: periodoAbierto, error: errCheck } = await supabase
+            .from('periodos')
+            .select('id')
+            .eq('estado', 'ABIERTO')
+            .limit(1)
+            .maybeSingle();
+
+        if (errCheck) throw errCheck;
+        if (periodoAbierto) {
+            return res.status(400).json({ success: false, error: "Operación denegada: No se puede modificar el porcentaje de recargo corporativo mientras exista una quincena en estado ABIERTO." });
+        }
+
+        // 🚀 NUEVO REGISTRO: En lugar de hacer .update(), insertamos una nueva fila para crear la auditoría
         const { error } = await supabase
             .from('configuraciones_sistema')
-            .update({ valor: parseFloat(nuevoPorcentaje) })
-            .eq('clave', 'porcentaje_cargo_marca');
+            .insert([{ clave: 'porcentaje_cargo_marca', valor: parseFloat(nuevoPorcentaje) }]);
 
         if (error) throw error;
 
-        res.json({ success: true, mensaje: "Porcentaje de Cargo a Marca actualizado con éxito en el sistema global." });
+        res.json({ success: true, mensaje: "Nuevo registro de porcentaje guardado con éxito en el histórico global." });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }

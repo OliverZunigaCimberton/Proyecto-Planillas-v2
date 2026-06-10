@@ -18,6 +18,7 @@ export const PanelConfiguraciones = ({ onClose }) => {
         setVistaActiva,
         isLoading,
         catalogos,
+        tienePeriodoAbierto,
         toast,
         lanzarToast,
         handleRefrescoExitoso
@@ -149,6 +150,7 @@ export const PanelConfiguraciones = ({ onClose }) => {
                                     onRefresh={() => handleRefrescoExitoso('Porcentaje')} 
                                     onBack={() => setVistaActiva('SELECTOR')} 
                                     notificar={lanzarToast} 
+                                    bloqueadoPorPeriodo={tienePeriodoAbierto}
                                 />
                             )}
                             

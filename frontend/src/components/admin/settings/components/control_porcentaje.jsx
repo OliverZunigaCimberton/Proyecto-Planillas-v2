@@ -6,7 +6,7 @@ import styles from '../styles/configuracion.module.css'; // Sincronizado en sing
  * Subcomponente especializado para la administración y actualización del
  * porcentaje corporativo automatizado de Recargo de Gestión (Cargo a Marca).
  */
-export const ControlPorcentaje = ({ porcentajeInicial, onRefresh, notificar }) => {
+export const ControlPorcentaje = ({ porcentajeInicial, onRefresh, notificar, bloqueadoPorPeriodo }) => {
     // Copia de respaldo para identificar mutaciones reactivas externas de la propiedad
     const [prevPorcentaje, setPrevPorcentaje] = useState(porcentajeInicial);
     
@@ -64,6 +64,12 @@ export const ControlPorcentaje = ({ porcentajeInicial, onRefresh, notificar }) =
                 Este porcentaje se aplica de forma automática al subtotal de los reportes quincenales cuando se marca la opción "Sí".
             </p>
             
+            {bloqueadoPorPeriodo && (
+                <p style={{ color: '#b91c1c', fontSize: '12px', fontWeight: 'bold', marginBottom: '15px', background: '#fef2f2', padding: '8px', borderRadius: '6px', border: '1px solid #fee2e2' }}>
+                    ⚠️ Edición bloqueada: Existe una quincena actualmente ABIERTA. Debe cerrarse el periodo activo para poder modificar este parámetro contable.
+                </p>
+            )}
+
             {/* Contenedor del Campo Numérico */}
             <div className={styles.adminCargoInputWrap}>
                 <input 
@@ -74,7 +80,7 @@ export const ControlPorcentaje = ({ porcentajeInicial, onRefresh, notificar }) =
                     onChange={(e) => setPorcentajeInput(e.target.value)}
                     placeholder="17.25"
                     step="0.01"
-                    disabled={isLoading}
+                    disabled={isLoading || bloqueadoPorPeriodo}
                     autoComplete="off"
                 />
                 <span className={styles.adminCargoSymbol}>%</span>
@@ -84,9 +90,9 @@ export const ControlPorcentaje = ({ porcentajeInicial, onRefresh, notificar }) =
             <button 
                 type="button"
                 className="btn-pri mt-20" 
-                style={{ width: '100%' }} 
+                style={{ width: '100%', backgroundColor: bloqueadoPorPeriodo ? '#cbd5e1' : '', cursor: bloqueadoPorPeriodo ? 'not-allowed' : 'pointer' }} 
                 onClick={handleGuardar} 
-                disabled={isLoading}
+                disabled={isLoading || bloqueadoPorPeriodo}
             >
                 <i className={isLoading ? "fas fa-spinner fa-spin" : "fas fa-save"}></i> Guardar Configuración
             </button>
