@@ -40,24 +40,17 @@ export const PanelConfiguraciones = ({ onClose }) => {
 
     return (
         <div className={styles.adminConfiOverlay}>
-            {/* Sistema local de avisos Toast para retroalimentación financiera */}
-            {toast.visible && (
-                <div 
-                    className={styles.adminConfiToast} 
-                    style={{ borderLeft: toast.tipo === 'success' ? '6px solid #10b981' : '6px solid #ef4444' }}
-                >
-                    <div className={styles.adminConfiToastFlex}>
-                        <i 
-                            className={toast.tipo === 'success' ? "fas fa-check-circle" : "fas fa-exclamation-circle"} 
-                            style={{ fontSize: '1.4rem', color: toast.tipo === 'success' ? '#10b981' : '#ef4444' }}
-                        ></i>
-                        <div>
-                            <strong className={styles.adminConfiToastTitle}>{toast.titulo}</strong>
-                            <span className={styles.adminConfiToastMsg}>{toast.mensaje}</span>
-                        </div>
-                    </div>
-                </div>
-            )}
+            {/* Sistema local de avisos Toast para retroalimentación financiera (Estilo Píldora Sólida) */}
+{toast.visible && (
+    <div className={`${styles.adminConfiToast} ${toast.tipo === 'success' ? styles.toastSuccessSgp : styles.toastErrorSgp}`}>
+        <div className={styles.adminConfiToastFlex}>
+            <i className={toast.tipo === 'success' ? "fas fa-check-circle" : "fas fa-exclamation-circle"}></i>
+            <span className={styles.adminConfiToastMsgUnificado}>
+                {toast.mensaje}
+            </span>
+        </div>
+    </div>
+)}
 
             {/* Tarjeta Base Estructural */}
             <div 

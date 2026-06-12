@@ -25,19 +25,22 @@
 }
 
 .adminUserSearchRelative {
-    position: relative;
+    position: relative !important;
 }
 
 .adminUserSearchIcon {
-    position: absolute;
-    left: 12px;
-    top: 12px;
-    color: var(--gris-texto);
+    position: absolute !important;
+    left: 14px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important; /* Centrado matemático vertical */
+    color: #94a3b8 !important;
+    z-index: 5 !important; /* Asegura que quede por encima del fondo del input */
+    pointer-events: none;
 }
 
 .adminUserSearchInput {
-    width: 100%;
-    padding-left: 35px;
+    width: 100% !important;
+    padding-left: 42px !important; /* 🔥 FORZADO: Rompe el diseño de m-input y aleja el texto de la lupa */
 }
 
 .adminUserModulesBox {
@@ -90,4 +93,36 @@
 .adminUserBadgeRole {
     background: #e2e8f0; 
     color: #475569;
+}
+
+/* ==========================================================================
+   CONTROL DE SCROLL CONTENIDO Y ENCABEZADO STICKY (FIJO)
+========================================================================== */
+
+.adminUserTableContainer {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #ffffff;
+    margin: 0 20px 20px 20px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.adminUserTableScroll {
+    max-height: 360px; /* Altura máxima fija ideal para evitar que deforme el modal */
+    overflow-y: auto;
+    width: 100%;
+}
+
+.adminUserTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.adminUserThead th {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 10;
+    background-color: #f8fafc !important; /* Fondo sólido para evitar traslapes visuales */
+    box-shadow: inset 0 -1px 0 #e2e8f0; /* Línea sutil divisoria inferior */
 }

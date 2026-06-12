@@ -1,3 +1,4 @@
+// frontend/src/components/admin/settings/logic/use_configuracion.js
 import { useState, useEffect, useCallback } from 'react';
 import { api } from '../../../../services/api';
 
@@ -27,16 +28,17 @@ export const useConfiguraciones = () => {
             const res = await api.admin.getInicial();
             
             if (res && res.success) {
-            const listaPeriodos = res.periodos || [];
-            setTienePeriodoAbierto(listaPeriodos.some(p => p.estado === 'ABIERTO'));
-            setCatalogos({
-                marcas: res.marcas || [],
-                variables: res.variables || [],
-                porcentaje: res.porcentajeCargoMarca ?? 0
-            });
-        }
+                const listaPeriodos = res.periodos || [];
+                setTienePeriodoAbierto(listaPeriodos.some(p => p.estado === 'ABIERTO'));
+                setCatalogos({
+                    marcas: res.marcas || [],
+                    variables: res.variables || [],
+                    porcentaje: res.porcentajeCargoMarca ?? 0
+                });
+            }
         } catch (error) {
             console.error("Error crítico recuperando catálogos de configuración:", error);
+            // 🛡️ CORRECCIÓN LÍNEA 42: Se restaura el mensaje plano estático sin variables indefinidas
             lanzarToast(
                 "Error de Carga", 
                 "No se pudieron inicializar los parámetros globales corporativos.", 
@@ -68,16 +70,18 @@ export const useConfiguraciones = () => {
             setIsLoading(true);
             const res = await api.admin.getInicial();
             if (res && res.success) {
-            const listaPeriodos = res.periodos || [];
-            setTienePeriodoAbierto(listaPeriodos.some(p => p.estado === 'ABIERTO'));
-            setCatalogos({
+                const listaPeriodos = res.periodos || [];
+                setTienePeriodoAbierto(listaPeriodos.some(p => p.estado === 'ABIERTO'));
+                setCatalogos({
                     marcas: res.marcas || [],
                     variables: res.variables || [],
                     porcentaje: res.porcentajeCargoMarca ?? 0
                 });
-            lanzarToast(
-                    "¡Sincronizado!", 
-                    `El catálogo de ${tipoConfig} se actualizó con éxito en el servidor.`, 
+                
+                // ✅ AQUÍ SÍ SE USA tipoConfig porque la función lo recibe como argumento arriba
+                lanzarToast(
+                    "", 
+                    `Catálogo de ${tipoConfig} actualizado con éxito en el servidor`, 
                     "success"
                 );
             }

@@ -13,6 +13,10 @@ export const TablaVariables = ({ variables = [], onRefresh }) => {
     const [varEditando, setVarEditando] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
+    // Estados para el Modal Compacto de Eliminación
+    const [modalEliminarAbierto, setModalEliminarAbierto] = useState(false);
+    const [variableSeleccionada, setVariableSeleccionada] = useState(null);
+
     // Filtro reactivo combinando código contable y nombre descriptivo
     const variablesFiltradas = variables.filter(v => 
         v.codigo_variable?.toLowerCase().includes(filtro.toLowerCase()) ||
@@ -56,20 +60,27 @@ export const TablaVariables = ({ variables = [], onRefresh }) => {
         }
     };
 
-    const handleEliminar = async (id) => {
-        if (!confirm("¿Seguro que deseas eliminar esta variable contable de forma permanente?")) return;
+    const handleSolicitarEliminar = (variable) => {
+        setVariableSeleccionada(variable);
+        setModalEliminarAbierto(true);
+    };
+
+    const handleConfirmarEliminacion = async () => {
+        if (!variableSeleccionada) return;
         setIsLoading(true);
         try {
-            const res = await api.admin.eliminarVariable(id);
+            const res = await api.admin.eliminarVariable(variableSeleccionada.id);
             if (res.success) {
                 if (onRefresh) onRefresh();
             } else {
-                alert(res.error || "No se pudo eliminar la variable porque está en uso.");
+                alert(res.error || "No se pudo eliminar la variable porque está en uso activo.");
             }
         } catch (error) { 
             console.error("Error eliminando variable contable:", error); 
         } finally { 
             setIsLoading(false); 
+            setModalEliminarAbierto(false);
+            setVariableSeleccionada(null);
         }
     };
 
@@ -203,7 +214,7 @@ export const TablaVariables = ({ variables = [], onRefresh }) => {
                                                 ></i>
                                                 <i 
                                                     className={`fas fa-trash-alt ${styles.adminConfigIconTrash}`} 
-                                                    onClick={() => handleEliminar(v.id)} 
+                                                    onClick={() => handleSolicitarEliminar(v)} 
                                                     title="Eliminar variable"
                                                 ></i>
                                             </div>
@@ -215,6 +226,53 @@ export const TablaVariables = ({ variables = [], onRefresh }) => {
                     </table>
                 </div>
             </div>
+
+            {/* 🎯 MODAL COMPACTO DE CONFIRMACIÓN DE ELIMINACIÓN DE VARIABLE */}
+            {modalEliminarAbierto && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+                    backgroundColor: 'rgba(15, 23, 42, 0.25)', backdropFilter: 'blur(3px)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 99999
+                }}>
+                    <div style={{
+                        backgroundColor: '#ffffff', borderRadius: '24px', padding: '28px 30px',
+                        width: '90%', maxWidth: '390px', textAlign: 'center',
+                        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+                        animation: 'fadeIn 0.15s ease-out'
+                    }}>
+                        <div style={{ marginBottom: '16px' }}>
+                            <i className="fas fa-trash-alt" style={{ fontSize: '2.2rem', color: 'var(--vino)', marginBottom: '12px', display: 'block' }}></i>
+                            <h2 style={{ color: 'var(--vino)', fontSize: '1.45rem', fontWeight: '700', margin: 0, letterSpacing: '-0.3px' }}>
+                                Eliminar Variable
+                            </h2>
+                        </div>
+
+                        <div style={{ marginBottom: '24px' }}>
+                            <p style={{ color: '#475569', fontSize: '13.5px', lineHeight: '1.5', margin: '0 0 8px 0' }}>
+                                ¿Está seguro de eliminar la variable <strong>{variableSeleccionada?.codigo_variable}</strong>?
+                            </p>
+                            <p style={{ color: '#94a3b8', fontSize: '12px', lineHeight: '1.4', margin: 0 }}>
+                                Esta acción removerá el concepto permanentemente del catálogo financiero.
+                            </p>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                            <button 
+                                type="button" className="btn-sec" style={{ padding: '10px 24px', borderRadius: '12px', fontWeight: '600', fontSize: '13px' }}
+                                onClick={() => { setModalEliminarAbierto(false); setVariableSeleccionada(null); }}
+                            >
+                                Cancelar
+                            </button>
+                            <button 
+                                type="button" onClick={handleConfirmarEliminacion}
+                                style={{ backgroundColor: 'var(--vino)', color: '#ffffff', border: 'none', padding: '10px 28px', borderRadius: '12px', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}
+                            >
+                                ELIMINAR
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

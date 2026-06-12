@@ -1,3 +1,4 @@
+// exceptions/logic/use_excepciones.js
 import { useState, useEffect, useCallback } from 'react';
 import { api } from '../../../../services/api';
 import { extraerFechaParaInput, formatearHoraParaServidor } from '../../../../utils/dateValidation';
@@ -33,7 +34,6 @@ export const useExcepciones = () => {
         try {
             setIsLoading(true);
             
-            // Descarga paralela optimizada de catálogos base
             const [resPeriodo, resExcepciones] = await Promise.all([
                 api.shared.getPeriodoActivo(),
                 api.admin.getExcepciones()
@@ -54,22 +54,17 @@ export const useExcepciones = () => {
         }
     }, [mostrarToast]);
 
-    // Inicialización asíncrona segura libre de renderizados en cascada
     useEffect(() => {
         let activo = true;
-
         queueMicrotask(() => {
             if (activo) {
                 cargarDatos();
             }
         });
-
-        return () => {
-            activo = false;
-        };
+        return () => { activo = false; };
     }, [cargarDatos]);
 
-    // Consulta en tiempo real de los datos catastrales del reportante (al perder el foco del input)
+    // Consulta en tiempo real de los datos catastrales del reportante
     const handleReportanteBlur = async () => {
         const codigo = formData.codigo_empleado?.trim();
         if (!codigo) {
@@ -91,7 +86,7 @@ export const useExcepciones = () => {
         }
     };
 
-    // Consulta en tiempo real de los datos catastrales del autorizador (al perder el foco del input)
+    // Consulta en tiempo real de los datos catastrales del autorizador
     const handleAutorizadorBlur = async () => {
         const codigo = formData.codigo_autorizador?.trim();
         if (!codigo) {
@@ -151,18 +146,23 @@ export const useExcepciones = () => {
         setView('FORM');
     };
 
+    // ============================================================================
+    // PROCESAMIENTO COMPORTAMENTAL CON CORRECCIÓN DE CANDADOS
+    // ============================================================================
     const handleGuardar = async () => {
         const tipo = formData.tipo_permiso || 'CREAR';
 
-        // Validaciones tácticas del formulario según el tipo de prórroga
+        // 🔄 REGLA DE NEGOCIO CORREGIDA: Ajustamos las condiciones por tipo de flujo
         if (tipo === 'CREAR' && !formData.codigo_empleado) {
             mostrarToast("El código del empleado es requerido", "error");
             return;
         }
-        if (tipo === 'AUTORIZAR' && (!formData.codigo_empleado || !formData.codigo_autorizador)) {
-            mostrarToast("Ambos códigos (Empleado y Autorizador) son requeridos", "error");
+        
+        if (tipo === 'AUTORIZAR' && !formData.codigo_autorizador) {
+            mostrarToast("El código del autorizador es requerido para habilitar firmas fuera de tiempo", "error");
             return;
         }
+
         if (!formData.nueva_fecha_corte || !formData.nueva_hora_corte) {
             mostrarToast("Establece la fecha y hora límite de la prórroga", "error");
             return;
@@ -172,7 +172,8 @@ export const useExcepciones = () => {
 
         const payload = {
             id_periodo: parseInt(formData.id_periodo, 10),
-            codigo_empleado: formData.codigo_empleado ? parseInt(formData.codigo_empleado, 10) : null,
+            // Si es AUTORIZAR, mandamos null al empleado de forma limpia, evitando basura relacional
+            codigo_empleado: tipo === 'CREAR' ? parseInt(formData.codigo_empleado, 10) : null,
             codigo_autorizador: formData.codigo_autorizador ? parseInt(formData.codigo_autorizador, 10) : null,
             nueva_fecha_corte: formData.nueva_fecha_corte,
             nueva_hora_corte: formatearHoraParaServidor(formData.nueva_hora_corte),

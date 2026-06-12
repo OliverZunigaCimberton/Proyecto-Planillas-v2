@@ -6,16 +6,17 @@ const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 export const api = {
     auth: {
+        // Vinculado al controlador único de inicio de sesión que genera el código OTP
         requestAccess: async (param) => {
             const correoVal = param?.correo || param?.email || (typeof param === 'string' ? param : '');
             try {
-                const res = await fetch(`${BASE_URL}/auth/request`, {
+                const res = await fetch(`${BASE_URL}/auth/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: correoVal, correo: correoVal })
                 });
                 
-                if (!res.ok) return { success: false, msg: 'Ruta no encontrada en el backend', data: {}, user: {} };
+                if (!res.ok) return { success: false, msg: 'Ruta de acceso no encontrada', data: {}, user: {} };
                 return await res.json();
             } catch (e) {
                 return { success: false, msg: e.message, data: {}, user: {} };
@@ -31,7 +32,7 @@ export const api = {
                     body: JSON.stringify({ email: correoVal, correo: correoVal, token: tokenVal })
                 });
                 
-                if (!res.ok) return { success: false, msg: 'Ruta no encontrada en el backend', data: {}, user: {} };
+                if (!res.ok) return { success: false, msg: 'Ruta de inicio no encontrada', data: {}, user: {} };
                 return await res.json();
             } catch (e) {
                 return { success: false, msg: e.message, data: {}, user: {} };
@@ -48,11 +49,11 @@ export const api = {
             return await res.json();
         },
         getPeriodoById: async (id) => {
-            const res = await fetch(`${BASE_URL}/admin/periodos/${id}`);
+            const res = await fetch(`${BASE_URL}/admin/periodo/${id}`); // Ajustado a singular
             return await res.json();
         },
         guardarPeriodo: async (payloadMasivo) => {
-            const res = await fetch(`${BASE_URL}/admin/periodos`, {
+            const res = await fetch(`${BASE_URL}/admin/periodo`, { // Ajustado a singular
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payloadMasivo)
@@ -60,7 +61,7 @@ export const api = {
             return await res.json();
         },
         actualizarPeriodo: async (id, payloadPlano) => {
-            const res = await fetch(`${BASE_URL}/admin/periodos/${id}`, {
+            const res = await fetch(`${BASE_URL}/admin/periodo/${id}`, { // Ajustado a singular
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ payload: payloadPlano })
@@ -76,17 +77,17 @@ export const api = {
         // GESTIÓN DE PERSONAL ASOCIADO AL PERIODO
         // ====================================================================
         getEmpleadosByPeriodo: async (idPeriodo) => {
-            const res = await fetch(`${BASE_URL}/admin/periodos/${idPeriodo}/empleados`);
+            const res = await fetch(`${BASE_URL}/admin/empleados/${idPeriodo}`); // Ajustado a ruta limpia
             return await res.json();
         },
         eliminarPersonalPeriodo: async (idPeriodo) => {
-            const res = await fetch(`${BASE_URL}/admin/periodos/${idPeriodo}/empleados`, {
+            const res = await fetch(`${BASE_URL}/admin/empleados/${idPeriodo}`, { // Ajustado a ruta limpia
                 method: 'DELETE'
             });
             return await res.json();
         },
         agregarEmpleadoManual: async (payloadPlano) => {
-            const res = await fetch(`${BASE_URL}/admin/empleados-manual`, {
+            const res = await fetch(`${BASE_URL}/admin/empleado-manual`, { // Ajustado a singular
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ payload: payloadPlano })
@@ -94,7 +95,7 @@ export const api = {
             return await res.json();
         },
         eliminarEmpleadoManual: async (idPeriodo, codigoEmpleado) => {
-            const res = await fetch(`${BASE_URL}/admin/periodos/${idPeriodo}/empleados/${codigoEmpleado}`, {
+            const res = await fetch(`${BASE_URL}/admin/empleado/${idPeriodo}/${codigoEmpleado}`, { // Ajustado a singular
                 method: 'DELETE'
             });
             return await res.json();
@@ -108,11 +109,11 @@ export const api = {
             return await res.json();
         },
         getUsuarioById: async (codigo) => {
-            const res = await fetch(`${BASE_URL}/admin/usuarios/${codigo}`);
+            const res = await fetch(`${BASE_URL}/admin/usuario/${codigo}`); // Ajustado a singular
             return await res.json();
         },
         guardarUsuario: async (payloadWrapper) => {
-            const res = await fetch(`${BASE_URL}/admin/usuarios`, {
+            const res = await fetch(`${BASE_URL}/admin/usuario`, { // Ajustado a singular
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payloadWrapper)
@@ -120,7 +121,7 @@ export const api = {
             return await res.json();
         },
         actualizarUsuario: async (codigo, payloadWrapper) => {
-            const res = await fetch(`${BASE_URL}/admin/usuarios/${codigo}`, {
+            const res = await fetch(`${BASE_URL}/admin/usuario/${codigo}`, { // Ajustado a singular
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payloadWrapper)
@@ -136,11 +137,11 @@ export const api = {
             return await res.json();
         },
         getExcepcionById: async (id) => {
-            const res = await fetch(`${BASE_URL}/admin/excepciones/${id}`);
+            const res = await fetch(`${BASE_URL}/admin/excepcion/${id}`); // Ajustado a singular
             return await res.json();
         },
         guardarExcepcion: async (payloadPlano) => {
-            const res = await fetch(`${BASE_URL}/admin/excepciones`, {
+            const res = await fetch(`${BASE_URL}/admin/excepcion`, { // Ajustado a singular
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payloadPlano)
@@ -148,7 +149,7 @@ export const api = {
             return await res.json();
         },
         actualizarExcepcion: async (id, payloadPlano) => {
-            const res = await fetch(`${BASE_URL}/admin/excepciones/${id}`, {
+            const res = await fetch(`${BASE_URL}/admin/excepcion/${id}`, { // Ajustado a singular
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payloadPlano)
@@ -160,7 +161,7 @@ export const api = {
         // INTEGRACIÓN REPORTE MAESTRO (ADMIN)
         // ====================================================================
         getInicial: async () => {
-            const res = await fetch(`${BASE_URL}/admin/inicial`);
+            const res = await fetch(`${BASE_URL}/shared/inicial`); // Redireccionado a la capa compartida
             return await res.json();
         },
         getReporteById: async (idReporte) => {
@@ -177,10 +178,10 @@ export const api = {
         },
 
         // ====================================================================
-        // ✨ AGREGADO: CONFIGURACIONES GLOBALES (PANELES DEL ADMINISTRADOR)
+        // CONFIGURACIONES GLOBALES (PANELES DEL ADMINISTRADOR)
         // ====================================================================
         actualizarPorcentajeCargo: async (nuevoPorcentaje) => {
-            const res = await fetch(`${BASE_URL}/admin/configuraciones/porcentaje`, {
+            const res = await fetch(`${BASE_URL}/admin/porcentaje`, { // Redireccionado a la nueva ruta limpia
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ nuevoPorcentaje })
@@ -188,7 +189,7 @@ export const api = {
             return await res.json();
         },
 
-        // CRUD MAESTRO DE MARCAS (Pestaña 2 del Panel)
+        // CRUD MAESTRO DE MARCAS
         crearMarca: async (nombre_marca) => {
             const res = await fetch(`${BASE_URL}/admin/marcas`, {
                 method: 'POST',
@@ -210,7 +211,7 @@ export const api = {
             return await res.json();
         },
 
-        // CRUD MAESTRO DE VARIABLES (Pestaña 3 del Panel)
+        // CRUD MAESTRO DE VARIABLES
         crearVariable: async (codigo_variable, nombre_variable) => {
             const res = await fetch(`${BASE_URL}/admin/variables`, {
                 method: 'POST',
@@ -235,7 +236,7 @@ export const api = {
 
     reportante: {
         getInicial: async () => {
-            const res = await fetch(`${BASE_URL}/reportante/inicial`);
+            const res = await fetch(`${BASE_URL}/shared/inicial`); // Redireccionado a la capa compartida
             return await res.json();
         },
         getMisReportes: async (idPeriodo, codigoUsuario) => {
@@ -247,7 +248,7 @@ export const api = {
             return await res.json();
         },
         verificarEmpleados: async (codigos, idPeriodo) => {
-            const res = await fetch(`${BASE_URL}/reportante/verificar-empleados`, {
+            const res = await fetch(`${BASE_URL}/shared/verificar-empleados`, { // Redireccionado a la capa compartida
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ codigos, id_periodo: idPeriodo })
@@ -255,11 +256,11 @@ export const api = {
             return await res.json();
         },
         getAutorizadorByCodigo: async (codigo) => {
-            const res = await fetch(`${BASE_URL}/reportante/autorizador/${codigo}`);
+            const res = await fetch(`${BASE_URL}/autorizador/menu-autorizador/${codigo}`); // Redireccionado a la ruta limpia del autorizador
             return await res.json();
         },
         uploadArchivo: async (payload) => {
-            const res = await fetch(`${BASE_URL}/reportante/upload`, {
+            const res = await fetch(`${BASE_URL}/shared/upload`, { // Redireccionado a la capa compartida
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -267,7 +268,7 @@ export const api = {
             return await res.json();
         },
         guardarReporte: async (payload) => {
-            const res = await fetch(`${BASE_URL}/reportante/guardar`, {
+            const res = await fetch(`${BASE_URL}/shared/guardar`, { // Redireccionado a la capa compartida
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -279,14 +280,14 @@ export const api = {
             return await res.json();
         },
         eliminarBorrador: async (id) => {
-            const res = await fetch(`${BASE_URL}/reportante/eliminar/${id}`, { method: 'PUT' });
+            const res = await fetch(`${BASE_URL}/shared/eliminar/${id}`, { method: 'PUT' }); // Redireccionado a la capa compartida
             return await res.json();
         }
     },
 
     autorizador: {
         getInicial: async () => {
-            const res = await fetch(`${BASE_URL}/autorizador/inicial`);
+            const res = await fetch(`${BASE_URL}/shared/inicial`); // Redireccionado a la capa compartida
             return await res.json();
         },
         getBandeja: async (tipoBandeja, idPeriodo, codigoUsuario) => {
@@ -298,7 +299,7 @@ export const api = {
             return await res.json();
         },
         actualizarEstado: async (id, payload) => {
-            const res = await fetch(`${BASE_URL}/autorizador/estado/${id}`, {
+            const res = await fetch(`${BASE_URL}/autorizador/cambiar-estado/${id}`, { // Redireccionado a la nueva ruta limpia
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -309,7 +310,7 @@ export const api = {
 
     contador: {
         getInicial: async () => {
-            const res = await fetch(`${BASE_URL}/contador/inicial`);
+            const res = await fetch(`${BASE_URL}/shared/inicial`); // Redireccionado a la capa compartida
             return await res.json();
         },
         getBandeja: async (idPeriodo) => {
@@ -333,19 +334,16 @@ export const api = {
     shared: {
         getPeriodoActivo: async () => {
             try {
-                // Consultamos de forma segura la lista general de periodos existentes
                 const res = await fetch(`${BASE_URL}/admin/periodos`);
                 if (!res.ok) return { success: false, data: null };
                 
                 const json = await res.json();
                 const listaPeriodos = Array.isArray(json) ? json : (json.data || []);
-                
-                // Filtramos estrictamente la quincena que se encuentre ABIERTA
                 const periodoActivo = listaPeriodos.find(p => p.estado === 'ABIERTO');
                 
                 return { success: true, data: periodoActivo || null };
             } catch (error) {
-                console.error("Error deduciendo periodo activo en el submundo de excepciones:", error);
+                console.error("Error deduciendo periodo activo:", error);
                 return { success: false, data: null };
             }
         },
@@ -359,10 +357,10 @@ export const api = {
         },
         getExcepcionActiva: async (idPeriodo, codigoUsuario) => {
             try {
-                const res = await fetch(`${BASE_URL}/reportante/excepcion/${idPeriodo}/${codigoUsuario}`);
+                const res = await fetch(`${BASE_URL}/shared/excepcion/${idPeriodo}/${codigoUsuario}`); // Redireccionado a la capa compartida
                 const json = await res.json();
-                if (json.success && json.excepciones) {
-                    return { data: json.excepciones };
+                if (json.success && json.data) {
+                    return { data: json.data };
                 }
                 return { data: [] };
             } catch (error) {

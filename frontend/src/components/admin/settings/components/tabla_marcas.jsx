@@ -1,3 +1,4 @@
+// frontend/src/components/admin/settings/components/tabla_marcas.jsx
 import { useState } from 'react';
 import { api } from '../../../../services/api';
 import styles from '../styles/configuracion.module.css'; // Sincronizado en singular
@@ -11,6 +12,10 @@ export const TablaMarcas = ({ marcas = [], onRefresh }) => {
     const [nuevaMarca, setNuevaMarca] = useState('');
     const [marcaEditando, setMarcaEditando] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+
+    // Estados para controlar el nuevo Modal de confirmación compacto
+    const [modalEliminarAbierto, setModalEliminarAbierto] = useState(false);
+    const [marcaSeleccionada, setMarcaSeleccionada] = useState(null);
 
     // Filtro reactivo combinando el ID secuencial y las cadenas del nombre de marca
     const marcasFiltradas = marcas.filter(m => 
@@ -49,11 +54,18 @@ export const TablaMarcas = ({ marcas = [], onRefresh }) => {
         }
     };
 
-    const handleEliminar = async (id) => {
-        if (!confirm("¿Seguro que deseas eliminar esta marca de forma permanente?")) return;
+    // Abre el modal moderno guardando los datos de la marca elegida
+    const handleSolicitarEliminar = (marca) => {
+        setMarcaSeleccionada(marca);
+        setModalEliminarAbierto(true);
+    };
+
+    // Detona la llamada real hacia el backend modular desde el botón del modal
+    const handleConfirmarEliminacion = async () => {
+        if (!marcaSeleccionada) return;
         setIsLoading(true);
         try {
-            const res = await api.admin.eliminarMarca(id);
+            const res = await api.admin.eliminarMarca(marcaSeleccionada.id);
             if (res.success) {
                 if (onRefresh) onRefresh();
             } else {
@@ -63,6 +75,8 @@ export const TablaMarcas = ({ marcas = [], onRefresh }) => {
             console.error("Error al remover marca corporativa:", error); 
         } finally { 
             setIsLoading(false); 
+            setModalEliminarAbierto(false);
+            setMarcaSeleccionada(null);
         }
     };
 
@@ -171,7 +185,7 @@ export const TablaMarcas = ({ marcas = [], onRefresh }) => {
                                                 ></i>
                                                 <i 
                                                     className={`fas fa-trash-alt ${styles.adminConfigIconTrash}`} 
-                                                    onClick={() => handleEliminar(m.id)} 
+                                                    onClick={() => handleSolicitarEliminar(m)} 
                                                     title="Eliminar marca"
                                                 ></i>
                                             </div>
@@ -183,6 +197,72 @@ export const TablaMarcas = ({ marcas = [], onRefresh }) => {
                     </table>
                 </div>
             </div>
+
+            {/* 🎯 MODAL COMPACTO DE CONFIRMACIÓN DE ELIMINACIÓN DE MARCA */}
+            {modalEliminarAbierto && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+                    backgroundColor: 'rgba(15, 23, 42, 0.25)', backdropFilter: 'blur(3px)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 99999
+                }}>
+                    <div style={{
+                        backgroundColor: '#ffffff', 
+                        borderRadius: '24px', 
+                        padding: '28px 30px', 
+                        width: '90%', 
+                        maxWidth: '390px', 
+                        textAlign: 'center',
+                        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+                        animation: 'fadeIn 0.15s ease-out'
+                    }}>
+                        {/* Encabezado con Icono Proporcionado */}
+                        <div style={{ marginBottom: '16px' }}>
+                            <i className="fas fa-trash-alt" style={{ fontSize: '2.2rem', color: 'var(--vino)', marginBottom: '12px', display: 'block' }}></i>
+                            <h2 style={{ color: 'var(--vino)', fontSize: '1.45rem', fontWeight: '700', margin: 0, letterSpacing: '-0.3px' }}>
+                                Eliminar Marca
+                            </h2>
+                        </div>
+
+                        {/* Cuerpo del Mensaje */}
+                        <div style={{ marginBottom: '24px' }}>
+                            <p style={{ color: '#475569', fontSize: '13.5px', lineHeight: '1.5', margin: '0 0 8px 0' }}>
+                                ¿Está seguro de eliminar la marca <strong>{marcaSeleccionada?.nombre_marca}</strong>?
+                            </p>
+                            <p style={{ color: '#94a3b8', fontSize: '12px', lineHeight: '1.4', margin: 0 }}>
+                                Esta acción removerá el registro permanentemente del catálogo maestro.
+                            </p>
+                        </div>
+
+                        {/* Botonera Inferior Proporcionada */}
+                        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                            <button 
+                                type="button" 
+                                className="btn-sec" 
+                                style={{ padding: '10px 24px', borderRadius: '12px', fontWeight: '600', fontSize: '13px' }}
+                                onClick={() => { setModalEliminarAbierto(false); setMarcaSeleccionada(null); }}
+                            >
+                                Cancelar
+                            </button>
+                            <button 
+                                type="button" 
+                                onClick={handleConfirmarEliminacion}
+                                style={{ 
+                                    backgroundColor: 'var(--vino)', 
+                                    color: '#ffffff', 
+                                    border: 'none', 
+                                    padding: '10px 28px', 
+                                    borderRadius: '12px', 
+                                    fontWeight: '700', 
+                                    fontSize: '13px', 
+                                    cursor: 'pointer' 
+                                }}
+                            >
+                                ELIMINAR
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

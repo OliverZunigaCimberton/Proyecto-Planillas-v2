@@ -23,7 +23,7 @@ export const FormularioRegistro = ({
                         id="user-codigo-input"
                         type="number" 
                         className="m-input" 
-                        placeholder="Ej: 1234" 
+                        placeholder="" 
                         value={formData.codigo} 
                         onChange={(e) => setFormData({ ...formData, codigo: e.target.value })} 
                         disabled={isEdit || isLoading} 
@@ -52,7 +52,7 @@ export const FormularioRegistro = ({
                     id="user-nombre-input"
                     type="text" 
                     className="m-input" 
-                    placeholder="Nombre Apellido" 
+                    placeholder="" 
                     value={formData.nombre} 
                     onChange={(e) => setFormData({ ...formData, nombre: e.target.value })} 
                     disabled={isLoading} 
@@ -67,7 +67,7 @@ export const FormularioRegistro = ({
                     id="user-email-input"
                     type="email" 
                     className="m-input" 
-                    placeholder="usuario@grupoimberton.com" 
+                    placeholder="" 
                     value={formData.email} 
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })} 
                     disabled={isLoading} 

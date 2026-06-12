@@ -72,11 +72,12 @@ export const PanelExcepciones = ({ onClose }) => {
                 onClose={configEncabezado.onClose}
             />
 
-            {/* Renderizado de Pantallas por Condición */}
+            {/* Renderizado de Pantallas por Condición con Contenedor Proporcionado */}
             {view === 'LIST' ? (
-                <div className="table-scroll">
-                    <table className="tabla-historial">
-                        <thead>
+                <div className={styles.adminExcTableContainer}>
+                    <div className={styles.adminExcTableScroll}>
+                        <table className={`tabla-historial ${styles.adminExcTable}`}>
+                            <thead className={styles.adminExcThead}>
                             <tr>
                                 <th>Periodo</th>
                                 <th>Tipo Permiso</th>
@@ -133,6 +134,7 @@ export const PanelExcepciones = ({ onClose }) => {
                         </tbody>
                     </table>
                 </div>
+            </div>
             ) : (
                 <ModalFormulario
                     formData={formData}

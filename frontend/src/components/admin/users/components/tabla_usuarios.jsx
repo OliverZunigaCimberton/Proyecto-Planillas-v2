@@ -29,11 +29,12 @@ export const TablaUsuarios = ({
                 </div>
             </div>
 
-            {/* Contenedor de Tabla Historial con Scroll Integrado */}
-            <div className="table-scroll">
-                <table className="tabla-historial">
-                    <thead>
-                        <tr>
+            {/* Contenedor de Tabla Historial con Scroll y Encabezado Fijo */}
+            <div className={styles.adminUserTableContainer}>
+                <div className={styles.adminUserTableScroll}>
+                    <table className={`tabla-historial ${styles.adminUserTable}`}>
+                        <thead className={styles.adminUserThead}>
+                            <tr>
                             <th>Código</th>
                             <th>Nombre Completo</th>
                             <th>Correo</th>
@@ -90,7 +91,8 @@ export const TablaUsuarios = ({
                             })
                         )}
                     </tbody>
-                </table>
+                    </table>
+                </div>
             </div>
         </>
     );

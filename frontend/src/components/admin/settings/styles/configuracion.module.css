@@ -29,30 +29,47 @@
     position: fixed;
     top: 25px;
     right: 25px;
-    background-color: #ffffff;
-    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-    padding: 14px 20px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15);
+    padding: 12px 24px;
     border-radius: 8px;
     z-index: 4000;
-    min-width: 300px;
-    max-width: 400px;
+    min-width: 280px;
+    max-width: 480px;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+/* 🟢 Variante Éxito: Fondo verde oscuro plano unificado */
+.toastSuccessSgp {
+    background-color: #155724 !important; /* Código del verde de tus alertas */
+    color: #ffffff !important;
+}
+
+/* 🔴 Variante Error: Fondo vino plano unificado */
+.toastErrorSgp {
+    background-color: var(--vino) !important;
+    color: #ffffff !important;
 }
 
 .adminConfiToastFlex {
     display: flex;
     align-items: center;
     gap: 12px;
+    width: 100%;
 }
 
-.adminConfiToastTitle {
-    display: block;
-    font-size: 14px;
-    color: #0f172a;
+.adminConfiToastFlex i {
+    font-size: 1.25rem;
+    color: #ffffff !important; /* Icono blanco sobre el fondo de color */
 }
 
-.adminConfiToastMsg {
-    font-size: 13px;
-    color: #64748b;
+.adminConfiToastMsgUnificado {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #ffffff !important;
+    line-height: 1.4;
+    letter-spacing: 0.2px;
 }
 
 .adminConfiHeaderBox {

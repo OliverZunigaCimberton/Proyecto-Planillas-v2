@@ -44,22 +44,15 @@ export const BandejaReportes = ({ reportes, isLoading, onVerMas }) => {
                                 
                                 // Adaptación condicional de etiquetas de visualización según Rol
                                 let estadoVisual = r.estado;
-                                let claseBadge = 'ACTIVO';
 
                                 if (rolActual === 'ADMIN') {
                                     if (r.estado === 'Validado y Enviado a Planillas') {
                                         estadoVisual = 'Pendiente de Revisión Planillas';
-                                        claseBadge = 'INACTIVO';
                                     }
                                 } else if (rolActual === 'CONTADOR') {
                                     if (r.estado === 'Autorizado y Enviado a Contabilidad') {
                                         estadoVisual = 'Pendiente de Validación';
-                                        claseBadge = 'INACTIVO';
                                     }
-                                }
-
-                                if (r.estado === 'Denegado' || r.estado === 'Guardado en borrador') {
-                                    claseBadge = 'INACTIVO';
                                 }
 
                                 // 🧠 LÓGICA DE NEGOCIO PURA DESDE EL BACKEND (CERO DATOS QUEMADOS)
@@ -77,7 +70,20 @@ export const BandejaReportes = ({ reportes, isLoading, onVerMas }) => {
                                         <td>{formatearFecha(r.fecha_envio || r.fecha_creacion)}</td>
                                         <td>{r.marca || 'N/A'}</td>
                                         <td className="font-bold text-vino">$ {formatoMoneda.format(montoExhibir)}</td>
-                                        <td><span className={`badge ${claseBadge}`}>{estadoVisual}</span></td>
+                                        {/* Se aplica un estilo en línea neutral para unificar todos los estatus en gris elegante */}
+<td>
+    <span 
+        className="badge" 
+        style={{ 
+            backgroundColor: '#f1f5f9', // Fondo gris claro sutil
+            color: '#475569',           // Texto gris oscuro corporativo
+            border: '1px solid #cbd5e1', // Borde definido muy fino
+            fontWeight: '700'
+        }}
+    >
+        {estadoVisual}
+    </span>
+</td>
                                         <td className="text-right">
                                             <button className="btn-sec btn-sm" onClick={() => onVerMas(r)}>
                                                 VER MÁS
