@@ -1,5 +1,5 @@
 // src/components/shared/bandejareportes.jsx
-import { useAuth } from '../../hooks/useauth';
+import { useAuth } from '../../../../hooks/useauth';
 
 const formatearFecha = (fechaStr) => {
     if (!fechaStr) return "--/--/--";
@@ -9,12 +9,12 @@ const formatearFecha = (fechaStr) => {
 
 const formatoMoneda = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-export const BandejaReportes = ({ reportes, isLoading, onVerMas }) => {
+export const BandejaReportesVariables = ({ reportes, isLoading, onVerMas }) => {
     const { user } = useAuth();
     const rolActual = user?.rol?.toUpperCase() || 'REPORTANTE';
 
     return (
-        <div className="glass-card">
+        <div className="glass-card" style={{ padding: 0, overflow: 'hidden' }}>
             <div className="card-header-tray">
                 <div className="col"># Reporte</div>
                 <div className="col">Fecha Creación</div>

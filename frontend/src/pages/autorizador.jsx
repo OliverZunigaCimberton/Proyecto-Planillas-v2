@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { BarraSuperior } from '../components/shared/barrasuperior';
-import { BandejaReportes } from '../components/shared/bandejareportes';
+import { BandejaReportesVariables } from '../components/fases/variables/interfaz/bandeja_reportes_variables';
 import { ModalMaestroReporte } from "../components/fases/variables/modal_maestro_reporte";
 import { useBandejaVariables } from '../components/fases/variables/logica/useBandejaVariables';
 
@@ -61,10 +61,11 @@ export const Autorizador = () => {
                     {/* 🚀 ENRUTADOR INTERNO DE COMPONENTES */}
                     <div style={{ position: 'relative', zIndex: 5 }}>
                         {fase === 'variables' && (
-                            <BandejaReportes 
+                            <BandejaReportesVariables 
                                 reportes={logicaVar.reportes}
                                 isLoading={logicaVar.isLoading}
                                 onVerMas={logicaVar.handleVerDetalleReporte}
+                                onExportarMasivo={null}
                             />
                         )}
 

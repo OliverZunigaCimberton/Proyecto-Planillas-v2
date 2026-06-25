@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { BarraSuperior } from '../components/shared/barrasuperior';
-import { BandejaReportes } from '../components/shared/bandejareportes';
+import { BandejaReportesVariables } from '../components/fases/variables/interfaz/bandeja_reportes_variables';
 
 import { ModalMaestroReporte } from "../components/fases/variables/modal_maestro_reporte";
 import { VistaPrincipal } from '../components/admin/vista_principal';
@@ -42,15 +42,26 @@ export const Admin = () => {
             />
 
             <main className="main-container">
-                <div className="action-header" style={{ justifyContent: 'space-between', alignItems: 'center', maxWidth: '1200px', width: '100%' }}>
-                    <h2 className="view-title" style={{ color: 'white', fontWeight: 800, fontSize: '1.5rem', textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>
+                <div className="action-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: '1200px', width: '100%' }}>
+                    <h2 className="view-title" style={{ color: 'white', fontWeight: 800, fontSize: '1.5rem', textShadow: '0 2px 4px rgba(0,0,0,0.3)', margin: 0 }}>
                         <i className={iconosFase[fase] || 'fas fa-folder'}></i> {titulosFase[fase] || 'Bandeja de Control'}
                     </h2>
+                    
+                    {fase === 'variables' && (
+                        <button 
+                            type="button"
+                            className="btn-reporte-principal" 
+                            onClick={() => {}} // ⏱️ Dejado vacío temporalmente para la futura lógica masiva
+                            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                        >
+                            <i className="fas fa-file-excel"></i> Exportar Masivo
+                        </button>
+                    )}
                 </div>
 
                 {/* Enrutador interno para las bandejas de cada fase */}
                 {fase === 'variables' && (
-                    <BandejaReportes 
+                    <BandejaReportesVariables 
                         reportes={logicaVar.reportes} 
                         isLoading={logicaVar.isLoading} 
                         codigoPeriodo={periodoSeleccionado}
