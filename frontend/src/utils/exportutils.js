@@ -2,6 +2,9 @@
 import logoCimsa from "../styles/logos/cimsa.png";
 import logoDietco from "../styles/logos/dietco.png";
 import logoSq from "../styles/logos/sq.png";
+import ExcelJS from 'exceljs';
+import { saveAs } from 'file-saver';
+import html2pdf from 'html2pdf.js';
 
 const formatoMoneda = new Intl.NumberFormat('en-US', {
     minimumFractionDigits: 2,
@@ -20,7 +23,7 @@ const formatearFechaResumida = (fechaStr) => {
  * EXPORTACIÓN EXCEL CORPORATIVO - UNA SOLA HOJA (SIN PAGINACIÓN)
  * =========================================================================
  */
-export const exportarReporteAExcel = (reporte, lineas, firmantes = [], userRol = '') => {
+export const exportarReporteAExcel = async (reporte, lineas, firmantes = [], userRol = '') => {
     if (!reporte || !lineas || lineas.length === 0) return;
 
     const rolFormateado = (userRol || reporte.userRol || 'REPORTANTE').toUpperCase();
@@ -47,109 +50,196 @@ export const exportarReporteAExcel = (reporte, lineas, firmantes = [], userRol =
     const nContador = reporte.contador_nombre || '';
     const nRecepcion = reporte.recepcion_nombre || '';
 
-    let html = `
-        <style>
-            .th-rojo { background-color: #cc0000; color: #ffffff; font-weight: bold; text-align: center; border: 1px solid #000000; font-family: 'Segoe UI', Arial; font-size: 9.5pt; padding: 4px 6px; }
-            .td-center { text-align: center; border: 1px solid #cbd5e1; font-family: 'Segoe UI', Arial; font-size: 10pt; padding: 4px; }
-            .td-monto { text-align: right; border: 1px solid #cbd5e1; font-weight: bold; background-color: #e2e8f0; font-family: 'Segoe UI', Arial; font-size: 10pt; color: #cc0000; padding: 4px; }
-            .header-label { font-weight: bold; color: #cc0000; font-family: 'Segoe UI', Arial; font-size: 10pt; text-transform: uppercase; }
-            
-            .total-label { background-color: #cc0000; color: #ffffff; font-weight: bold; text-align: center; border: 1px solid #000000; font-family: 'Segoe UI', Arial; font-size: 8.5pt; padding: 2px 4px; }
-            .total-val { background-color: #ffffff; color: #cc0000; font-weight: bold; text-align: right; border: 1px solid #cc0000; font-family: 'Segoe UI', Arial; font-size: 8.5pt; padding: 2px 4px; }
-            .cargo-label { background-color: #f59e0b; color: #ffffff; font-weight: bold; text-align: center; border: 1px solid #000000; font-family: 'Segoe UI', Arial; font-size: 8.5pt; padding: 2px 4px; }
-            .cargo-val { background-color: #ffffff; color: #f59e0b; font-weight: bold; text-align: right; border: 1px solid #f59e0b; font-family: 'Segoe UI', Arial; font-size: 8.5pt; padding: 2px 4px; }
-            .tg-label { background-color: #800020; color: #ffffff; font-weight: bold; text-align: center; border: 1px solid #000000; font-family: 'Segoe UI', Arial; font-size: 8.5pt; padding: 2px 4px; }
-            .tg-val { background-color: #ffffff; color: #800020; font-weight: bold; text-align: right; border: 1px solid #800020; font-family: 'Segoe UI', Arial; font-size: 8.5pt; padding: 2px 4px; }
-        </style>
-    `;
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet('Reporte Variables');
 
-    html += `
-    <table border="0" cellpadding="3.5">
-        <colgroup>
-            <col style="width: 70px;" />
-            <col style="width: 280px;" />
-            <col style="width: 200px;" />
-            <col style="width: 70px;" />
-            <col style="width: 260px;" />
-            <col style="width: 120px;" />
-        </colgroup>
-        
-        <tr><td colspan="6" style="text-align:center; font-size: 16pt; font-weight:bold; font-family: 'Segoe UI', Arial; color: #000000;">REPORTE DE COMISIONES, PREMIOS Y BONIFICACIONES</td></tr>
-        <tr><td colspan="6" style="text-align:center; font-weight:bold; color:#cc0000; font-family: 'Segoe UI', Arial; font-size: 12pt;">CÓDIGO: ${codigoUnicoInterno}</td></tr>
-        <tr><td colspan="6"></td></tr>
-        <tr>
-            <td colspan="2" class="header-label">PERIODO DE PLANILLA:</td><td colspan="2" style="text-align:center; border-bottom: 1px solid #000000; font-family: 'Segoe UI'; font-size: 10pt;">${repPeriodo}</td>
-            <td class="header-label" style="text-align:right;">FECHA:</td><td style="text-align:center; border-bottom: 1px solid #000000; font-family: 'Segoe UI'; font-size: 10pt;">${repFecha}</td>
-        </tr>
-        <tr>
-            <td colspan="2" class="header-label">MARCA:</td><td colspan="2" style="text-align:center; border-bottom: 1px solid #000000; font-family: 'Segoe UI'; font-size: 10pt;">${repMarca}</td>
-            <td class="header-label" style="text-align:right;">CARGO A MARCA:</td><td style="text-align:center; border-bottom: 1px solid #000000; font-family: 'Segoe UI'; font-size: 10pt;">${repCargo}</td>
-        </tr>
-        <tr>
-            <td colspan="2" class="header-label">CENTRO DE COSTO:</td><td colspan="4" style="text-align:left; border-bottom: 1px solid #000000; font-family: 'Segoe UI'; font-size: 10pt;">${repCC}</td>
-        </tr>
-        <tr><td colspan="6"></td></tr>
-        
-        <tr>
-            <th class="th-rojo">CÓDIGO</th>
-            <th class="th-rojo">NOMBRE EMPLEADO</th>
-            <th class="th-rojo">PUESTO</th>
-            <th class="th-rojo">CÓD. VAR</th>
-            <th class="th-rojo">NOMBRE VARIABLE</th>
-            <th class="th-rojo" style="background-color:#cbd5e1; color:#000000;">MONTO</th>
-        </tr>
-    `;
+    // 1. Configuración de anchos de columna (Mimetizando los pixeles originales)
+    sheet.columns = [
+        { width: 11 }, // A: CÓDIGO
+        { width: 38 }, // B: NOMBRE EMPLEADO
+        { width: 28 }, // C: PUESTO
+        { width: 11 }, // D: CÓD. VAR
+        { width: 35 }, // E: NOMBRE VARIABLE
+        { width: 17 }  // F: MONTO
+    ];
 
-    lineas.forEach(lin => {
-        const valM = parseFloat(String(lin.monto).replace(/[^0-9.-]+/g, '')) || 0;
-        html += `
-            <tr>
-                <td class="td-center" style="border: 1px solid #cbd5e1;">${lin.codigo_empleado}</td>
-                <td style="border: 1px solid #cbd5e1; font-family: 'Segoe UI'; font-size: 10pt; text-align: left;">${lin.empleado_nombre || lin.nombres_apellidos || 'No encontrado'}</td>
-                <td style="border: 1px solid #cbd5e1; font-family: 'Segoe UI'; font-size: 10pt; text-align: left;">${lin.empleado_puesto || lin.puesto || '-'}</td>
-                <td class="td-center" style="border: 1px solid #cbd5e1;">${lin.codigo_variable || ''}</td>
-                <td style="border: 1px solid #cbd5e1; font-family: 'Segoe UI'; font-size: 10pt; text-align: left;">${lin.nombre_variable || ''}</td>
-                <td class="td-monto">$ ${formatoMoneda.format(valM)}</td>
-            </tr>
-        `;
+    const thinBorder = {
+        top: { style: 'thin' }, left: { style: 'thin' },
+        bottom: { style: 'thin' }, right: { style: 'thin' }
+    };
+
+    // 2. Encabezados Estáticos
+    sheet.mergeCells('A1:F1');
+    const titleCell = sheet.getCell('A1');
+    titleCell.value = 'REPORTE DE COMISIONES, PREMIOS Y BONIFICACIONES';
+    titleCell.font = { name: 'Segoe UI', size: 16, bold: true, color: { argb: 'FF000000' } };
+    titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+
+    sheet.mergeCells('A2:F2');
+    const codeCell = sheet.getCell('A2');
+    codeCell.value = `CÓDIGO: ${codigoUnicoInterno}`;
+    codeCell.font = { name: 'Segoe UI', size: 12, bold: true, color: { argb: 'FFCC0000' } };
+    codeCell.alignment = { horizontal: 'center', vertical: 'middle' };
+
+    // Fila 4: Periodo y Fecha
+    sheet.mergeCells('A4:B4');
+    sheet.getCell('A4').value = 'PERIODO DE PLANILLA:';
+    sheet.getCell('A4').font = { name: 'Segoe UI', size: 10, bold: true, color: { argb: 'FFCC0000' } };
+    sheet.mergeCells('C4:D4');
+    sheet.getCell('C4').value = repPeriodo;
+    sheet.getCell('C4').font = { name: 'Segoe UI', size: 10 };
+    sheet.getCell('C4').alignment = { horizontal: 'center' };
+    sheet.getCell('C4').border = { bottom: { style: 'thin' } };
+    sheet.getCell('D4').border = { bottom: { style: 'thin' } }; 
+    sheet.getCell('E4').value = 'FECHA:';
+    sheet.getCell('E4').font = { name: 'Segoe UI', size: 10, bold: true, color: { argb: 'FFCC0000' } };
+    sheet.getCell('E4').alignment = { horizontal: 'right' };
+    sheet.getCell('F4').value = repFecha;
+    sheet.getCell('F4').font = { name: 'Segoe UI', size: 10 };
+    sheet.getCell('F4').alignment = { horizontal: 'center' };
+    sheet.getCell('F4').border = { bottom: { style: 'thin' } };
+
+    // Fila 5: Marca y Cargo a Marca
+    sheet.mergeCells('A5:B5');
+    sheet.getCell('A5').value = 'MARCA:';
+    sheet.getCell('A5').font = { name: 'Segoe UI', size: 10, bold: true, color: { argb: 'FFCC0000' } };
+    sheet.mergeCells('C5:D5');
+    sheet.getCell('C5').value = repMarca;
+    sheet.getCell('C5').font = { name: 'Segoe UI', size: 10 };
+    sheet.getCell('C5').alignment = { horizontal: 'center' };
+    sheet.getCell('C5').border = { bottom: { style: 'thin' } };
+    sheet.getCell('D5').border = { bottom: { style: 'thin' } };
+    sheet.getCell('E5').value = 'CARGO A MARCA:';
+    sheet.getCell('E5').font = { name: 'Segoe UI', size: 10, bold: true, color: { argb: 'FFCC0000' } };
+    sheet.getCell('E5').alignment = { horizontal: 'right' };
+    sheet.getCell('F5').value = repCargo;
+    sheet.getCell('F5').font = { name: 'Segoe UI', size: 10 };
+    sheet.getCell('F5').alignment = { horizontal: 'center' };
+    sheet.getCell('F5').border = { bottom: { style: 'thin' } };
+
+    // Fila 6: Centro de Costo
+    sheet.mergeCells('A6:B6');
+    sheet.getCell('A6').value = 'CENTRO DE COSTO:';
+    sheet.getCell('A6').font = { name: 'Segoe UI', size: 10, bold: true, color: { argb: 'FFCC0000' } };
+    sheet.mergeCells('C6:F6');
+    sheet.getCell('C6').value = repCC;
+    sheet.getCell('C6').font = { name: 'Segoe UI', size: 10 };
+    sheet.getCell('C6').border = { bottom: { style: 'thin' } };
+    sheet.getCell('D6').border = { bottom: { style: 'thin' } };
+    sheet.getCell('E6').border = { bottom: { style: 'thin' } };
+    sheet.getCell('F6').border = { bottom: { style: 'thin' } };
+
+    // 3. Títulos de Tabla (Fila 8)
+    const headers = ['CÓDIGO', 'NOMBRE EMPLEADO', 'PUESTO', 'CÓD. VAR', 'NOMBRE VARIABLE', 'MONTO'];
+    const headerRow = sheet.getRow(8);
+    headerRow.values = headers;
+    headerRow.eachCell((cell, colNumber) => {
+        cell.font = { name: 'Segoe UI', size: 9.5, bold: true, color: { argb: colNumber === 6 ? 'FF000000' : 'FFFFFFFF' } };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: colNumber === 6 ? 'FFCBD5E1' : 'FFCC0000' } };
+        cell.alignment = { horizontal: 'center', vertical: 'middle' };
+        cell.border = thinBorder;
     });
 
-    html += `<tr><td colspan="6" style="height: 6px;"></td></tr>`;
-    
+    // 4. Inyección de Datos (Iteración de líneas)
+    let currentRowIndex = 9;
+    lineas.forEach(lin => {
+        const row = sheet.getRow(currentRowIndex);
+        const valM = parseFloat(String(lin.monto).replace(/[^0-9.-]+/g, '')) || 0;
+        
+        row.values = [
+            lin.codigo_empleado,
+            lin.empleado_nombre || lin.nombres_apellidos || 'No encontrado',
+            lin.empleado_puesto || lin.puesto || '-',
+            lin.codigo_variable || '',
+            lin.nombre_variable || '',
+            valM
+        ];
+
+        // Formateo visual de celdas iteradas
+        [1, 4].forEach(col => { row.getCell(col).alignment = { horizontal: 'center' }; row.getCell(col).border = thinBorder; });
+        [2, 3, 5].forEach(col => { row.getCell(col).alignment = { horizontal: 'left' }; row.getCell(col).border = thinBorder; });
+        
+        const cellMonto = row.getCell(6);
+        cellMonto.alignment = { horizontal: 'right' };
+        cellMonto.border = thinBorder;
+        cellMonto.font = { bold: true, color: { argb: 'FFCC0000' } };
+        cellMonto.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE2E8F0' } };
+        cellMonto.numFmt = '"$"#,##0.00';
+
+        currentRowIndex++;
+    });
+
+    currentRowIndex++; // Salto de línea
+
+    // 5. Motor de Totales Dinámicos
+    const renderizarFilaTotal = (rowIdx, label, value, bgArgb) => {
+        sheet.mergeCells(`D${rowIdx}:E${rowIdx}`);
+        const lblCell = sheet.getCell(`D${rowIdx}`);
+        lblCell.value = label;
+        lblCell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 8.5 };
+        lblCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bgArgb } };
+        lblCell.alignment = { horizontal: 'center', vertical: 'middle' };
+        lblCell.border = thinBorder;
+        sheet.getCell(`E${rowIdx}`).border = thinBorder;
+
+        const valCell = sheet.getCell(`F${rowIdx}`);
+        valCell.value = value;
+        valCell.font = { bold: true, color: { argb: bgArgb }, size: 8.5 };
+        valCell.alignment = { horizontal: 'right', vertical: 'middle' };
+        valCell.numFmt = '"$"#,##0.00';
+        valCell.border = { top: { style: 'thin', color: { argb: bgArgb } }, bottom: { style: 'thin', color: { argb: bgArgb } }, left: { style: 'thin', color: { argb: bgArgb } }, right: { style: 'thin', color: { argb: bgArgb } } };
+    };
+
     if (repCargo === 'Si') {
-        html += `
-            <tr><td colspan="3" style="border:none; background:transparent;"></td><td colspan="2" class="total-label">SUB TOTAL</td><td class="total-val">$ ${formatoMoneda.format(subtotalFloat)}</td></tr>
-            <tr><td colspan="3" style="border:none; background:transparent;"></td><td colspan="2" class="cargo-label">MÁS CARGO A MARCA (17.25%)</td><td class="cargo-val">$ ${formatoMoneda.format(extraFloat)}</td></tr>
-            <tr><td colspan="3" style="border:none; background:transparent;"></td><td colspan="2" class="tg-label">TOTAL REPORTE</td><td class="tg-val">$ ${formatoMoneda.format(tgFloat)}</td></tr>
-        `;
+        renderizarFilaTotal(currentRowIndex++, 'SUB TOTAL', subtotalFloat, 'FFCC0000');
+        renderizarFilaTotal(currentRowIndex++, 'MÁS CARGO A MARCA (17.25%)', extraFloat, 'FFF59E0B');
+        renderizarFilaTotal(currentRowIndex++, 'TOTAL REPORTE', tgFloat, 'FF800020');
     } else {
-        html += `
-            <tr><td colspan="3" style="border:none; background:transparent;"></td><td colspan="2" class="total-label">TOTAL REPORTE</td><td class="total-val">$ ${formatoMoneda.format(subtotalFloat)}</td></tr>
-        `;
+        renderizarFilaTotal(currentRowIndex++, 'TOTAL REPORTE', subtotalFloat, 'FFCC0000');
     }
 
-    html += `
-        <tr><td colspan="6"></td></tr>
-        <tr><td colspan="6"></td></tr>
-        <tr>
-            <td colspan="1" style="text-align:center; vertical-align:bottom; font-family: 'Segoe UI'; font-size: 9pt; font-weight: bold;">ELABORADO POR:<br><span style="color:#475569;">${nCreador.toUpperCase()}</span><br><br>_______________________</td>
-            <td colspan="2" style="text-align:center; vertical-align:bottom; font-family: 'Segoe UI'; font-size: 9pt; font-weight: bold;">AUTORIZADO POR:<br><span style="color:#475569;">${nAutoriza.toUpperCase()}</span><br><br>_______________________</td>
-            <td colspan="1" style="text-align:center; vertical-align:bottom; font-family: 'Segoe UI'; font-size: 9pt; font-weight: bold;">CONTABILIZADO POR:<br><span style="color:#475569;">${nContador.toUpperCase()}</span><br><br>_______________________</td>
-            <td colspan="2" style="text-align:center; vertical-align:bottom; font-family: 'Segoe UI'; font-size: 9pt; font-weight: bold;">RECEPCIONADO POR:<br><span style="color:#475569;">${nRecepcion.toUpperCase()}</span><br><br>_______________________</td>
-        </tr>
-    </table>
-    `;
+    currentRowIndex += 3; // Salto hacia las firmas
 
-    const template = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"></head><body>${html}</body></html>`;
-    const blob = new Blob([template], { type: 'application/vnd.ms-excel' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${nombreArchivoFinal}.xls`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    // 6. Bloque de Firmas
+    const sigRow1 = sheet.getRow(currentRowIndex);
+    const sigRow2 = sheet.getRow(currentRowIndex + 1);
+    const sigRow3 = sheet.getRow(currentRowIndex + 2);
+    
+    sigRow1.getCell(1).value = 'ELABORADO POR:';
+    sigRow2.getCell(1).value = nCreador;
+    sigRow3.getCell(1).value = '_______________________';
+
+    sheet.mergeCells(`B${currentRowIndex}:C${currentRowIndex}`);
+    sheet.mergeCells(`B${currentRowIndex+1}:C${currentRowIndex+1}`);
+    sheet.mergeCells(`B${currentRowIndex+2}:C${currentRowIndex+2}`);
+    sigRow1.getCell(2).value = 'AUTORIZADO POR:';
+    sigRow2.getCell(2).value = nAutoriza;
+    sigRow3.getCell(2).value = '_______________________';
+
+    sigRow1.getCell(4).value = 'CONTABILIZADO POR:';
+    sigRow2.getCell(4).value = nContador;
+    sigRow3.getCell(4).value = '_______________________';
+
+    sheet.mergeCells(`E${currentRowIndex}:F${currentRowIndex}`);
+    sheet.mergeCells(`E${currentRowIndex+1}:F${currentRowIndex+1}`);
+    sheet.mergeCells(`E${currentRowIndex+2}:F${currentRowIndex+2}`);
+    sigRow1.getCell(5).value = 'RECEPCIONADO POR:';
+    sigRow2.getCell(5).value = nRecepcion;
+    sigRow3.getCell(5).value = '_______________________';
+
+    [currentRowIndex, currentRowIndex+1, currentRowIndex+2].forEach(rIdx => {
+        [1, 2, 4, 5].forEach(cIdx => {
+            const cell = sheet.getCell(rIdx, cIdx);
+            cell.alignment = { horizontal: 'center', vertical: 'bottom' };
+            if (rIdx === currentRowIndex) cell.font = { bold: true, size: 9 };
+            if (rIdx === currentRowIndex + 1) cell.font = { bold: true, color: { argb: 'FF475569' }, size: 9 };
+        });
+    });
+
+    // 7. Renderizado Final e invocación de Descarga Nativa (.xlsx)
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    saveAs(blob, `${nombreArchivoFinal}.xlsx`);
 };
 
 /**
@@ -157,7 +247,7 @@ export const exportarReporteAExcel = (reporte, lineas, firmantes = [], userRol =
  * EXPORTACIÓN PDF VECTORIAL - REGLA ESTRICTA 40 REGISTROS Y TOTALES
  * =========================================================================
  */
-export const exportarReporteAPDF = (reporte, lineas, firmantes = [], userRol = '') => {
+export const exportarReporteAPDF = async (reporte, lineas, firmantes = [], userRol = '') => {
     if (!reporte || !lineas || lineas.length === 0) return;
 
     const rolFormateado = (userRol || reporte.userRol || 'REPORTANTE').toUpperCase();
@@ -184,14 +274,6 @@ export const exportarReporteAPDF = (reporte, lineas, firmantes = [], userRol = '
     const nContador = reporte.contador_nombre || '';
     const nRecepcion = reporte.recepcion_nombre || '';
 
-    const iframe = document.createElement('iframe');
-    iframe.style.position = 'absolute';
-    iframe.style.width = '0px';
-    iframe.style.height = '0px';
-    iframe.style.border = 'none';
-    document.body.appendChild(iframe);
-
-    const doc = iframe.contentWindow.document;
 
     const ROWS_PER_PAGE = 38;
     const totalPages = Math.ceil(lineas.length / ROWS_PER_PAGE) || 1;
@@ -320,76 +402,78 @@ export const exportarReporteAPDF = (reporte, lineas, firmantes = [], userRol = '
         `;
     }
 
-    // ✨ MAGIA CSS: Usamos "@page { margin: 0; }" para ELIMINAR los encabezados/URLs del navegador
-    // Luego reconstruimos los márgenes por dentro usando padding: 10mm;
-    doc.write(`
-        <html>
-            <head>
-                <title>${nombreArchivoFinal}</title>
-                <style>
-                    body { font-family: 'Segoe UI', Arial, sans-serif; color: #000; background: #fff; padding: 0; margin: 0; -webkit-print-color-adjust: exact; color-adjust: exact; }
-                    
-                    @page { size: letter; margin: 0; } 
+    // ✨ MAGIA CSS Y HTML: Lo envolvemos en un contenedor para html2pdf
+    const htmlContent = `
+        <div id="pdf-wrapper">
+            <style>
+                #pdf-wrapper { font-family: 'Segoe UI', Arial, sans-serif; color: #000; background: #fff; padding: 0; margin: 0; }
+                
+                .hoja-impresion { 
+                    position: relative;
+                    width: 100%; 
+                    height: 278mm; 
+                    padding: 10mm;   
+                    page-break-after: always;
+                    box-sizing: border-box;
+                    overflow: hidden;
+                    background: white;
+                }
+                .hoja-impresion:last-child {
+                    page-break-after: auto; 
+                }
+                
+                .reporte-titulo { text-align: center; font-size: 16px; font-weight: 800; margin-bottom: 4px; text-transform: uppercase; color: #000; }
+                .reporte-codigo { text-align: center; font-size: 13px; font-weight: 800; color: #cc0000; margin-bottom: 20px; }
+                
+                .reporte-header-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 40px; margin-bottom: 12px; width: 100%; }
+                .rh-group { display: flex; align-items: center; justify-content: space-between; font-size: 11px; }
+                .rh-group label { font-weight: 800; color: #cc0000; text-transform: uppercase; white-space: nowrap; }
+                .rh-value { flex-grow: 1; text-align: center; font-weight: 600; border-bottom: 1px solid #cbd5e1; padding: 2px; margin-left: 10px; color: #000; }
+                
+                table.tabla-principal { width: 100%; border-collapse: collapse; table-layout: fixed; margin-top: 5px; }
+                table.tabla-principal th { background-color: #cc0000 !important; color: #ffffff !important; padding: 3px 4px !important; border: 1px solid #000000; text-transform: uppercase; font-weight: bold; font-size: 8.5px; }
+                table.tabla-principal td { padding: 3px 4px; border: 1px solid #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 8.5px; color: #000000; height: 14px; }
+                .text-vino { color: #cc0000 !important; }
+                .font-bold { font-weight: bold; }
+                .rt-label-inline { padding: 3px 6px; font-size: 8.5px; }
 
-                    .hoja-impresion { 
-                        position: relative;
-                        width: 100%;
-                        height: 279.4mm; /* Medida Carta Completa */
-                        padding: 10mm;   /* Margen interior seguro */
-                        page-break-after: always;
-                        box-sizing: border-box;
-                        overflow: hidden;
-                    }
-                    .hoja-impresion:last-child {
-                        page-break-after: auto; 
-                    }
-                    
-                    .reporte-titulo { text-align: center; font-size: 16px; font-weight: 800; margin-bottom: 4px; text-transform: uppercase; color: #000; }
-                    .reporte-codigo { text-align: center; font-size: 13px; font-weight: 800; color: #cc0000; margin-bottom: 20px; }
-                    
-                    .reporte-header-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 40px; margin-bottom: 12px; width: 100%; }
-                    .rh-group { display: flex; align-items: center; justify-content: space-between; font-size: 11px; }
-                    .rh-group label { font-weight: 800; color: #cc0000; text-transform: uppercase; white-space: nowrap; }
-                    .rh-value { flex-grow: 1; text-align: center; font-weight: 600; border-bottom: 1px solid #cbd5e1; padding: 2px; margin-left: 10px; color: #000; }
-                    
-                    table.tabla-principal { width: 100%; border-collapse: collapse; table-layout: fixed; margin-top: 5px; }
-                    table.tabla-principal th { background-color: #cc0000 !important; color: #ffffff !important; padding: 3px 4px !important; border: 1px solid #000000; text-transform: uppercase; font-weight: bold; font-size: 8.5px; }
-                    table.tabla-principal td { padding: 3px 4px; border: 1px solid #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 8.5px; color: #000000; height: 14px; }
-                    .text-vino { color: #cc0000 !important; }
-                    .font-bold { font-weight: bold; }
-                    .rt-label-inline { padding: 3px 6px; font-size: 8.5px; }
+                .footer-fijo {
+                    position: absolute;
+                    bottom: 10mm; /* Respeta el padding interior */
+                    left: 10mm;
+                    width: calc(100% - 20mm);
+                }
 
-                    .footer-fijo {
-                        position: absolute;
-                        bottom: 10mm; /* Respeta el padding interior */
-                        left: 10mm;
-                        width: calc(100% - 20mm);
-                    }
+                .seccion-firmas { display: flex; justify-content: space-between; align-items: flex-end; text-align: center; font-size: 9px; font-weight: bold; width: 100%; gap: 15px; }
+                .firma-box { width: 23%; display: flex; flex-direction: column; align-items: center; }
+                .firma-linea { border-bottom: 1px solid #000000; width: 100%; height: 30px; margin-bottom: 6px; font-size: 11px; display: flex; align-items: flex-end; justify-content: center; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; color: #334155; }
+                
+                .page-number { text-align: center; font-size: 9px; color: #64748b; margin-top: 15px; }
+            </style>
+            ${paginasHTML}
+        </div>
+    `;
 
-                    .seccion-firmas { display: flex; justify-content: space-between; align-items: flex-end; text-align: center; font-size: 9px; font-weight: bold; width: 100%; gap: 15px; }
-                    .firma-box { width: 23%; display: flex; flex-direction: column; align-items: center; }
-                    .firma-linea { border-bottom: 1px solid #000000; width: 100%; height: 30px; margin-bottom: 6px; font-size: 11px; display: flex; align-items: flex-end; justify-content: center; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; color: #334155; }
-                    
-                    .page-number { text-align: center; font-size: 9px; color: #64748b; margin-top: 15px; }
-                    
-                    @media print { body { background: #ffffff; } }
-                </style>
-            </head>
-            <body>
-                ${paginasHTML}
-            </body>
-        </html>
-    `);
+    // Crear un contenedor temporal en el DOM (invisible)
+    const tempDiv = document.createElement('div');
+    tempDiv.style.position = 'absolute';
+    tempDiv.style.left = '-9999px';
+    tempDiv.style.top = '-9999px';
+    tempDiv.innerHTML = htmlContent;
+    document.body.appendChild(tempDiv);
 
-    doc.close();
+    // Opciones de configuración para html2pdf
+    const opt = {
+        margin:       0, 
+        filename:     `${nombreArchivoFinal}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'mm', format: 'letter', orientation: 'portrait' }
+    };
 
-    const tituloOriginalPestaña = window.parent.document.title;
-    
-    setTimeout(() => {
-        window.parent.document.title = nombreArchivoFinal;
-        iframe.contentWindow.focus();
-        iframe.contentWindow.print();
-        window.parent.document.title = tituloOriginalPestaña;
-        document.body.removeChild(iframe);
-    }, 350);
+    // Procesar y descargar automáticamente
+    await html2pdf().set(opt).from(tempDiv.firstElementChild).save();
+
+    // Limpiar el DOM
+    document.body.removeChild(tempDiv);
 };

@@ -183,8 +183,7 @@ export const usePeriodos = () => {
         try {
             const nuevosEmpleados = await procesarArchivoExcel(targetFile);
             const res = await api.admin.actualizarPeriodo(periodoSeleccionadoObj.id, {
-                ...periodoSeleccionadoObj,
-                empleadosPayload: nuevosEmpleados
+                empleadosPayload: nuevosEmpleados // Solo enviamos el nuevo personal, sin ensuciar la tabla periodos
             });
             if (res.error) throw new Error(res.error);
             mostrarToast("Carga masiva y reemplazo de personal procesados con éxito", "success");

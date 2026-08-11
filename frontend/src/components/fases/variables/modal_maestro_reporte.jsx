@@ -328,9 +328,9 @@ export const ModalMaestroReporte = ({
 
     const handleExportar = async () => {
         const mockRep = { ...reporteHeader, periodo_lbl: perActual ? `${formatearFecha(perActual.fecha_desde)} - ${formatearFecha(perActual.fecha_hasta)}` : 'N/A', centro_costo_lbl: `${reporteHeader.centro_costo} - ${reporteHeader.nombre_cc_descriptivo}`, creador_nombre: firmas.elaborado, autorizador_nombre: firmas.autorizado, contador_nombre: firmas.contabilizado, recepcion_nombre: firmas.recepcionado };
-        exportarReporteAExcel(mockRep, lineas.filter(l => l.codigo_empleado), [], user?.rol);
-        await new Promise(res => setTimeout(res, 350)); 
-        exportarReporteAPDF(mockRep, lineas.filter(l => l.codigo_empleado), [], user?.rol);
+        await exportarReporteAExcel(mockRep, lineas.filter(l => l.codigo_empleado), [], user?.rol); // ✨ Ahora espera a que termine el Excel nativo
+        await new Promise(res => setTimeout(res, 100)); // Micro-pausa para estabilizar la memoria
+        await exportarReporteAPDF(mockRep, lineas.filter(l => l.codigo_empleado), [], user?.rol); // ✨ Ahora espera al PDF
     };
 
     return (

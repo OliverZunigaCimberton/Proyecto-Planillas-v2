@@ -92,7 +92,7 @@ export const ModalFormulario = ({
             <div className={`form-row ${styles.adminExcFormRowStart}`}>
                 <div className={`form-group ${styles.adminExcCol35}`}>
                     <label htmlFor="exc-autorizador-input">
-                        {formData.tipo_permiso === 'AUTORIZAR' ? 'Código del Autorizador:' : 'Autorizador:'}
+                        {formData.tipo_permiso === 'AUTORIZAR' ? 'Autorizador:' : 'Autorizador:'}
                     </label>
                     <input 
                         id="exc-autorizador-input"

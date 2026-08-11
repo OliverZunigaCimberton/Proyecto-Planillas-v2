@@ -46,3 +46,9 @@ yarn-error.log*
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# ==========================================
+# 7. ARCHIVOS DE RESPALDO LOCALES
+# ==========================================
+
+Backup.txt
