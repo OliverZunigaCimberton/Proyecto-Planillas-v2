@@ -1,6 +1,7 @@
 // src/fases/variables/controllers/administrador.js
 const supabase = require('../../../config/supabase');
 const { enviarCorreo } = require('../../../shared/correo.services');
+const { inyectarCalculosBandeja } = require('../services/calculos.services');
 
 // ============================================================================
 // BANDEJA DE PLANILLAS Y RECEPCIÓN FINAL (EXCLUSIVO FASE VARIABLES)
@@ -8,14 +9,18 @@ const { enviarCorreo } = require('../../../shared/correo.services');
 
 const obtenerBandejaPlanillas = async (req, res) => {
     try {
-        const { data, error } = await supabase.from('reportes_enviados')
+        const { data, error } = await supabase
+            .from('reportes_enviados')
             .select('*')
             .eq('id_periodo', req.params.periodoId)
             .in('estado', ['Validado y Enviado a Planillas', 'Recibido por Planillas'])
             .order('id', { ascending: false });
-        
+            
         if (error) throw error;
-        res.json({ success: true, data });
+
+        const datosConCalculos = await inyectarCalculosBandeja(data || []);
+
+        res.json({ success: true, data: datosConCalculos });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
@@ -147,8 +152,93 @@ const recepcionarReporte = async (req, res) => {
     }
 };
 
+// ============================================================================
+// EXPORTACIÓN MASIVA: Extracción profunda para Excel Gerencial
+// ============================================================================
+const obtenerDataExportacionMasiva = async (req, res) => {
+    try {
+        const { periodoId } = req.params;
+
+        // 1. Traer reportes válidos del periodo (aprobados en Planillas)
+        const { data: reportes, error: errRep } = await supabase
+            .from('reportes_enviados')
+            .select('*')
+            .eq('id_periodo', periodoId)
+            .in('estado', ['Validado y Enviado a Planillas', 'Recibido por Planillas']);
+
+        if (errRep) throw errRep;
+        
+        if (!reportes || reportes.length === 0) {
+            return res.json({ success: true, data: [] });
+        }
+
+        const reportesIds = reportes.map(r => r.id);
+
+        // 2. Traer las líneas de variables de esos reportes
+        const { data: lineas, error: errLin } = await supabase
+            .from('registro_variables')
+            .select('*')
+            .in('id_reporte', reportesIds);
+            
+        if (errLin) throw errLin;
+
+        // 3. Añadimos maestro_centro_costos a la consulta de catálogos
+        const [resEmp, resUsr, resVar, resCC] = await Promise.all([
+            supabase.from('maestro_empleados').select('codigo_empleado, nombres_apellidos, puesto').eq('id_periodo', periodoId),
+            supabase.from('usuarios').select('codigo, nombre'),
+            supabase.from('maestro_variables').select('id, codigo_variable, nombre_variable'),
+            supabase.from('maestro_centro_costos').select('id, nomenclatura_cc, nombre_cc, descripcion')
+        ]);
+
+        const empleados = resEmp.data || [];
+        const firmantes = resUsr.data || [];
+        const variables = resVar.data || [];
+        const centrosCosto = resCC.data || [];
+
+        // 4. Ensamblaje del "Súper JSON"
+        const dataCompleta = reportes.map(rep => {
+            const lineasDelReporte = lineas.filter(l => l.id_reporte === rep.id);
+            
+            // Identificamos el Centro de Costo desde la primera línea del reporte
+            const idCentroCosto = lineasDelReporte.length > 0 ? lineasDelReporte[0].id_cc : null;
+            const ccObj = centrosCosto.find(c => String(c.id) === String(idCentroCosto)) || {};
+            const descripcionCC = ccObj.nombre_cc || ccObj.descripcion || 'Sin descripción';
+            const centroCostoLbl = ccObj.id ? `${ccObj.nomenclatura_cc} - ${descripcionCC}` : 'N/A - Centro de Costo no asignado';
+            
+            const lineasEnriquecidas = lineasDelReporte.map(lin => {
+                const emp = empleados.find(e => String(e.codigo_empleado) === String(lin.codigo_empleado)) || {};
+                const v = variables.find(varItem => String(varItem.id) === String(lin.id_variable)) || {};
+                
+                return {
+                    ...lin,
+                    empleado_nombre: emp.nombres_apellidos || 'NO ENCONTRADO',
+                    empleado_puesto: emp.puesto || 'N/A',
+                    codigo_variable: v.codigo_variable || lin.codigo_variable, 
+                    nombre_variable: v.nombre_variable || lin.nombre_variable 
+                };
+            });
+
+            return {
+                ...rep,
+                centro_costo_lbl: centroCostoLbl,
+                creador_nombre: firmantes.find(f => String(f.codigo) === String(rep.codigo_usuario))?.nombre || '-',
+                autorizador_nombre: firmantes.find(f => String(f.codigo) === String(rep.codigo_autorizador))?.nombre || '-',
+                contador_nombre: firmantes.find(f => String(f.codigo) === String(rep.codigo_contador))?.nombre || '-',
+                recepcion_nombre: firmantes.find(f => String(f.codigo) === String(rep.codigo_recepcion))?.nombre || '-',
+                lineas: lineasEnriquecidas
+            };
+        });
+
+        res.json({ success: true, data: dataCompleta });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+};
+
+// ESTO FUE LO QUE SE PERDIÓ Y CAUSÓ QUE SE CAYERA EL SERVIDOR:
 module.exports = {
     obtenerBandejaPlanillas,
     obtenerReporteDetalle,
-    recepcionarReporte
+    recepcionarReporte,
+    obtenerDataExportacionMasiva
 };

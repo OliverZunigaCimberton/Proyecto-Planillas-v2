@@ -47,5 +47,6 @@ router.put('/contador/contabilizar/:id', contadorController.contabilizarReporte)
 router.get('/admin/bandeja/:periodoId', administradorController.obtenerBandejaPlanillas);
 router.get('/admin/reporte/:id', administradorController.obtenerReporteDetalle);
 router.put('/admin/recepcionar/:id', administradorController.recepcionarReporte);
+router.get('/admin/exportacion-masiva/:periodoId', administradorController.obtenerDataExportacionMasiva);
 
 module.exports = router;

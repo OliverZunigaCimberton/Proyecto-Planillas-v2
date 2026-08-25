@@ -7,6 +7,10 @@ import { ModalMaestroReporte } from "../components/fases/variables/modal_maestro
 import { VistaPrincipal } from '../components/admin/vista_principal';
 import { useBandejaVariables } from '../components/fases/variables/logica/useBandejaVariables';
 
+// ✨ NUEVAS IMPORTACIONES: El cerebro del Excel y tu servicio de API
+import { generarExcelMasivo } from '../utils/exportadorMasivoAdmin';
+import { api } from '../services/api';
+
 /**
  * Página Principal del Rol Administrador.
  * Gobierna la visualización de las bandejas de control global y orquesta
@@ -16,6 +20,9 @@ export const Admin = () => {
     const { fase } = useParams(); 
     const [periodoSeleccionado, setPeriodoSeleccionado] = useState('');
     const [modalActivo, setModalActivo] = useState(null); 
+
+    // ✨ NUEVO ESTADO: Bloquea el botón mientras se construye el Excel
+    const [isExportando, setIsExportando] = useState(false);
 
     // Inyectamos el parámetro 'ADMIN' para la carga polimórfica de reportes
     const logicaVar = useBandejaVariables(fase === 'variables' ? periodoSeleccionado : '', 'ADMIN');
@@ -30,6 +37,40 @@ export const Admin = () => {
         'variables': 'fas fa-users-cog',
         'horas-extras': 'far fa-clock',
         'saldos': 'fas fa-book-open'
+    };
+
+    // ✨ NUEVO CONTROLADOR: Orquesta la extracción de base de datos y construcción de Excel
+    const handleExportacionMasiva = async () => {
+        if (!periodoSeleccionado || periodoSeleccionado === 'none') {
+            return alert("Por favor, seleccione un periodo en la barra superior antes de exportar.");
+        }
+
+        try {
+            setIsExportando(true);
+            
+            // 1. Llamamos a la base de datos (Trae el JSON gigante)
+            const res = await api.admin.getExportacionMasiva(periodoSeleccionado);
+
+            if (res && res.success) {
+                // 2. Extraemos el texto de la fecha del catálogo para nombrar el archivo físico
+                let nombreFiltro = "Quincena";
+                const periodoInfo = logicaVar.catalogos?.periodos?.find(p => String(p.id) === String(periodoSeleccionado));
+                if (periodoInfo && periodoInfo.fecha_desde) {
+                    const [y, m, d] = periodoInfo.fecha_desde.split('T')[0].split('-');
+                    nombreFiltro = `${d}_${m}_${y}`;
+                }
+
+                // 3. Le entregamos la data cruda a ExcelJS para que haga la magia
+                await generarExcelMasivo(res.data, nombreFiltro);
+            } else {
+                alert("No se pudo generar la exportación: " + (res.error || "Datos no encontrados"));
+            }
+        } catch (error) {
+            console.error("Error al exportar reporte masivo:", error);
+            alert("Ocurrió un error al procesar el archivo. Revisa la consola.");
+        } finally {
+            setIsExportando(false);
+        }
     };
 
     return (
@@ -51,10 +92,21 @@ export const Admin = () => {
                         <button 
                             type="button"
                             className="btn-reporte-principal" 
-                            onClick={() => {}} // ⏱️ Dejado vacío temporalmente para la futura lógica masiva
-                            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                            onClick={handleExportacionMasiva}
+                            disabled={isExportando}
+                            style={{ 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                gap: '8px',
+                                opacity: isExportando ? 0.7 : 1,
+                                cursor: isExportando ? 'not-allowed' : 'pointer'
+                            }}
                         >
-                            <i className="fas fa-file-excel"></i> Exportar Masivo
+                            {isExportando ? (
+                                <><i className="fas fa-spinner fa-spin"></i> Procesando Data...</>
+                            ) : (
+                                <><i className="fas fa-file-excel"></i> Exportar Masivo</>
+                            )}
                         </button>
                     )}
                 </div>

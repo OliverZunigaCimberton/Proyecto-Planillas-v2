@@ -161,7 +161,7 @@ export const api = {
         // INTEGRACIÓN REPORTE MAESTRO (ADMIN)
         // ====================================================================
         getInicial: async () => {
-            const res = await fetch(`${BASE_URL}/shared/inicial`); // Redireccionado a la capa compartida
+            const res = await fetch(`${BASE_URL}/shared/inicial`);
             return await res.json();
         },
         getReporteById: async (idReporte) => {
@@ -173,6 +173,14 @@ export const api = {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
+            });
+            return await res.json();
+        },
+        // ✨ AQUÍ PEGAS EL NUEVO FRAGMENTO:
+        getExportacionMasiva: async (periodoId) => {
+            const res = await fetch(`${BASE_URL}/admin/exportacion-masiva/${periodoId}`, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
             });
             return await res.json();
         },

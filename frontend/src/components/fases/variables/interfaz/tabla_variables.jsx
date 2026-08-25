@@ -36,9 +36,9 @@ export const TablaVariables = ({
                     <th className="col-codigo">CÓDIGO</th>
                     <th className="col-nombre">NOMBRE</th>
                     <th className="col-puesto">PUESTO</th>
-                    <th className="col-codigo-var" style={{ width: '180px' }}>CÓDIGO VARIABLE</th>
+                    <th className="col-codigo-var">CÓDIGO VARIABLE</th>
                     <th className="col-nombre-var">NOMBRE VARIABLE</th>
-                    <th className="col-monto" style={{ width: '130px' }}>MONTO</th>
+                    <th className="col-monto">MONTO</th>
                     {!isReadOnly && !isTiempoAgotado && <th className="col-acciones-var"></th>}
                 </tr>
             </thead>
